@@ -1,3 +1,23 @@
+const proxyConfig = () => {
+  let proxyTarget = ''
+
+  if (process.env.APP_DEPLOY === 'local') {
+    proxyTarget = 'http://localhost:8081/'
+  } else {
+    const dockerApiHost = process.env.API_HOST
+    const dockerApiPort = process.env.API_PORT
+
+    proxyTarget = 'http://' + dockerApiHost + ':' + dockerApiPort + '/'
+  }
+
+  return {
+    '/api/': {
+      target: proxyTarget,
+      pathRewrite: { '^/api/': '' }
+    }
+  }
+}
+
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -17,7 +37,9 @@ export default {
   css: [],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [
+    '@/plugins/generalApiClient.js'
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -34,11 +56,33 @@ export default {
     'bootstrap-vue/nuxt',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    '@nuxtjs/proxy',
   ],
 
-  // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  // https://github.com/nuxt-community/proxy-module#readme
+  // necessary for CORS
+  proxy: proxyConfig(),
+
+  // Axios module configuration (https://go.nuxtjs.dev/config-axios)
+  axios: {
+    proxy: true
+  },
+
+  // https://bootstrap-vue.org/docs#icons
+  bootstrapVue: {
+    icons: true // Install the IconsPlugin (in addition to BootStrapVue plugin
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
+
+  router: {
+    base: process.env.APP_CONTEXT_PATH
+  },
+
+  server: {
+    port: 3000, // default: 3000
+    host: '0.0.0.0', // default: localhost,
+    timing: false
+  }
 }
