@@ -6,7 +6,7 @@ Simple API that powers my Master Thesis' user study.
 _Assuming that your in the root folder of this repository_
 ```
 pip install -r requirements.txt
-uvicorn main:api --host 0.0.0.0 --port 8081
+uvicorn main:app --host 0.0.0.0 --port 8081
 ```
 
 ## How to run locally with python

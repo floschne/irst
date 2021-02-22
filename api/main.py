@@ -6,18 +6,18 @@ from omegaconf import OmegaConf
 from backend.db import RedisHandler
 from routers import general, sample, result
 
-# setup logger
-logger.add('logs/{time}.log', rotation="500 MB")
-
 # create the main api
-api = FastAPI(title="User Study API",
+app = FastAPI(title="User Study API",
               description="Simple API that powers my Master Thesis' user study.",
               version="beta")
 
 
-@api.on_event("startup")
+@app.on_event("startup")
 def startup_event():
     try:
+        # setup logger
+        logger.add('logs/{time}.log', rotation="500 MB")
+
         # instantiate singletons
         RedisHandler()
     except Exception as e:
@@ -26,15 +26,15 @@ def startup_event():
         raise SystemExit(msg)
 
 
-@api.on_event("shutdown")
+@app.on_event("shutdown")
 def shutdown_event():
     RedisHandler().__close()
 
 
 # include the routers
-api.include_router(general.router)
-api.include_router(sample.router, prefix=sample.PREFIX)
-api.include_router(result.router, prefix=result.PREFIX)
+app.include_router(general.router)
+app.include_router(sample.router, prefix=sample.PREFIX)
+app.include_router(result.router, prefix=result.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":
@@ -43,4 +43,4 @@ if __name__ == "__main__":
 
     # start the api via uvicorn
     assert conf.port is not None and isinstance(conf.port, int), "The port has to be an integer! E.g. 8081"
-    uvicorn.run(api, host="0.0.0.0", port=conf.port, debug=True)
+    uvicorn.run(app, host="0.0.0.0", port=conf.port, debug=True)

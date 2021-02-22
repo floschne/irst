@@ -4,5 +4,5 @@ MAINTAINER Florian Schneider "florian.schneider.1992@gmx.de"
 COPY . /app/
 RUN pip install -r /app/requirements.txt
 
-ENV MAX_WORKERS="16"
+ENV MAX_WORKERS="4"
 ENV LOG_LEVEL="debug"

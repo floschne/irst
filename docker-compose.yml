@@ -1,0 +1,31 @@
+# Do not forget to check .env file
+version: '3'
+
+services:
+  redis:
+    image: 'redis:latest'
+    ports:
+      - "${REDIS_EXPOSED_PORT}:6379"
+    volumes:
+      - ./redis-data:/data
+
+
+  api:
+    depends_on:
+      - "redis"
+    image: 'p0w3r/mt_user_study_api:latest'
+    environment:
+      - "REDIS_HOST=${REDIS_HOST}"
+      - "REDIS_PORT=${REDIS_PORT}"
+    ports:
+      - "${API_EXPOSED_PORT}:80"
+    volumes:
+      - ./api/logs:/app/logs
+      - ./api/config:/app/config
+        #  app:
+        #    depends_on:
+        #      - "db"
+        #      - "api"
+        #    image: 'p0w3r/mt_user_study_app:latest'
+        #    ports:
+        #      - "${APP_EXPOSED_PORT}:3000"
