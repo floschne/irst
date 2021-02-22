@@ -2,7 +2,7 @@ import redis
 from loguru import logger
 from omegaconf import OmegaConf
 
-from models import EvalSample
+from models import EvalSample, EvalResult
 
 
 class RedisHandler(object):
@@ -50,6 +50,24 @@ class RedisHandler(object):
             logger.info(f"Successfully loaded EvalSample {sample.id}")
             return sample
 
+    def sample_exists(self, sample_id: str) -> bool:
+        return bool(self.__samples.exists(sample_id))
+
     def random_sample(self):
         rand_id = self.__samples.randomkey()
         return self.load_sample(sample_id=rand_id)
+
+    def store_result(self, result: EvalResult) -> str:
+        if self.__results.set(result.id, result.json()) != 1:
+            logger.error(f"Cannot store EvalResult {result.id}")
+        logger.info(f"Successfully stored EvalResult {result.id}")
+        return result.id
+
+    def load_result(self, result_id: str) -> EvalResult:
+        s = self.__results.get(result_id)
+        if s is None:
+            logger.error(f"Cannot load EvalResult {result_id}")
+        else:
+            result = EvalResult.parse_raw(s)
+            logger.info(f"Successfully loaded EvalResult {result.id}")
+            return result
