@@ -4,7 +4,7 @@ from loguru import logger
 from omegaconf import OmegaConf
 
 from backend.db import RedisHandler
-from routers import general, data
+from routers import general, sample
 
 # setup logger
 logger.add('logs/{time}.log', rotation="500 MB")
@@ -26,9 +26,14 @@ def startup_event():
         raise SystemExit(msg)
 
 
+@api.on_event("shutdown")
+def shutdown_event():
+    RedisHandler().__close()
+
+
 # include the routers
 api.include_router(general.router)
-api.include_router(data.router, prefix=data.PREFIX)
+api.include_router(sample.router, prefix=sample.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":

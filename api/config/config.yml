@@ -3,4 +3,14 @@ backend:
   redis:
     host: ${env:REDIS_HOST, localhost}
     port: ${env:REDIS_PORT, 6379}
-    db_idx: ${env:REDIS_DB_IDX, 3}
+    sample_db_idx: ${env:REDIS_SAMPLE_DB_IDX, 3}
+    result_db_idx: ${env:REDIS_RESULT_DB_IDX, 4}
+
+image_server:
+  lighttp:
+    https: false
+    host: localhost
+    port: 8082
+    context_path: /
+    datasources:
+      - test: /text_imgs/
