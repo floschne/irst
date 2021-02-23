@@ -1,11 +1,8 @@
-export default ({
-                  app,
-                  axios
-                }, inject) => {
+export default ({ app, axios }, inject) => {
   const jsonHeaderConfig = {
     headers: {
-      Accept: 'application/json'
-    }
+      Accept: 'application/json',
+    },
   }
 
   // define the methods
@@ -25,7 +22,7 @@ export default ({
       }
       console.log(`API Heartbeat: ${JSON.stringify(apiAlive)}`)
       return apiAlive
-    }
+    },
   }
 
   // inject methods so that they can be called in any component or function with this.$generalApiClient.

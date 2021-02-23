@@ -1,4 +1,4 @@
-# user_study
+# User Study WebApp
 
 ## Build Setup
 
