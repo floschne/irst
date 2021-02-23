@@ -8,12 +8,20 @@
       >
         <b-col v-for="imgUrl in images" :key="imgUrl" md="3">
           <b-img
+            :id="`img-${imgUrl}`"
             thumbnail
             fluid
             :src="imgUrl"
             height="130px"
             width="130px"
-          ></b-img>
+          />
+          <b-popover
+            :target="`img-${imgUrl}`"
+            triggers="hover focus"
+            placement="bottom"
+          >
+            <b-img fluid :src="imgUrl" />
+          </b-popover>
         </b-col>
       </Draggable>
     </b-container>
@@ -21,18 +29,32 @@
     <Draggable
       :list="rankedImages"
       :group="{ name: 'images', put: ranksFull }"
-      class="row text-left mt-1 bg-light ranks"
+      tag="div"
+      class="d-flex flex-row justify-content-center mt-1 bg-light ranks h-100"
       @add="addToRankedImages"
     >
-      <b-col v-for="(imgUrl, idx) in rankedImages" :key="idx">
+      <h1 v-if="showDragabbleHint" class="text-dark my-auto">
+        Drag n' Drop Images Here
+      </h1>
+
+      <div v-for="(imgUrl, idx) in rankedImages" v-else :key="idx">
         <b-avatar
+          :id="`ranked-${imgUrl}`"
           rounded="sm"
           :src="imgUrl"
           :badge="`${idx + 1}`"
           size="130px"
           badge-top
-        ></b-avatar>
-      </b-col>
+          class="ml-1"
+        />
+        <b-popover
+          :target="`ranked-${imgUrl}`"
+          triggers="hover focus"
+          placement="top"
+        >
+          <b-img fluid :src="imgUrl" />
+        </b-popover>
+      </div>
     </Draggable>
   </b-container>
 </template>
@@ -58,13 +80,16 @@ export default {
     ranksFull() {
       return this.rankedImages.length < this.numRanks
     },
+    showDragabbleHint() {
+      return this.rankedImages.length === 0
+    },
   },
   methods: {
     random_images(n) {
       const res = []
       let i
       for (i = 0; i < n; i++) {
-        res.push(`https://picsum.photos/id/${i + 20}/125/125`)
+        res.push(`https://picsum.photos/id/${i + 20}/250/250`)
       }
       // return _.shuffle(res)
       return res
@@ -80,7 +105,7 @@ export default {
 
 <style scoped>
 .ranks {
-  height: 130px;
+  min-height: 130px;
   max-height: 130px;
 }
 </style>
