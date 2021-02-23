@@ -1,7 +1,7 @@
 <template>
   <b-form>
     <b-form-row>
-      <RankingPanel :num_ranks="10" />
+      <ImagesPanel />
     </b-form-row>
     <b-form-row>
       <b-button-group class="w-100 mt-3">
@@ -13,11 +13,11 @@
 </template>
 
 <script>
-import RankingPanel from '~/components/RankingPanel'
+import ImagesPanel from '~/components/ImagesPanel'
 
 export default {
   name: 'RankingForm',
-  components: { RankingPanel },
+  components: { ImagesPanel },
 }
 </script>
 
