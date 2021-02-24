@@ -8,7 +8,7 @@
           :group="{ name: 'images', pull: 'clone', put: false, sort: false }"
           class="row text-center no-gutters"
         >
-          <b-col v-for="imgUrl in images" :key="imgUrl" md="3">
+          <b-col v-for="imgUrl in images" :key="imgUrl" lg="2" md="2" sm="3">
             <b-img
               :id="`img-${imgUrl}`"
               thumbnail
@@ -34,7 +34,7 @@
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
           tag="div"
-          class="d-flex flex-row justify-content-center mt-1 bg-light ranks h-100"
+          class="d-flex flex-row justify-content-center mt-1 bg-light ranks h-100 flex-wrap"
           @add="addToRankedImages"
         >
           <h1 v-if="showDragabbleHint" class="text-dark my-auto">
@@ -104,7 +104,7 @@ export default {
   data() {
     return {
       rankedImages: [],
-      images: this.randomImages(16),
+      images: this.randomImages(24),
       numRankedImages: 0,
     }
   },
@@ -160,6 +160,5 @@ export default {
 <style scoped>
 .ranks {
   min-height: 130px;
-  max-height: 130px;
 }
 </style>
