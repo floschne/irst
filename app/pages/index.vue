@@ -2,16 +2,16 @@
   <div class="container-fluid">
     <AppHeader />
     <QueryPanel />
-    <ImagesPanel class="mt-1" />
+    <RankingForm class="mt-1" />
   </div>
 </template>
 
 <script>
 import AppHeader from '~/components/AppHeader'
 import QueryPanel from '~/components/QueryPanel'
-import ImagesPanel from '~/components/ImagesPanel'
+import RankingForm from '~/components/RankingForm'
 
 export default {
-  components: { QueryPanel, ImagesPanel, AppHeader },
+  components: { QueryPanel, RankingForm, AppHeader },
 }
 </script>
