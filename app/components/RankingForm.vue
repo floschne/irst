@@ -79,7 +79,7 @@
         <b-button-group class="w-100 mt-3">
           <b-button type="submit" variant="primary" :disabled="ranksNotFull">
             <span v-if="ranksNotFull">
-              What image is best described by the query? Please rank the top 10?
+              What image is best described by the query? Please rank the Top-10!
             </span>
             <span v-else>Submit your ranking</span>
           </b-button>
