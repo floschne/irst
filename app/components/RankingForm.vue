@@ -100,11 +100,15 @@ export default {
       type: Number,
       default: 10,
     },
+    numImages: {
+      type: Number,
+      default: 24,
+    },
   },
   data() {
     return {
       rankedImages: [],
-      images: this.randomImages(24),
+      images: this.randomImages(this.numImages),
       numRankedImages: 0,
     }
   },
