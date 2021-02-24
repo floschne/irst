@@ -1,6 +1,5 @@
 <template>
   <div>
-    <AppHeader />
     <main class="container-fluid vh-100" role="main" style="padding-top: 60px">
       <Nuxt />
     </main>
@@ -8,11 +7,7 @@
 </template>
 
 <script>
-import AppHeader from '@/components/AppHeader'
-
-export default {
-  components: { AppHeader },
-}
+export default {}
 </script>
 
 <style>
