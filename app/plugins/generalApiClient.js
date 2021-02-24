@@ -12,15 +12,14 @@ export default ({ app, axios }, inject) => {
       try {
         const resp = await app.$axios.get('/api/heartbeat', jsonHeaderConfig)
         if (resp.status === 200) {
-          apiAlive = resp.data.value
+          apiAlive = resp.data
         } else {
           apiAlive = false
         }
       } catch (error) {
-        console.error(error)
+        window.console.error(error)
         apiAlive = false
       }
-      console.log(`API Heartbeat: ${JSON.stringify(apiAlive)}`)
       return apiAlive
     },
   }
