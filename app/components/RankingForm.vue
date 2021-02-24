@@ -67,9 +67,10 @@
           variant="success"
           class="mt-1"
         >
-          <b-progress-bar :value="numRankedImages">
+          <b-progress-bar :value="rankedImages.length">
             <span>
-              Progress:<strong>{{ numRankedImages }} / {{ numRanks }}</strong>
+              Progress:
+              <strong>{{ rankedImages.length }} / {{ numRanks }}</strong>
             </span>
           </b-progress-bar>
         </b-progress>
@@ -109,7 +110,6 @@ export default {
     return {
       rankedImages: [],
       images: this.randomImages(this.numImages),
-      numRankedImages: 0,
     }
   },
   computed: {
@@ -133,20 +133,7 @@ export default {
     addToRankedImages(evt) {
       // remove duplicates
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
-      const lenBefore = this.rankedImages.length
       this.rankedImages = [...new Set(this.rankedImages)]
-      const itemAdded =
-        this.rankedImages.length === lenBefore + 1 ||
-        this.rankedImages.length === lenBefore
-      if (itemAdded) {
-        this.incProgress()
-      }
-    },
-    incProgress(n = 1) {
-      this.numRankedImages += n
-    },
-    decProgress(n = 1) {
-      this.numRankedImages -= n
     },
     onSubmit(event) {
       event.preventDefault()
