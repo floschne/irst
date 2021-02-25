@@ -14,7 +14,6 @@ export default ({ app, axios }, inject) => {
           jsonHeaderConfig
         )
         if (resp.status === 200) {
-          window.console.error(resp.data)
           return resp.data
         } else {
           window.console.error(resp.status)
