@@ -105,24 +105,24 @@
             Drag n' Drop Images Here To Rank
           </h1>
 
-          <div
+          <b-link
             v-for="(imgUrl, idx) in rankedImages"
             v-else
             :key="idx"
+            v-b-modal="`modal-${imgUrl}`"
             v-b-tooltip.hover.bottom="'Click to enlarge'"
+            href="#"
           >
-            <b-link v-b-modal="`modal-${imgUrl}`" href="#">
-              <b-avatar
-                :id="`ranked-${imgUrl}`"
-                rounded="sm"
-                :src="imgUrl"
-                :badge="`${idx + 1}`"
-                size="130px"
-                badge-top
-                class="ml-1"
-              />
-            </b-link>
-          </div>
+            <b-avatar
+              :id="`ranked-${imgUrl}`"
+              :src="imgUrl"
+              :badge="`${idx + 1}`"
+              rounded="sm"
+              size="130px"
+              badge-top
+              class="ml-1"
+            />
+          </b-link>
         </Draggable>
 
         <b-progress
