@@ -1,7 +1,54 @@
 <template>
-  <b-container fluid>
-    <b-form @submit="onSubmit" @reset="onReset">
-      <!-- IMAGE POOL -->
+  <b-container fluid class="h-100">
+    <!--     Submit Success -->
+    <b-jumbotron
+      v-if="submitSuccess && !submitError"
+      class="rounded m-0"
+      fluid
+      bg-variant="success"
+      text-variant="dark"
+      header="Thanks! Your ranking was submitted successfully"
+      lead="Start another ranking?"
+    >
+      <b-button variant="primary" @click="loadRandomSample">Start!</b-button>
+    </b-jumbotron>
+
+    <!--     Submit Error -->
+    <b-jumbotron
+      v-if="!submitSuccess && submitError"
+      class="d-flex justify-content-center h-100 w-100 m-0"
+      fluid
+      bg-variant="danger"
+      text-variant="dark"
+      header="Sorry! A problem occurred during your submission..."
+      lead="Start another ranking?"
+    >
+      <b-button variant="primary" @click="loadRandomSample">Start!</b-button>
+    </b-jumbotron>
+
+    <!--    Loading Icon -->
+    <div
+      v-if="loading && !submitSuccess && !submitError"
+      class="d-flex justify-content-center h-100 w-100"
+    >
+      <b-icon
+        icon="circle-fill"
+        animation="throb"
+        variant="dark"
+        style="width: 120px; height: 120px"
+        class="my-auto"
+      />
+    </div>
+    <!--    Ranking Form -->
+    <b-form
+      v-else-if="!loading && !submitSuccess && !submitError"
+      @submit="onSubmit"
+      @reset="onReset"
+    >
+      <!-- Query -->
+      <QueryPanel :query="sample.query" />
+
+      <!-- Image Selection -->
       <b-container>
         <Draggable
           :value="images"
@@ -29,12 +76,12 @@
       </b-container>
 
       <!-- IMAGE RANKING -->
-      <b-container fluid>
+      <b-container fluid class="p-0 m-0">
         <Draggable
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
           tag="div"
-          class="d-flex flex-row justify-content-center mt-1 bg-light ranks h-100 flex-wrap"
+          class="d-flex flex-row justify-content-center mt-1 bg-light ranks h-100 flex-wrap border border-dark rounded"
           @add="addToRankedImages"
         >
           <h1 v-if="showDragabbleHint" class="text-dark my-auto">
@@ -76,15 +123,19 @@
         </b-progress>
       </b-container>
 
-      <b-form-row>
+      <b-form-row class="m-0">
         <b-button-group class="w-100 mt-3">
           <b-button type="submit" variant="primary" :disabled="ranksNotFull">
             <span v-if="ranksNotFull">
-              What image is best described by the query? Please rank the Top-10!
+              What image is best described by the query? Please rank your
+              Top-10!
             </span>
-            <span v-else>Submit your ranking</span>
+            <span v-else>Submit Ranking</span>
           </b-button>
-          <b-button type="reset" variant="danger">Reset</b-button>
+          <b-button type="reset" variant="danger">Reset Ranking</b-button>
+          <b-button type="button" variant="warning" @click="loadRandomSample">
+            Get New Sample
+          </b-button>
         </b-button-group>
       </b-form-row>
     </b-form>
@@ -93,9 +144,11 @@
 
 <script>
 // import _ from 'lodash'
+import QueryPanel from '~/components/QueryPanel'
 
 export default {
   name: 'RankingForm',
+  components: { QueryPanel },
   props: {
     numRanks: {
       type: Number,
@@ -110,6 +163,10 @@ export default {
     return {
       rankedImages: [],
       images: this.randomImages(this.numImages),
+      sample: null,
+      loading: true,
+      submitSuccess: false,
+      submitError: false,
     }
   },
   computed: {
@@ -119,6 +176,9 @@ export default {
     showDragabbleHint() {
       return this.rankedImages.length === 0
     },
+  },
+  created() {
+    this.loadRandomSample()
   },
   methods: {
     randomImages(n) {
@@ -135,14 +195,27 @@ export default {
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
     },
-    onSubmit(event) {
+    async onSubmit(event) {
       event.preventDefault()
-      alert(JSON.stringify(this.rankedImages))
+      this.loading = true
+      this.submitSuccess = await this.$resultApiClient.store(
+        this.sample.id,
+        this.rankedImages
+      )
+      this.submitError = !this.submitSuccess
+      this.loading = false
     },
     onReset(event) {
       event.preventDefault()
       this.rankedImages = []
-      alert(JSON.stringify(this.rankedImages))
+    },
+    async loadRandomSample() {
+      this.loading = true
+      this.submitSuccess = false
+      this.submitError = false
+      this.sample = await this.$sampleApiClient.randomSample()
+      window.alert(`Got sample: ${JSON.stringify(this.sample)}`)
+      this.loading = false
     },
   },
 }

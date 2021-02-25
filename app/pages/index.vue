@@ -1,17 +1,20 @@
 <template>
-  <div class="container-fluid">
-    <AppHeader />
-    <QueryPanel />
-    <RankingForm class="mt-1" />
-  </div>
+  <b-jumbotron
+    fluid
+    header="Image Ranking User Study"
+    lead="Instructions coming soon"
+    class="m-0"
+  >
+    <b-button to="/study" variant="primary">Start Study</b-button>
+  </b-jumbotron>
 </template>
 
 <script>
-import AppHeader from '~/components/AppHeader'
-import QueryPanel from '~/components/QueryPanel'
-import RankingForm from '~/components/RankingForm'
-
 export default {
-  components: { QueryPanel, RankingForm, AppHeader },
+  name: 'Index',
+  data() {
+    return {}
+  },
+  methods: {},
 }
 </script>

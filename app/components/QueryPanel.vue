@@ -4,7 +4,9 @@
       id="textarea-plaintext"
       plaintext
       rows="3"
-      :value="text"
+      size="lg"
+      max-rows="6"
+      :value="query"
       trim
       class="p-1"
     ></b-form-textarea>
@@ -14,11 +16,14 @@
 <script>
 export default {
   name: 'QueryPanel',
+  props: {
+    query: {
+      type: String,
+      default: 'Loading Query...',
+    },
+  },
   data() {
-    return {
-      text:
-        "This is some text.\nIt is read only and doesn't look like an input.",
-    }
+    return {}
   },
 }
 </script>

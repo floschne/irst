@@ -39,6 +39,8 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '@/plugins/generalApiClient.js' },
+    { src: '@/plugins/resultApiClient.js' },
+    { src: '@/plugins/sampleApiClient.js' },
     { src: '@/plugins/vuedraggable.js' },
   ],
 
