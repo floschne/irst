@@ -55,7 +55,14 @@
           :group="{ name: 'images', pull: 'clone', put: false, sort: false }"
           class="row text-center no-gutters"
         >
-          <b-col v-for="imgUrl in images" :key="imgUrl" lg="2" md="2" sm="3">
+          <b-col
+            v-for="imgUrl in images"
+            :key="imgUrl"
+            v-b-tooltip.hover.bottom="'Click to enlarge'"
+            lg="2"
+            md="2"
+            sm="3"
+          >
             <b-link v-b-modal="`modal-${imgUrl}`" href="#">
               <b-img
                 :id="`img-${imgUrl}`"
