@@ -3,8 +3,9 @@ backend:
   redis:
     host: ${env:REDIS_HOST, localhost}
     port: ${env:REDIS_PORT, 6379}
-    sample_db_idx: ${env:REDIS_SAMPLE_DB_IDX, 3}
-    result_db_idx: ${env:REDIS_RESULT_DB_IDX, 4}
+    eval_sample_db_idx: ${env:REDIS_EVAL_SAMPLE_DB_IDX, 3}
+    gt_sample_db_idx: ${env:REDIS_GT_SAMPLE_DB_IDX, 4}
+    result_db_idx: ${env:REDIS_RESULT_DB_IDX, 5}
 
 image_server:
   lighttp:

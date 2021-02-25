@@ -12,9 +12,9 @@ class EvalResult(BaseModel):
     created: datetime = Field(description="Timestamp of the result", default_factory=datetime.now)
 
     @validator('sample_id')
-    def sample_must_exist(cls, sample_id: str):
+    def eval_sample_must_exist(cls, sample_id: str):
         from backend.db import RedisHandler
         redis = RedisHandler()
-        if not redis.sample_exists(sample_id=sample_id.strip()):
+        if not redis.eval_sample_exists(sample_id=sample_id.strip()):
             raise ValueError(f"EvalSample {sample_id} does not exist!")
         return sample_id.strip()
