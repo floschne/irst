@@ -105,7 +105,12 @@
             Drag n' Drop Images Here To Rank
           </h1>
 
-          <div v-for="(imgUrl, idx) in rankedImages" v-else :key="idx">
+          <div
+            v-for="(imgUrl, idx) in rankedImages"
+            v-else
+            :key="idx"
+            v-b-tooltip.hover.bottom="'Click to enlarge'"
+          >
             <b-link v-b-modal="`modal-${imgUrl}`" href="#">
               <b-avatar
                 :id="`ranked-${imgUrl}`"
