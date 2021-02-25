@@ -1,10 +1,19 @@
 <template>
   <header>
-    <b-navbar toggleable="sm" type="dark" variant="dark" fixed="top">
+    <b-navbar
+      toggleable="sm"
+      type="dark"
+      variant="dark"
+      fixed="top"
+      class="pt-0 pb-0"
+    >
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-navbar-brand to="/">
-        <b-icon icon="question-circle" />
-        Help
+        <b-icon
+          v-b-tooltip.hover.bottom="'Help'"
+          font-scale="1.5"
+          icon="question-circle"
+        />
       </b-navbar-brand>
 
       <b-collapse id="nav-collapse" is-nav>
@@ -17,7 +26,7 @@
 </template>
 
 <script>
-import HeartbeatCheckButton from '@/components/HeartbeatCheckButton'
+import HeartbeatCheckButton from '~/components/HeartbeatCheckButton'
 
 export default {
   name: 'AppHeader',

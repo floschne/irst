@@ -3,7 +3,7 @@
     fluid
     header="Image Ranking User Study"
     lead="Instructions coming soon"
-    class="m-0"
+    class="rounded my-auto"
   >
     <b-button to="/study" variant="primary">Start Study</b-button>
   </b-jumbotron>

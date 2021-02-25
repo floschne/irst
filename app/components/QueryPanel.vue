@@ -1,5 +1,9 @@
 <template>
-  <b-container class="border border-dark rounded p-0">
+  <b-container class="p-0">
+    <h3>
+      Which images are best described by the following sentence? Please rank
+      your Top 10!
+    </h3>
     <b-form-textarea
       id="textarea-plaintext"
       plaintext
@@ -8,7 +12,7 @@
       max-rows="6"
       :value="query"
       trim
-      class="p-1"
+      class="p-1 border border-dark rounded"
     ></b-form-textarea>
   </b-container>
 </template>

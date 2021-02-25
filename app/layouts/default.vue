@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="vh-100">
     <AppHeader />
-    <main class="container-fluid vh-100" role="main" style="padding-top: 60px">
+    <main class="container-fluid h-100" role="main" style="padding-top: 60px">
       <Nuxt />
     </main>
   </div>

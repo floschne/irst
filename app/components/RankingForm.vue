@@ -144,8 +144,8 @@
         <b-button-group class="w-100 mt-3">
           <b-button type="submit" variant="primary" :disabled="ranksNotFull">
             <span v-if="ranksNotFull">
-              What image is best described by the query? Please rank your
-              Top-10!
+              Which images are best described by the following sentence? Please
+              rank your Top 10!
             </span>
             <span v-else>Submit Ranking</span>
           </b-button>
@@ -230,8 +230,10 @@ export default {
       this.loading = true
       this.submitSuccess = false
       this.submitError = false
+      this.rankedImages = []
+
       this.sample = await this.$sampleApiClient.randomSample()
-      window.alert(`Got sample: ${JSON.stringify(this.sample)}`)
+
       this.loading = false
     },
   },
