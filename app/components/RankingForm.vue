@@ -110,8 +110,11 @@
             v-else
             :key="idx"
             v-b-modal="`modal-${imgUrl}`"
-            v-b-tooltip.hover.bottom="'Click to enlarge'"
+            v-b-tooltip.hover.bottom.html="
+              'Click to enlarge </br> Right-click to remove'
+            "
             href="#"
+            @contextmenu="removeRankedImage($event, imgUrl)"
           >
             <b-avatar
               :id="`ranked-${imgUrl}`"
@@ -206,6 +209,11 @@ export default {
       }
       // return _.shuffle(res)
       return res
+    },
+    removeRankedImage(evt, imgUrl) {
+      evt.preventDefault()
+      const pos = this.rankedImages.indexOf(imgUrl)
+      this.rankedImages.splice(pos, 1)
     },
     addToRankedImages(evt) {
       // remove duplicates
