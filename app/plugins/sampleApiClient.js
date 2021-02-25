@@ -26,6 +26,6 @@ export default ({ app, axios }, inject) => {
     },
   }
 
-  // inject methods so that they can be called in any component or function with this.$generalApiClient.
+  // inject methods so that they can be called in any component or function with this.$sampleApiClient.
   inject('sampleApiClient', sampleApiClient)
 }
