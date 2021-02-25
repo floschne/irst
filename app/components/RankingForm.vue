@@ -110,22 +110,6 @@
                 class="ml-1"
               />
             </b-link>
-
-            <b-modal
-              :id="`modal-${imgUrl}`"
-              centered
-              :title="sample.query"
-              ok-only
-              hide-footer
-            >
-              <b-img
-                fluid
-                center
-                rounded="sm"
-                class="border border-dark"
-                :src="imgUrl"
-              />
-            </b-modal>
           </div>
         </Draggable>
 
