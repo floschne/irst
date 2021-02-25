@@ -56,21 +56,31 @@
           class="row text-center no-gutters"
         >
           <b-col v-for="imgUrl in images" :key="imgUrl" lg="2" md="2" sm="3">
-            <b-img
-              :id="`img-${imgUrl}`"
-              thumbnail
-              fluid
-              :src="imgUrl"
-              height="130px"
-              width="130px"
-            />
-            <b-popover
-              :target="`img-${imgUrl}`"
-              triggers="hover"
-              placement="bottom"
+            <b-link v-b-modal="`modal-${imgUrl}`" href="#">
+              <b-img
+                :id="`img-${imgUrl}`"
+                thumbnail
+                fluid
+                :src="imgUrl"
+                height="130px"
+                width="130px"
+              />
+            </b-link>
+            <b-modal
+              :id="`modal-${imgUrl}`"
+              centered
+              :title="sample.query"
+              ok-only
+              hide-footer
             >
-              <b-img fluid :src="imgUrl" />
-            </b-popover>
+              <b-img
+                fluid
+                center
+                rounded="sm"
+                class="border border-dark"
+                :src="imgUrl"
+              />
+            </b-modal>
           </b-col>
         </Draggable>
       </b-container>
@@ -89,22 +99,33 @@
           </h1>
 
           <div v-for="(imgUrl, idx) in rankedImages" v-else :key="idx">
-            <b-avatar
-              :id="`ranked-${imgUrl}`"
-              rounded="sm"
-              :src="imgUrl"
-              :badge="`${idx + 1}`"
-              size="130px"
-              badge-top
-              class="ml-1"
-            />
-            <b-popover
-              :target="`ranked-${imgUrl}`"
-              triggers="hover"
-              placement="top"
+            <b-link v-b-modal="`modal-${imgUrl}`" href="#">
+              <b-avatar
+                :id="`ranked-${imgUrl}`"
+                rounded="sm"
+                :src="imgUrl"
+                :badge="`${idx + 1}`"
+                size="130px"
+                badge-top
+                class="ml-1"
+              />
+            </b-link>
+
+            <b-modal
+              :id="`modal-${imgUrl}`"
+              centered
+              :title="sample.query"
+              ok-only
+              hide-footer
             >
-              <b-img fluid :src="imgUrl" />
-            </b-popover>
+              <b-img
+                fluid
+                center
+                rounded="sm"
+                class="border border-dark"
+                :src="imgUrl"
+              />
+            </b-modal>
           </div>
         </Draggable>
 
@@ -185,7 +206,7 @@ export default {
       const res = []
       let i
       for (i = 0; i < n; i++) {
-        res.push(`https://picsum.photos/id/${i + 20}/250/250`)
+        res.push(`https://picsum.photos/id/${i + 20}/500/500`)
       }
       // return _.shuffle(res)
       return res
