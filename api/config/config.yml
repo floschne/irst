@@ -6,6 +6,7 @@ backend:
     eval_sample_db_idx: ${env:REDIS_EVAL_SAMPLE_DB_IDX, 3}
     gt_sample_db_idx: ${env:REDIS_GT_SAMPLE_DB_IDX, 4}
     result_db_idx: ${env:REDIS_RESULT_DB_IDX, 5}
+    progress_db_idx: ${env:REDIS_PROGRESS_DB_IDX, 6}
 
 image_server:
   lighttp:
