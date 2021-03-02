@@ -7,12 +7,9 @@ export default ({ app, axios }, inject) => {
 
   // define the methods
   const sampleApiClient = {
-    randomSample: async () => {
+    nextSample: async () => {
       try {
-        const resp = await app.$axios.get(
-          '/api/sample/random',
-          jsonHeaderConfig
-        )
+        const resp = await app.$axios.get('/api/sample/next', jsonHeaderConfig)
         if (resp.status === 200) {
           return resp.data
         } else {

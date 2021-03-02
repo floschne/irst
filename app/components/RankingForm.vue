@@ -1,6 +1,6 @@
 <template>
   <b-container fluid class="h-100">
-    <!--     Submit Success -->
+    <!--     Submit Success Jumbotron -->
     <b-jumbotron
       v-if="submitSuccess && !submitError"
       class="rounded m-0"
@@ -13,7 +13,7 @@
       <b-button variant="primary" @click="loadNextSample">Start!</b-button>
     </b-jumbotron>
 
-    <!--     Submit Error -->
+    <!--     Submit Error Jumbotron -->
     <b-jumbotron
       v-if="!submitSuccess && submitError"
       class="d-flex justify-content-center h-100 w-100 m-0"
@@ -39,6 +39,7 @@
         class="my-auto"
       />
     </div>
+
     <!--    Ranking Form -->
     <b-form
       v-else-if="!loading && !submitSuccess && !submitError"
@@ -46,31 +47,34 @@
       @reset="onReset"
     >
       <!-- Query -->
-      <QueryPanel :query="sample.query" />
+      <QueryPanel :query="sample.query" :num-ranks="numRanks" />
 
       <!-- Image Selection -->
       <b-container>
         <Draggable
-          :value="images"
+          :value="imageUrls"
           :group="{ name: 'images', pull: 'clone', put: false, sort: false }"
           class="row text-center no-gutters"
         >
           <b-col
-            v-for="imgUrl in images"
+            v-for="imgUrl in imageUrls"
             :key="imgUrl"
-            v-b-tooltip.hover.bottom="'Click to enlarge'"
             lg="2"
             md="2"
             sm="3"
+            style="min-width: 130px; min-height: 130px"
           >
             <b-link v-b-modal="`modal-${imgUrl}`" href="#">
               <b-img
                 :id="`img-${imgUrl}`"
+                v-b-tooltip.hover.bottom="'Click to enlarge'"
                 thumbnail
                 fluid
+                rounded
                 :src="imgUrl"
                 height="130px"
                 width="130px"
+                style="max-width: 130px; max-height: 130px"
               />
             </b-link>
             <b-modal
@@ -79,6 +83,7 @@
               :title="sample.query"
               ok-only
               hide-footer
+              size="lg"
             >
               <b-img
                 fluid
@@ -114,6 +119,7 @@
               'Click to enlarge </br> Right-click to remove'
             "
             href="#"
+            size="lg"
             @contextmenu="removeRankedImage($event, imgUrl)"
           >
             <b-avatar
@@ -143,6 +149,7 @@
         </b-progress>
       </b-container>
 
+      <!-- FORM BUTTONS -->
       <b-form-row class="m-0">
         <b-button-group class="w-100 mt-3">
           <b-button type="submit" variant="primary" :disabled="ranksNotFull">
@@ -182,7 +189,7 @@ export default {
   data() {
     return {
       rankedImages: [],
-      images: this.randomImages(this.numImages),
+      imageUrls: this.getImageUrls(),
       sample: null,
       loading: true,
       submitSuccess: false,
@@ -201,15 +208,6 @@ export default {
     this.loadNextSample()
   },
   methods: {
-    randomImages(n) {
-      const res = []
-      let i
-      for (i = 0; i < n; i++) {
-        res.push(`https://picsum.photos/id/${i + 20}/500/500`)
-      }
-      // return _.shuffle(res)
-      return res
-    },
     removeRankedImage(evt, imgUrl) {
       evt.preventDefault()
       const pos = this.rankedImages.indexOf(imgUrl)
@@ -220,19 +218,20 @@ export default {
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
     },
+    getImageUrls() {},
+    onReset(event) {
+      event.preventDefault()
+      this.rankedImages = []
+    },
     async onSubmit(event) {
       event.preventDefault()
       this.loading = true
-      this.submitSuccess = await this.$resultApiClient.store(
-        this.sample.id,
+      this.submitSuccess = await this.$resultApiClient.submitResult(
+        this.sample.esId,
         this.rankedImages
       )
       this.submitError = !this.submitSuccess
       this.loading = false
-    },
-    onReset(event) {
-      event.preventDefault()
-      this.rankedImages = []
     },
     async loadNextSample() {
       this.loading = true
@@ -240,7 +239,8 @@ export default {
       this.submitError = false
       this.rankedImages = []
 
-      this.sample = await this.$sampleApiClient.randomSample()
+      this.sample = await this.$sampleApiClient.nextSample()
+      this.imageUrls = await this.$imageApiClient.getUrls(this.sample.image_ids)
 
       this.loading = false
     },

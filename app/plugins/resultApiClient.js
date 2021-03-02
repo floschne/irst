@@ -7,14 +7,14 @@ export default ({ app, axios }, inject) => {
 
   // define the methods
   const resultApiClient = {
-    store: async (sampleId, rankingData) => {
+    submitResult: async (esId, rankingData) => {
       const result = {
-        sample_id: sampleId,
+        es_id: esId,
         ranking: rankingData,
       }
       try {
         const resp = await app.$axios.put(
-          '/api/result/store',
+          '/api/result/submit',
           result,
           jsonHeaderConfig
         )

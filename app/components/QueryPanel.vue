@@ -2,14 +2,14 @@
   <b-container class="p-0">
     <h3>
       Which images are best described by the following sentence? Please rank
-      your Top 10!
+      your Top {{ numRank }} !
     </h3>
     <b-form-textarea
       id="textarea-plaintext"
       plaintext
-      rows="3"
+      rows="1"
       size="lg"
-      max-rows="6"
+      max-rows="4"
       :value="query"
       trim
       class="p-1 border border-dark rounded"
@@ -24,6 +24,10 @@ export default {
     query: {
       type: String,
       default: 'Loading Query...',
+    },
+    numRanks: {
+      type: Number,
+      default: 10,
     },
   },
   data() {

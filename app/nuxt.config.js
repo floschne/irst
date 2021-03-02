@@ -21,14 +21,18 @@ const proxyConfig = () => {
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'user_study',
+    title: 'Image Ranking User Study',
     htmlAttrs: {
       lang: 'en',
     },
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+      {
+        hid: 'description',
+        name: 'description',
+        content: 'Image Ranking User Study WebApp',
+      },
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
@@ -41,6 +45,7 @@ export default {
     { src: '@/plugins/generalApiClient.js' },
     { src: '@/plugins/resultApiClient.js' },
     { src: '@/plugins/sampleApiClient.js' },
+    { src: '@/plugins/imageApiClient.js' },
     { src: '@/plugins/vuedraggable.js' },
   ],
 
