@@ -11,7 +11,6 @@ class EvalSample(BaseModel):
     gts_id: str = Field(description='GroundTruthSample UUID')
     query: str = Field(description='Query related to the sample')
     image_ids: List[str] = Field(description='Image IDs of the sample')
-    image_base_url: str = Field(description='Base URL of the images')
 
     @validator('gts_id')
     def gts_must_exist(cls, gts_id: str):

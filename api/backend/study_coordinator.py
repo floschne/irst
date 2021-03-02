@@ -6,6 +6,7 @@ import redis
 from loguru import logger
 from omegaconf import OmegaConf
 
+from backend import ImageServer
 from backend.db import RedisHandler
 from init_redis_data import init_redis_data
 from models import EvalResult, EvalSample
@@ -25,6 +26,7 @@ class StudyCoordinator(object):
     __singleton = None
     __sync_lock: threading.Lock = None
     __rh: RedisHandler = None
+    __is: ImageServer = None
     __progress: redis.Redis = None
     __num_top_k_imgs: int = None
     __num_random_k_imgs: int = None
@@ -33,6 +35,8 @@ class StudyCoordinator(object):
         if cls.__singleton is None:
             logger.info('Instantiating StudyCoordinator!')
             cls.__singleton = super(StudyCoordinator, cls).__new__(cls)
+
+            cls.__is = ImageServer()
 
             # lock object for critical sections
             cls.__sync_lock = threading.Lock()
@@ -107,8 +111,7 @@ class StudyCoordinator(object):
 
         es = EvalSample(gts_id=gts.id,
                         query=gts.query,
-                        image_ids=list(tk_imgs.union(random_imgs)),
-                        image_base_url='http://google.com')
+                        image_ids=list(tk_imgs.union(random_imgs)))
         self.__rh.store_eval_sample(es)
 
         return es

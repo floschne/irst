@@ -10,7 +10,7 @@ study:
     num_random_imgs: 14
     in_prog_ttl: 30 # in seconds
   init:
-    data_root: ${env:REDIS_HOST, data}
+    data_root: ${env:DATA_ROOT, data}
     flush: true
     num_samples: 10 # negative number is maximum
 
@@ -24,10 +24,10 @@ backend:
     progress_db_idx: ${env:REDIS_PROGRESS_DB_IDX, 6}
 
 image_server:
-  lighttp:
-    https: false
-    host: localhost
-    port: 8082
-    context_path: /
-    datasources:
-      - test: /text_imgs/
+  https: false
+  host: ${env:IMG_SRV_HOST, localhost}
+  port: ${env:IMG_SRV_PORT, 8082}
+  img_root: ${env:IMG_SRV_ROOT, data/images}
+  img_prefix: wikicaps_
+  img_suffix: .png
+  context_path: /

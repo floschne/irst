@@ -10,7 +10,7 @@
       header="Thanks! Your ranking was submitted successfully"
       lead="Start another ranking?"
     >
-      <b-button variant="primary" @click="loadRandomSample">Start!</b-button>
+      <b-button variant="primary" @click="loadNextSample">Start!</b-button>
     </b-jumbotron>
 
     <!--     Submit Error -->
@@ -23,7 +23,7 @@
       header="Sorry! A problem occurred during your submission..."
       lead="Start another ranking?"
     >
-      <b-button variant="primary" @click="loadRandomSample">Start!</b-button>
+      <b-button variant="primary" @click="loadNextSample">Start!</b-button>
     </b-jumbotron>
 
     <!--    Loading Icon -->
@@ -153,7 +153,7 @@
             <span v-else>Submit Ranking</span>
           </b-button>
           <b-button type="reset" variant="danger">Reset Ranking</b-button>
-          <b-button type="button" variant="warning" @click="loadRandomSample">
+          <b-button type="button" variant="warning" @click="loadNextSample">
             Get New Sample
           </b-button>
         </b-button-group>
@@ -198,7 +198,7 @@ export default {
     },
   },
   created() {
-    this.loadRandomSample()
+    this.loadNextSample()
   },
   methods: {
     randomImages(n) {
@@ -234,7 +234,7 @@ export default {
       event.preventDefault()
       this.rankedImages = []
     },
-    async loadRandomSample() {
+    async loadNextSample() {
       this.loading = true
       this.submitSuccess = false
       this.submitError = false
