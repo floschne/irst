@@ -16,14 +16,13 @@ redis = RedisHandler()
 @router.get("/{result_id}", tags=TAG,
             response_model=EvalResult,
             description="Returns the EvalResult with the specified ID")
-async def load_sample(result_id: str):
+async def load(result_id: str):
     logger.info(f"GET request on {PREFIX}/{result_id}")
     return redis.load_result(result_id)
 
 
-@router.put("/store", tags=TAG,
-            description="Stores the EvalSample")
-async def store_result(result: EvalResult):
-    logger.info(f"GET request on {PREFIX}/store")
-    id = redis.store_result(result)
-    return JSONResponse(content=id)
+@router.put("/submit", tags=TAG,
+            description="Submit an EvalResult")
+async def submit(result: EvalResult):
+    logger.info(f"GET request on {PREFIX}/submit")
+    return JSONResponse(content=redis.store_result(result))

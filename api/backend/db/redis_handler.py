@@ -1,5 +1,5 @@
 import threading
-from typing import Optional, Dict
+from typing import Optional, List
 
 import redis
 from loguru import logger
@@ -14,7 +14,6 @@ class RedisHandler(object):
     __eval_samples: redis.Redis = None
     __gt_samples: redis.Redis = None
     __results: redis.Redis = None
-    __progress: redis.Redis = None
 
     def __new__(cls, *args, **kwargs):
         if cls.__singleton is None:
@@ -47,46 +46,45 @@ class RedisHandler(object):
 
         return cls.__singleton
 
+    def get_progress_client(self):
+        return self.__progress
+
     def __close(self) -> None:
-        logger.info('Shutting down RedisHandler!')
+        logger.info("Shutting down RedisHandler!")
         self.__eval_samples.close()
         self.__gt_samples.close()
         self.__results.close()
+        self.__progress.close()
 
-    # TODO: I know there is a lot of redundant code here, which could be simplified by inheritance, flags AND time...
-    ################# Progress #################
-    def reset_progress(self):
-        with self.__sync_lock:
-            # init todo set (initially contains all GTSample IDs)
-            gt_ids = self.__gt_samples.keys()
-            if len(gt_ids) == 0:
-                logger.error("Redis not initialized!")
-                raise RuntimeError("Redis not initialized!")
-            self.__progress.delete('todo')
-            self.__progress.sadd('todo', *gt_ids)
-            if self.__progress.scard('todo') != len(gt_ids):
-                logger.error("Error while resetting progress!")
-                raise RuntimeError("Error while resetting progress!")
+    def flush_all(self):
+        logger.warning(f"Flushing Redis DBs!")
+        self.__eval_samples.flushdb()
+        self.__gt_samples.flushdb()
+        self.__results.flushdb()
+        self.__progress.flushdb()
 
-            # init done set (empty list)
-            self.__progress.delete('done')
+    # TODO: I know there is a lot of redundant code here, which could be simplified by inheritance, flags AND TIME...
 
-            logger.info(f"Successfully reset Progress")
-            logger.info(f"Current Progress: {self.current_progress()}")
+    ################# Images #################
 
-    def current_progress(self) -> Dict[str, str]:
-        return {
-            'num_todo': self.__progress.scard('todo'),
-            'num_done': self.__progress.scard('done'),
-            'num_total': len(self.__gt_samples.keys())
-        }
+    def store_image_ids(self, gts: GroundTruthSample):
+        # store in progress DB because in __gt_samples we need KEYS to get all GTS...
+        self.__progress.sadd('gt_images', *gts.top_k_image_ids)
+
+    def get_random_image_ids(self, num: int = 1) -> List[str]:
+        # store in progress DB because in __gt_samples we need KEYS to get all GTS...
+        return self.__progress.srandmember('gt_images', num)
 
     ################# GroundTruthSample #################
 
     def store_gt_sample(self, gts: GroundTruthSample) -> str:
         if self.__gt_samples.set(gts.id, gts.json()) != 1:
             logger.error(f"Cannot store GroundTruthSample {gts.id}")
-        logger.info(f"Successfully stored GroundTruthSample {gts.id}")
+
+        # store all associated image ids
+        self.store_image_ids(gts)
+
+        logger.debug(f"Successfully stored GroundTruthSample {gts.id}")
         return gts.id
 
     def load_gt_sample(self, gts_id: str) -> GroundTruthSample:
@@ -95,22 +93,21 @@ class RedisHandler(object):
             logger.error(f"Cannot load GroundTruthSample {gts_id}")
         else:
             sample = GroundTruthSample.parse_raw(s)
-            logger.info(f"Successfully loaded GroundTruthSample {sample.id}")
+            logger.debug(f"Successfully loaded GroundTruthSample {sample.id}")
             return sample
 
-    def gt_sample_exists(self, sample_id: str) -> bool:
-        return bool(self.__gt_samples.exists(sample_id))
+    def gt_sample_exists(self, gts_id: str) -> bool:
+        return bool(self.__gt_samples.exists(gts_id))
 
-    def random_gt_sample(self):
-        rand_id = self.__gt_samples.randomkey()
-        return self.load_gt_sample(gts_id=rand_id)
+    def get_all_gts_ids(self) -> List[str]:
+        return self.__gt_samples.keys()
 
     ################# EvalSample #################
 
     def store_eval_sample(self, sample: EvalSample) -> str:
         if self.__eval_samples.set(sample.id, sample.json()) != 1:
             logger.error(f"Cannot store EvalSample {sample.id}")
-        logger.info(f"Successfully stored EvalSample {sample.id}")
+        logger.debug(f"Successfully stored EvalSample {sample.id}")
         return sample.id
 
     def load_eval_sample(self, sample_id: str) -> Optional[EvalSample]:
@@ -120,32 +117,26 @@ class RedisHandler(object):
             return None
         else:
             sample = EvalSample.parse_raw(s)
-            logger.info(f"Successfully loaded EvalSample {sample.id}")
+            logger.debug(f"Successfully loaded EvalSample {sample.id}")
             return sample
 
     def eval_sample_exists(self, sample_id: str) -> bool:
         return bool(self.__eval_samples.exists(sample_id))
 
-    def random_eval_sample(self):
-        rand_id = self.__eval_samples.randomkey()
-        return self.load_eval_sample(sample_id=rand_id)
-
     ################# EvalResult #################
 
-    def store_result(self, result: EvalResult):
-        with self.__sync_lock:
-            stored = self.__results.set(result.id, result.json()) != 1
-            if not stored:
-                logger.error(f"Cannot store EvalResult {result.id}")
-            else:
-                # 2) remove the GTS ID from todo list
-                es = self.load_eval_sample(result.sample_id)
-                if es is not None:
-                    self.__progress.srem('todo', es.gts_id)
-                    # 3) add GTS ID to done list
-                    self.__progress.sadd('done', es.gts_id)
+    def store_result(self, result: EvalResult) -> Optional[str]:
+        if not self.eval_sample_exists(result.es_id):
+            logger.error(
+                f"EvalSample {result.es_id} referenced in EvalResult {result.id} does not exist! Discarding!")
+            return None
 
-                logger.info(f"Successfully stored EvalResult {result.id}")
+        if not self.__results.set(result.id, result.json()) != 1:
+            logger.error(f"Cannot store EvalResult {result.id}")
+            return None
+        else:
+            logger.debug(f"Successfully stored EvalResult {result.id}")
+            return result.id
 
     def load_result(self, result_id: str) -> EvalResult:
         s = self.__results.get(result_id)
@@ -153,5 +144,5 @@ class RedisHandler(object):
             logger.error(f"Cannot load EvalResult {result_id}")
         else:
             result = EvalResult.parse_raw(s)
-            logger.info(f"Successfully loaded EvalResult {result.id}")
+            logger.debug(f"Successfully loaded EvalResult {result.id}")
             return result

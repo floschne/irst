@@ -1,7 +1,9 @@
+from typing import Union
+
 from fastapi import APIRouter
 from loguru import logger
-from starlette.responses import JSONResponse
 
+from backend import StudyCoordinator
 from backend.db import RedisHandler
 from models import EvalSample
 
@@ -10,14 +12,15 @@ TAG = ["sample"]
 router = APIRouter()
 
 redis = RedisHandler()
+coordinator = StudyCoordinator()
 
 
-@router.get("/random", tags=TAG,
-            response_model=EvalSample,
-            description="Returns a random EvalSample")
-async def random():
-    logger.info(f"GET request on {PREFIX}/random")
-    return redis.random_eval_sample()
+@router.get("/next", tags=TAG,
+            response_model=Union[EvalSample, int],
+            description="Returns the next EvalSample or the shortest waiting time until the next sample is ready.")
+async def get_next():
+    logger.info(f"GET request on {PREFIX}/next")
+    return coordinator.next()
 
 
 @router.get("/{sample_id}", tags=TAG,
@@ -26,11 +29,3 @@ async def random():
 async def load_sample(sample_id: str):
     logger.info(f"GET request on {PREFIX}/{sample_id}")
     return redis.load_eval_sample(sample_id)
-
-
-@router.put("/store", tags=TAG,
-            description="Stores the EvalSample")
-async def store_sample(sample: EvalSample):
-    logger.info(f"GET request on {PREFIX}/store")
-    id = redis.store_eval_sample(sample)
-    return JSONResponse(content=id)

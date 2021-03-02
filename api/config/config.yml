@@ -1,4 +1,19 @@
 port: 8081
+
+logging:
+  level: INFO
+  rotation: 500 # MB
+
+study:
+  samples:
+    num_top_k_imgs: 10
+    num_random_imgs: 14
+    in_prog_ttl: 30 # in seconds
+  init:
+    data_root: ${env:REDIS_HOST, data}
+    flush: true
+    num_samples: 10 # negative number is maximum
+
 backend:
   redis:
     host: ${env:REDIS_HOST, localhost}

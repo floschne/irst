@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from loguru import logger
 from omegaconf import OmegaConf
 
+from backend import StudyCoordinator
 from backend.db import RedisHandler
 from routers import general, eval_sample, result
 
@@ -15,11 +16,18 @@ app = FastAPI(title="User Study API",
 @app.on_event("startup")
 def startup_event():
     try:
+        conf = OmegaConf.load('config/config.yml')
+
         # setup logger
-        logger.add('logs/{time}.log', rotation="500 MB")
+        logger.add('logs/{time}.log', rotation=f"{conf.logging.rotation} MB", level=conf.logging.level)
 
         # instantiate singletons
         RedisHandler()
+        coord = StudyCoordinator()
+
+        # init study
+        coord.init_study()
+
     except Exception as e:
         msg = f"Error while starting the API! Exception: {str(e)}"
         logger.error(msg)
