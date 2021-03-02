@@ -178,7 +178,7 @@ class StudyCoordinator(object):
 
     def __shortest_ttl(self) -> int:
         in_prog_es_ids = self.__progress.smembers(Keys.IN_PROGRESS)
-        ttls = sorted([self.__progress.ttl(es_id) for es_id in in_prog_es_ids])
+        ttls = sorted([self.__progress.ttl(Keys.TTL.value + es_id) for es_id in in_prog_es_ids])
         return ttls[-1]
 
     def expire(self, es_ids: List[str]):
