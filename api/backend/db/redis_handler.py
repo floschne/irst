@@ -46,15 +46,18 @@ class RedisHandler(object):
 
         return cls.__singleton
 
+    def __init__(self):
+        self.__progress_pubsub = None
+
     def get_progress_client(self):
         return self.__progress
 
-    def __close(self) -> None:
+    def shutdown(self) -> None:
         logger.info("Shutting down RedisHandler!")
+        self.__progress.close()
         self.__eval_samples.close()
         self.__gt_samples.close()
         self.__results.close()
-        self.__progress.close()
 
     def flush_all(self):
         logger.warning(f"Flushing Redis DBs!")

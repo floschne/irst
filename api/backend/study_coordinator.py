@@ -1,6 +1,9 @@
+import concurrent
 import threading
+import time
+from concurrent.futures.thread import ThreadPoolExecutor
 from enum import Enum, unique
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 import redis
 from loguru import logger
@@ -13,13 +16,31 @@ from models import EvalResult, EvalSample
 
 
 @unique
-class Keys(str, Enum):
-    TODO = "todo"
-    IN_PROGRESS = "in_progress"
-    DONE = "done"
-    RUN_CNT = "run_cnt"
-    RUN_RESULTS = "run_results_"
-    TTL = "__ttl_shadow__"
+class Keys(bytes, Enum):
+    TODO = b"todo"
+    IN_PROGRESS = b"in_progress"
+    DONE = b"done"
+    RUN_CNT = b"run_cnt"
+    RUN_RESULTS = b"run_results_"
+    TTL = b"__ttl_shadow__"
+
+
+def expired_handler():
+    rh = RedisHandler()
+    progress = rh.get_progress_client()
+    while True:
+        try:
+            # if a es_id is in in_progress but not in KEYS, the es_id is expired.
+            # we have to be careful here with bytes and strings! every key is handled as bytes and combining with str
+            # leads to hard-to-find errors...
+            in_prog_ids = set(progress.smembers(Keys.IN_PROGRESS))
+            ttk_shadow_keys = list(progress.keys(Keys.TTL.value + b"*"))
+            ttl_shadow_ids = set([key.replace(Keys.TTL.value, b"") for key in ttk_shadow_keys])
+            expired = list(in_prog_ids - ttl_shadow_ids)
+            StudyCoordinator().expire(expired)
+            time.sleep(0.1)
+        except Exception as e:
+            print(e)
 
 
 class StudyCoordinator(object):
@@ -45,9 +66,6 @@ class StudyCoordinator(object):
             cls.__rh = RedisHandler()
             cls.__progress = cls.__rh.get_progress_client()
 
-            # setup key expire event notification  # TODO maybe this doesnt work an we have to set via cli
-            cls.__progress.config_set("notify-keyspace-events", "Ex")
-
             conf = OmegaConf.load('config/config.yml')
             cls.__num_top_k_imgs = conf.study.samples.num_top_k_imgs
             cls.__num_random_k_imgs = conf.study.samples.num_random_k_imgs
@@ -56,7 +74,20 @@ class StudyCoordinator(object):
             cls.__init_flush = conf.study.init.flush
             cls.__init_num_samples = conf.study.init.num_samples
 
+            # setup expired watcher
+            cls.expired_watcher = ThreadPoolExecutor(max_workers=1)
+            cls.expired_watcher.submit(expired_handler)
+
         return cls.__singleton
+
+    # noinspection PyUnresolvedReferences,PyProtectedMember
+    def shutdown(self):
+        logger.info('Shutting down StudyCoordinator!')
+        # clear remaining futures
+        # https://gist.github.com/clchiou/f2608cbe54403edb0b13
+        self.expired_watcher._threads.clear()
+        concurrent.futures.thread._threads_queues.clear()
+        self.expired_watcher.shutdown(wait=False)
 
     def init_study(self):
         # initialize Redis data
@@ -141,7 +172,7 @@ class StudyCoordinator(object):
             logger.info(f"Moved EvalSample {es_id} from TODO to IN_PROGRESS!")
             logger.info(f"Current Progress: {self.current_progress()}")
             # create shadow element with TTL
-            self.__progress.set(f"{Keys.TTL}{es_id}", "ttl_proxy", ex=self.__in_prog_ttl)
+            self.__progress.set(Keys.TTL.value + es_id, "ttl_proxy", ex=self.__in_prog_ttl)
             # load and return the actual ES per ID
             return self.__rh.load_eval_sample(es_id)
 
@@ -150,18 +181,13 @@ class StudyCoordinator(object):
         ttls = sorted([self.__progress.ttl(es_id) for es_id in in_prog_es_ids])
         return ttls[-1]
 
-    def expired_handler(self, msg):
-        try:
-            key = msg["data"].decode("utf-8")
-            if Keys.TTL in key:
-                with self.__sync_lock:
-                    es_id = key.replace(Keys.TTL, "")
-                    # move the from in_progress back to todo
-                    self.__progress.smove(Keys.IN_PROGRESS, Keys.TODO, es_id)
-                    logger.info(f"EvalSample {es_id} expired in IN_PROGRESS and moved back to TODO!")
-                    logger.info(f"Current Progress: {self.current_progress()}")
-        except Exception as exp:
-            logger.warning(f"Unknown Error in Expired Handler: {exp}")
+    def expire(self, es_ids: List[str]):
+        with self.__sync_lock:
+            # move the from in_progress back to todo
+            for es_id in es_ids:
+                self.__progress.smove(Keys.IN_PROGRESS, Keys.TODO, es_id)
+                logger.info(f"EvalSample {es_id} expired in IN_PROGRESS and moved back to TODO!")
+                logger.info(f"Current Progress: {self.current_progress()}")
 
     def submit(self, res: EvalResult):
         with self.__sync_lock:

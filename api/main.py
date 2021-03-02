@@ -37,7 +37,8 @@ def startup_event():
 
 @app.on_event("shutdown")
 def shutdown_event():
-    RedisHandler().__close()
+    RedisHandler().shutdown()
+    StudyCoordinator().shutdown()
 
 
 # include the routers
@@ -53,4 +54,4 @@ if __name__ == "__main__":
 
     # start the api via uvicorn
     assert conf.port is not None and isinstance(conf.port, int), "The port has to be an integer! E.g. 8081"
-    uvicorn.run(app, host="0.0.0.0", port=conf.port, debug=True)
+    uvicorn.run(app, host="0.0.0.0", port=conf.port, debug=True, lifespan="on")
