@@ -14,6 +14,6 @@ async def heartbeat():
 
 
 @router.get("/", tags=["general"], description="Redirection to /docs")
-async def root_to_docs():
+async def redirect_to_docs():
     logger.info("GET request on / -> redirecting to /docs")
     return RedirectResponse("/docs")

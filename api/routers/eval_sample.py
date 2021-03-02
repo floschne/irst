@@ -18,7 +18,7 @@ coordinator = StudyCoordinator()
 @router.get("/next", tags=TAG,
             response_model=Union[EvalSample, int],
             description="Returns the next EvalSample or the shortest waiting time until the next sample is ready.")
-async def get_next():
+async def get_next_sample():
     logger.info(f"GET request on {PREFIX}/next")
     return coordinator.next()
 

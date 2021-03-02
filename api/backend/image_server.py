@@ -1,5 +1,6 @@
 import os
 import urllib.parse as url
+from typing import List
 
 from loguru import logger
 from omegaconf import OmegaConf
@@ -41,3 +42,6 @@ class ImageServer(object):
     def get_img_url(self, img_id: str) -> str:
         img_file_name = self.__get_img_filename(img_id)
         return url.urljoin(self.__base_url, img_file_name)
+
+    def get_img_urls(self, img_ids: List[str]) -> List[str]:
+        return [self.get_img_url(img_id) for img_id in img_ids]
