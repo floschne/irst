@@ -68,7 +68,7 @@ class StudyCoordinator(object):
 
             conf = OmegaConf.load('config/config.yml')
             cls.__num_top_k_imgs = conf.study.samples.num_top_k_imgs
-            cls.__num_random_k_imgs = conf.study.samples.num_random_k_imgs
+            cls.__num_random_k_imgs = conf.study.samples.num_random_imgs
             cls.__in_prog_ttl = conf.study.samples.in_prog_ttl
             cls.__init_data_root = conf.study.init.data_root
             cls.__init_flush = conf.study.init.flush
