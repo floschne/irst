@@ -65,6 +65,11 @@ class RedisHandler(object):
         self.__m_rankings.flushdb()
         self.__results.flushdb()
         self.__progress.flushdb()
+        # save necessary when deployed via docker
+        self.__eval_samples.save()
+        self.__m_rankings.save()
+        self.__results.save()
+        self.__progress.save()
 
     # TODO: I know there is a lot of redundant code here, which could be simplified by inheritance, flags AND TIME...
 

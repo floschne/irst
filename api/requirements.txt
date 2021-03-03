@@ -6,5 +6,5 @@ starlette==0.13.6
 redis==3.5.3
 pydantic==1.7.3
 shortuuid==1.0.1
-pandas=1.2.2
-pyarrow=3.0.0
+pandas==1.2.2
+pyarrow==3.0.0

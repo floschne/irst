@@ -20,6 +20,7 @@ class Keys(bytes, Enum):
     TODO = b"todo"
     IN_PROGRESS = b"in_progress"
     DONE = b"done"
+    INIT_FLAG = b"init_flag"
     RUN_CNT = b"run_cnt"
     RUN_RESULTS = b"run_results_"
     TTL = b"__ttl_shadow__"
@@ -78,6 +79,9 @@ class StudyCoordinator(object):
             cls.expired_watcher = ThreadPoolExecutor(max_workers=1)
             cls.expired_watcher.submit(expired_handler)
 
+            # set init flag to False
+            cls.__progress.set(Keys.INIT_FLAG, 0)
+
         return cls.__singleton
 
     # noinspection PyUnresolvedReferences,PyProtectedMember
@@ -90,14 +94,17 @@ class StudyCoordinator(object):
         self.expired_watcher.shutdown(wait=False)
 
     def init_study(self):
-        # initialize Redis data
-        logger.info("Initializing Redis data")
-        init_redis_data(data_root=self.__init_data_root,
-                        flush=self.__init_flush,
-                        num_samples=self.__init_num_samples)
-        # init run count with 0
-        self.__set_run_count(0)
-        logger.info(f"Successfully initialized Study")
+        if not bool(int(self.__progress.get(Keys.INIT_FLAG))):
+            # initialize Redis data
+            logger.info("Initializing Redis data")
+            init_redis_data(data_root=self.__init_data_root,
+                            flush=self.__init_flush,
+                            num_samples=self.__init_num_samples)
+            # init run count with 0
+            self.__set_run_count(0)
+            # set init flag to True
+            self.__progress.set(Keys.INIT_FLAG, 1)
+            logger.info(f"Successfully initialized Study")
 
         self.__start_new_run()
 
