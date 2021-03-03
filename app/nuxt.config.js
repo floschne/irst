@@ -46,7 +46,9 @@ export default {
     { src: '@/plugins/resultApiClient.js' },
     { src: '@/plugins/sampleApiClient.js' },
     { src: '@/plugins/imageApiClient.js' },
+    { src: '@/plugins/studyApiClient.js' },
     { src: '@/plugins/vuedraggable.js' },
+    { src: '@/plugins/vuechart.js' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -65,6 +67,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     '@nuxtjs/proxy',
+    '@nuxtjs/auth-next',
   ],
 
   // https://github.com/nuxt-community/proxy-module#readme

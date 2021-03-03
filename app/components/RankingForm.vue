@@ -232,6 +232,8 @@ export default {
       )
       this.submitError = !this.submitSuccess
       this.loading = false
+
+      this.$nuxt.$emit('study-progress-changed')
     },
     async loadNextSample() {
       this.loading = true
@@ -243,6 +245,8 @@ export default {
       this.imageUrls = await this.$imageApiClient.getUrls(this.sample.image_ids)
 
       this.loading = false
+
+      this.$nuxt.$emit('study-progress-changed')
     },
   },
 }
