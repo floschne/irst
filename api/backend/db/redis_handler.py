@@ -5,14 +5,14 @@ import redis
 from loguru import logger
 from omegaconf import OmegaConf
 
-from models import EvalSample, EvalResult, GroundTruthSample
+from models import EvalSample, EvalResult, ModelRanking
 
 
 class RedisHandler(object):
     __singleton = None
     __sync_lock = None
     __eval_samples: redis.Redis = None
-    __gt_samples: redis.Redis = None
+    __m_rankings: redis.Redis = None
     __results: redis.Redis = None
 
     def __new__(cls, *args, **kwargs):
@@ -32,9 +32,9 @@ class RedisHandler(object):
             cls.__eval_samples = redis.Redis(host=r_host, port=r_port, db=r_eval_sample_db_idx)
             assert cls.__eval_samples.ping(), f"Couldn't connect to Redis DB {r_eval_sample_db_idx} at {r_host}:{r_port}!"
 
-            r_gt_sample_db_idx = conf.backend.redis.gt_sample_db_idx
-            cls.__gt_samples = redis.Redis(host=r_host, port=r_port, db=r_gt_sample_db_idx)
-            assert cls.__gt_samples.ping(), f"Couldn't connect to Redis DB {r_gt_sample_db_idx} at {r_host}:{r_port}!"
+            r_m_rank_db_idx = conf.backend.redis.m_rank_db_idx
+            cls.__m_rankings = redis.Redis(host=r_host, port=r_port, db=r_m_rank_db_idx)
+            assert cls.__m_rankings.ping(), f"Couldn't connect to Redis DB {r_m_rank_db_idx} at {r_host}:{r_port}!"
 
             r_progress_db_idx = conf.backend.redis.progress_db_idx
             cls.__progress = redis.Redis(host=r_host, port=r_port, db=r_progress_db_idx)
@@ -56,13 +56,13 @@ class RedisHandler(object):
         logger.info("Shutting down RedisHandler!")
         self.__progress.close()
         self.__eval_samples.close()
-        self.__gt_samples.close()
+        self.__m_rankings.close()
         self.__results.close()
 
     def flush_all(self):
         logger.warning(f"Flushing Redis DBs!")
         self.__eval_samples.flushdb()
-        self.__gt_samples.flushdb()
+        self.__m_rankings.flushdb()
         self.__results.flushdb()
         self.__progress.flushdb()
 
@@ -70,40 +70,40 @@ class RedisHandler(object):
 
     ################# Images #################
 
-    def store_image_ids(self, gts: GroundTruthSample):
-        # store in progress DB because in __gt_samples we need KEYS to get all GTS...
-        self.__progress.sadd('gt_images', *gts.top_k_image_ids)
+    def store_image_ids(self, mr: ModelRanking):
+        # store in progress DB because in __m_rankings we need KEYS to get all MRs...
+        self.__progress.sadd('m_rankings', *mr.top_k_image_ids)
 
     def get_random_image_ids(self, num: int = 1) -> List[str]:
-        # store in progress DB because in __gt_samples we need KEYS to get all GTS...
-        return self.__progress.srandmember('gt_images', num)
+        # store in progress DB because in __m_rankings we need KEYS to get all MRs...
+        return self.__progress.srandmember('m_rankings', num)
 
-    ################# GroundTruthSample #################
+    ################# ModelRanking #################
 
-    def store_gt_sample(self, gts: GroundTruthSample) -> str:
-        if self.__gt_samples.set(gts.id, gts.json()) != 1:
-            logger.error(f"Cannot store GroundTruthSample {gts.id}")
+    def store_model_ranking(self, mr: ModelRanking) -> str:
+        if self.__m_rankings.set(mr.id, mr.json()) != 1:
+            logger.error(f"Cannot store ModelRanking {mr.id}")
 
         # store all associated image ids
-        self.store_image_ids(gts)
+        self.store_image_ids(mr)
 
-        logger.debug(f"Successfully stored GroundTruthSample {gts.id}")
-        return gts.id
+        logger.debug(f"Successfully stored ModelRanking {mr.id}")
+        return mr.id
 
-    def load_gt_sample(self, gts_id: str) -> GroundTruthSample:
-        s = self.__gt_samples.get(gts_id)
+    def load_model_ranking(self, mr_id: str) -> ModelRanking:
+        s = self.__m_rankings.get(mr_id)
         if s is None:
-            logger.error(f"Cannot load GroundTruthSample {gts_id}")
+            logger.error(f"Cannot load ModelRanking {mr_id}")
         else:
-            sample = GroundTruthSample.parse_raw(s)
-            logger.debug(f"Successfully loaded GroundTruthSample {sample.id}")
+            sample = ModelRanking.parse_raw(s)
+            logger.debug(f"Successfully loaded ModelRanking {sample.id}")
             return sample
 
-    def gt_sample_exists(self, gts_id: str) -> bool:
-        return bool(self.__gt_samples.exists(gts_id))
+    def model_ranking_exists(self, mr_id: str) -> bool:
+        return bool(self.__m_rankings.exists(mr_id))
 
-    def get_all_gts_ids(self) -> List[str]:
-        return self.__gt_samples.keys()
+    def get_all_mr_ids(self) -> List[str]:
+        return self.__m_rankings.keys()
 
     ################# EvalSample #################
 

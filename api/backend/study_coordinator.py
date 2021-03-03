@@ -111,16 +111,16 @@ class StudyCoordinator(object):
         logger.info(f"Current Progress: {self.current_progress()}")
 
     def __init_todo(self):
-        # init todo set (initially contains all GTSample IDs)
-        gts_ids = self.__rh.get_all_gts_ids()
-        if len(gts_ids) == 0:
+        # init todo set (initially contains all ModelRanking IDs)
+        mr_ids = self.__rh.get_all_mr_ids()
+        if len(mr_ids) == 0:
             logger.error("Redis not initialized!")
             raise RuntimeError("Redis not initialized!")
 
         self.__progress.delete(Keys.TODO)
 
-        # generate an EvalSample for each GTS
-        eval_samples = [self.__generate_eval_sample(gts_id) for gts_id in gts_ids]
+        # generate an EvalSample for each mr
+        eval_samples = [self.__generate_eval_sample(mr_id) for mr_id in mr_ids]
         # add their reverences (IDs) to todo
         self.__progress.sadd(Keys.TODO, *[es.id for es in eval_samples])
 
@@ -131,17 +131,17 @@ class StudyCoordinator(object):
         logger.info(f"Successfully initialized {Keys.TODO} List!")
         logger.info(f"Current Progress: {self.current_progress()}")
 
-    def __generate_eval_sample(self, gts_id: str) -> EvalSample:
-        gts = self.__rh.load_gt_sample(gts_id)
-        tk_imgs = set(gts.top_k_image_ids[0:self.__num_top_k_imgs])
+    def __generate_eval_sample(self, mr_id: str) -> EvalSample:
+        mr = self.__rh.load_model_ranking(mr_id)
+        tk_imgs = set(mr.top_k_image_ids[0:self.__num_top_k_imgs])
         random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
         # make sure intersection set has 0 elements!
         while len(tk_imgs & random_imgs) != 0:
             random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
-        es = EvalSample(gts_id=gts.id,
-                        query=gts.query,
+        es = EvalSample(mr_id=mr.id,
+                        query=mr.query,
                         image_ids=list(tk_imgs.union(random_imgs)))
         self.__rh.store_eval_sample(es)
 
@@ -245,7 +245,7 @@ class StudyCoordinator(object):
             'num_todo': self.__num_todo(),
             'num_in_progress': self.__num_in_progress(),
             'num_done': self.__num_done(),
-            'num_total': len(self.__rh.get_all_gts_ids()),
+            'num_total': len(self.__rh.get_all_mr_ids()),
             'run': self.__current_run()
         }
 

@@ -1,7 +1,7 @@
 port: 8081
 
 logging:
-  level: INFO
+  level: DEBUG
   rotation: 500 # MB
 
 study:
@@ -19,9 +19,9 @@ backend:
     host: ${env:REDIS_HOST, localhost}
     port: ${env:REDIS_PORT, 6379}
     eval_sample_db_idx: ${env:REDIS_EVAL_SAMPLE_DB_IDX, 3}
-    gt_sample_db_idx: ${env:REDIS_GT_SAMPLE_DB_IDX, 4}
+    m_rank_db_idx: ${env:REDIS_M_RANK_DB_IDX, 4}
     result_db_idx: ${env:REDIS_RESULT_DB_IDX, 5}
-    progress_db_idx: ${env:REDIS_PROGRESS_DB_IDX, 6}
+    progress_db_idx: ${env:REDIS_STATE_DB_IDX, 6}
 
 image_server:
   https: false
@@ -30,4 +30,4 @@ image_server:
   img_root: ${env:IMG_SRV_ROOT, data/images}
   img_prefix: wikicaps_
   img_suffix: .png
-  context_path: /
+  context_path: ${env:IMG_CTX_PTH, /}
