@@ -45,3 +45,13 @@ class ImageServer(object):
 
     def get_img_urls(self, img_ids: List[str]) -> List[str]:
         return [self.get_img_url(img_id) for img_id in img_ids]
+
+    def get_img_id(self, img_url: str) -> str:
+        img_id = img_url.replace(self.__base_url, "") \
+            .replace(self.__img_prefix, "") \
+            .replace(self.__img_suffix, "") \
+            .replace("/", "")
+        return img_id
+
+    def get_img_ids(self, img_urls: List[str]) -> List[str]:
+        return [self.get_img_id(img_url) for img_url in img_urls]

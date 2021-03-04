@@ -9,6 +9,7 @@ TAG = ["study"]
 router = APIRouter()
 
 
+@logger.catch(reraise=True)
 @router.get("/progress", tags=TAG,
             description="Returns the current progress of the Study")
 async def get_progress():

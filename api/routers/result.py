@@ -13,6 +13,7 @@ router = APIRouter()
 redis = RedisHandler()
 
 
+@logger.catch(reraise=True)
 @router.get("/{result_id}", tags=TAG,
             response_model=EvalResult,
             description="Returns the EvalResult with the specified ID")
@@ -21,6 +22,7 @@ async def load(result_id: str):
     return redis.load_result(result_id)
 
 
+@logger.catch(reraise=True)
 @router.put("/submit", tags=TAG,
             description="Submit an EvalResult")
 async def submit(result: EvalResult):

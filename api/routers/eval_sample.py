@@ -15,6 +15,7 @@ redis = RedisHandler()
 coordinator = StudyCoordinator()
 
 
+@logger.catch(reraise=True)
 @router.get("/next", tags=TAG,
             response_model=Union[EvalSample, int],
             description="Returns the next EvalSample or the shortest waiting time until the next sample is ready.")
@@ -23,6 +24,7 @@ async def get_next_sample():
     return coordinator.next()
 
 
+@logger.catch(reraise=True)
 @router.get("/{sample_id}", tags=TAG,
             response_model=EvalSample,
             description="Returns the EvalSample with the specified ID")
