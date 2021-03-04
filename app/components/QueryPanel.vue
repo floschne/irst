@@ -2,7 +2,7 @@
   <b-container class="p-0">
     <h3>
       Which images are best described by the following sentence? Please rank
-      your Top {{ numRank }} !
+      your Top {{ numRanks }} !
     </h3>
     <b-form-textarea
       id="textarea-plaintext"
