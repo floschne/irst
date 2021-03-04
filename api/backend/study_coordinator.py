@@ -5,6 +5,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from enum import Enum, unique
 from typing import Dict, Union, List
 
+import numpy as np
 import redis
 from loguru import logger
 from omegaconf import OmegaConf
@@ -94,7 +95,13 @@ class StudyCoordinator(object):
         self.expired_watcher.shutdown(wait=False)
 
     def init_study(self):
-        if not bool(int(self.__progress.get(Keys.INIT_FLAG))):
+        # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
+        # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
+        # times
+        time.sleep(np.random.uniform(low=0.01, high=0.1))
+        init_flag = self.__progress.get(Keys.INIT_FLAG)
+        if init_flag is not None and not bool(int(init_flag)):
+            self.__progress.set(Keys.INIT_FLAG, 1)
             # initialize Redis data
             logger.info("Initializing Redis data")
             init_redis_data(data_root=self.__init_data_root,
@@ -103,10 +110,9 @@ class StudyCoordinator(object):
             # init run count with 0
             self.__set_run_count(0)
             # set init flag to True
-            self.__progress.set(Keys.INIT_FLAG, 1)
             logger.info(f"Successfully initialized Study")
 
-        self.__start_new_run()
+            self.__start_new_run()
 
     def __start_new_run(self):
         self.__init_todo()
