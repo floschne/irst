@@ -16,7 +16,7 @@
     <!--     Submit Error Jumbotron -->
     <b-jumbotron
       v-if="!submitSuccess && submitError"
-      class="d-flex justify-content-center h-100 w-100 m-0"
+      class="rounded m-0"
       fluid
       bg-variant="danger"
       text-variant="dark"
@@ -35,8 +35,7 @@
         icon="circle-fill"
         animation="throb"
         variant="dark"
-        style="width: 120px; height: 120px"
-        class="my-auto"
+        class="my-auto ranks"
       />
     </div>
 
@@ -59,10 +58,11 @@
           <b-col
             v-for="imgUrl in imageUrls"
             :key="imgUrl"
+            class="mt-1"
             lg="2"
             md="2"
             sm="3"
-            style="min-width: 130px; min-height: 130px"
+            :style="`min-width: ${img_size}; min-height: ${img_size}`"
           >
             <b-link v-b-modal="`modal-${imgUrl}`" href="#">
               <b-img
@@ -72,9 +72,14 @@
                 fluid
                 rounded
                 :src="imgUrl"
-                height="130px"
-                width="130px"
-                style="max-width: 130px; max-height: 130px"
+                :height="img_size"
+                :width="img_size"
+                :style="`
+                  max-width: ${img_size};
+                  max-height: ${img_size};
+                  min-width: ${img_size};
+                  min-height: ${img_size};
+                  `"
               />
             </b-link>
             <b-modal
@@ -98,12 +103,13 @@
       </b-container>
 
       <!-- IMAGE RANKING -->
-      <b-container fluid class="p-0 m-0">
+      <b-container fluid class="p-0 m-0 fixed-bottom">
         <Draggable
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
           tag="div"
-          class="d-flex flex-row justify-content-center mt-1 bg-light ranks h-100 flex-wrap border border-dark rounded"
+          class="d-flex flex-row justify-content-center mt-1 bg-light flex-wrap border border-dark h-100 rounded"
+          :style="`min-height: ${img_size}`"
           @add="addToRankedImages"
         >
           <h1 v-if="showDragabbleHint" class="text-dark my-auto">
@@ -127,9 +133,9 @@
               :src="imgUrl"
               :badge="`${idx + 1}`"
               rounded="sm"
-              size="130px"
+              :size="img_size"
               badge-top
-              class="ml-1"
+              class="ml-1 border border-dark border"
             />
           </b-link>
         </Draggable>
@@ -147,24 +153,24 @@
             </span>
           </b-progress-bar>
         </b-progress>
-      </b-container>
 
-      <!-- FORM BUTTONS -->
-      <b-form-row class="m-0">
-        <b-button-group class="w-100 mt-3">
-          <b-button type="submit" variant="primary" :disabled="ranksNotFull">
-            <span v-if="ranksNotFull">
-              Which images are best described by the following sentence? Please
-              rank your Top 10!
-            </span>
-            <span v-else>Submit Ranking</span>
-          </b-button>
-          <b-button type="reset" variant="danger">Reset Ranking</b-button>
-          <b-button type="button" variant="warning" @click="loadNextSample">
-            Get New Sample
-          </b-button>
-        </b-button-group>
-      </b-form-row>
+        <!-- FORM BUTTONS -->
+        <b-form-row class="m-0">
+          <b-button-group class="w-100 mt-1">
+            <b-button type="submit" variant="primary" :disabled="ranksNotFull">
+              <span v-if="ranksNotFull">
+                Which images are best described by the following sentence?
+                Please rank your Top 10!
+              </span>
+              <span v-else>Submit Ranking</span>
+            </b-button>
+            <b-button type="reset" variant="danger">Reset Ranking</b-button>
+            <b-button type="button" variant="warning" @click="loadNextSample">
+              Get New Sample
+            </b-button>
+          </b-button-group>
+        </b-form-row>
+      </b-container>
     </b-form>
   </b-container>
 </template>
@@ -179,7 +185,7 @@ export default {
   props: {
     numRanks: {
       type: Number,
-      default: 10,
+      default: 3,
     },
     numImages: {
       type: Number,
@@ -189,11 +195,12 @@ export default {
   data() {
     return {
       rankedImages: [],
-      imageUrls: this.getImageUrls(),
+      imageUrls: [],
       sample: null,
       loading: true,
       submitSuccess: false,
       submitError: false,
+      img_size: '120px',
     }
   },
   computed: {
@@ -218,7 +225,9 @@ export default {
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
     },
-    getImageUrls() {},
+    getImageIds(urls) {
+      return this.$imageApiClient.getIds(urls)
+    },
     onReset(event) {
       event.preventDefault()
       this.rankedImages = []
@@ -226,9 +235,10 @@ export default {
     async onSubmit(event) {
       event.preventDefault()
       this.loading = true
+      const ids = await this.getImageIds(this.rankedImages)
       this.submitSuccess = await this.$resultApiClient.submitResult(
-        this.sample.esId,
-        this.rankedImages
+        this.sample.id,
+        ids
       )
       this.submitError = !this.submitSuccess
       this.loading = false
@@ -254,6 +264,9 @@ export default {
 
 <style scoped>
 .ranks {
-  min-height: 130px;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
 }
 </style>

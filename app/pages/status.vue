@@ -34,9 +34,7 @@ export default {
   },
   created() {
     this.loadProgress()
-    this.$nuxt.$on('study-progress-changed', () => {
-      console.info('asdnasd')
-    })
+    this.$nuxt.$on('study-progress-changed', this.loadProgress)
   },
   beforeDestroy() {
     this.$nuxt.$off('study-progress-changed')
