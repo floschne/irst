@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 export default ({ app, axios }, inject) => {
   const jsonHeaderConfig = {
     headers: {
@@ -12,6 +14,7 @@ export default ({ app, axios }, inject) => {
         es_id: esId,
         ranking: rankingData,
       }
+      logger('i', result)
       try {
         const resp = await app.$axios.put(
           '/api/result/submit',
@@ -19,14 +22,14 @@ export default ({ app, axios }, inject) => {
           jsonHeaderConfig
         )
         if (resp.status === 200) {
-          window.console.log(resp.data)
+          logger('e', resp)
           return true
         } else {
-          window.console.error(resp.status)
+          logger('e', resp)
           return false
         }
       } catch (error) {
-        window.console.error(error)
+        logger('e', error)
         return false
       }
     },

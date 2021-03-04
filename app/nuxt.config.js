@@ -49,6 +49,7 @@ export default {
     { src: '@/plugins/studyApiClient.js' },
     { src: '@/plugins/vuedraggable.js' },
     { src: '@/plugins/vuechart.js' },
+    { src: '@/plugins/logger.js' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

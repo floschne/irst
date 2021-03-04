@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 export default ({ app, axios }, inject) => {
   const jsonHeaderConfig = {
     headers: {
@@ -17,7 +19,7 @@ export default ({ app, axios }, inject) => {
           apiAlive = false
         }
       } catch (error) {
-        window.console.error(error)
+        logger('e', error)
         apiAlive = false
       }
       return apiAlive

@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 export default ({ app, axios }, inject) => {
   const jsonHeaderConfig = {
     headers: {
@@ -16,11 +18,11 @@ export default ({ app, axios }, inject) => {
         if (resp.status === 200) {
           return resp.data
         } else {
-          window.console.error(resp.status)
+          logger('e', resp)
           return null
         }
       } catch (error) {
-        window.console.error(error)
+        logger('e', error)
         return null
       }
     },
@@ -34,11 +36,29 @@ export default ({ app, axios }, inject) => {
         if (resp.status === 200) {
           return resp.data
         } else {
-          window.console.error(resp.status)
+          logger('e', resp)
           return null
         }
       } catch (error) {
-        window.console.error(error)
+        logger('e', error)
+        return null
+      }
+    },
+    getIds: async (imgUrls) => {
+      try {
+        const resp = await app.$axios.post(
+          '/api/image/ids',
+          imgUrls,
+          jsonHeaderConfig
+        )
+        if (resp.status === 200) {
+          return resp.data
+        } else {
+          logger('e', resp)
+          return null
+        }
+      } catch (error) {
+        logger('e', error)
         return null
       }
     },
