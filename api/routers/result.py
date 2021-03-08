@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from loguru import logger
 from starlette.responses import JSONResponse
 
+from backend import StudyCoordinator
 from backend.db import RedisHandler
 from models import EvalResult
 
@@ -11,6 +12,7 @@ TAG = ["result"]
 router = APIRouter()
 
 redis = RedisHandler()
+sc = StudyCoordinator()
 
 
 @logger.catch(reraise=True)
@@ -27,4 +29,4 @@ async def load(result_id: str):
             description="Submit an EvalResult")
 async def submit(result: EvalResult):
     logger.info(f"GET request on {PREFIX}/submit")
-    return JSONResponse(content=redis.store_result(result))
+    return JSONResponse(content=sc.submit(result))

@@ -202,11 +202,12 @@ class StudyCoordinator(object):
                 logger.info(f"EvalSample {es_id} expired in IN_PROGRESS and moved back to TODO!")
                 logger.info(f"Current Progress: {self.current_progress()}")
 
-    def submit(self, res: EvalResult):
+    def submit(self, res: EvalResult) -> bool:
         with self.__sync_lock:
             logger.info(f"EvalResult {res.id} submission received!")
             # store the EvalResult
-            self.__rh.store_result(res)
+            if self.__rh.store_result(res) is None:
+                return False
             # reference the EvalResult in the current run results
             self.__reference_in_current_run_results(res)
             # move referenced EvalSample to DONE
@@ -218,6 +219,8 @@ class StudyCoordinator(object):
             # if this was the last remaining EvalSample, we start a new study run
             if self.__study_run_finished():
                 self.__start_new_run()
+
+        return True
 
     def __reference_in_current_run_results(self, res: EvalResult):
         self.__progress.sadd(self.__current_run_results_key(), res.id)

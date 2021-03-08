@@ -87,7 +87,7 @@ class RedisHandler(object):
 
     def store_model_ranking(self, mr: ModelRanking) -> str:
         if self.__m_rankings.set(mr.id, mr.json()) != 1:
-            logger.error(f"Cannot store ModelRanking {mr.id}")
+            logger.error(f"Cannot store ModelRanking {mr.json()}")
 
         # store all associated image ids
         self.store_image_ids(mr)
@@ -114,7 +114,7 @@ class RedisHandler(object):
 
     def store_eval_sample(self, sample: EvalSample) -> str:
         if self.__eval_samples.set(sample.id, sample.json()) != 1:
-            logger.error(f"Cannot store EvalSample {sample.id}")
+            logger.error(f"Cannot store EvalSample {sample.json()}")
         logger.debug(f"Successfully stored EvalSample {sample.id}")
         return sample.id
 
@@ -139,8 +139,8 @@ class RedisHandler(object):
                 f"EvalSample {result.es_id} referenced in EvalResult {result.id} does not exist! Discarding!")
             return None
 
-        if not self.__results.set(result.id, result.json()) != 1:
-            logger.error(f"Cannot store EvalResult {result.id}")
+        if self.__results.set(result.id, result.json()) != 1:
+            logger.error(f"Cannot store EvalResult {result.json()}")
             return None
         else:
             logger.debug(f"Successfully stored EvalResult {result.id}")
