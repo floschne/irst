@@ -10,7 +10,9 @@
       header="Thanks! Your ranking was submitted successfully"
       lead="Start another ranking?"
     >
-      <b-button variant="primary" @click="loadNextSample">Start!</b-button>
+      <b-button v-if="esId === null" variant="primary" @click="loadNextSample"
+        >Start!</b-button
+      >
     </b-jumbotron>
 
     <!--     Submit Error Jumbotron -->
@@ -23,7 +25,24 @@
       header="Sorry! A problem occurred during your submission..."
       lead="Start another ranking?"
     >
-      <b-button variant="primary" @click="loadNextSample">Start!</b-button>
+      <b-button v-if="esId === null" variant="primary" @click="loadNextSample"
+        >Start!</b-button
+      >
+    </b-jumbotron>
+
+    <!--     Load Error Jumbotron -->
+    <b-jumbotron
+      v-if="!loadSuccess && loadError"
+      class="rounded m-0"
+      fluid
+      bg-variant="danger"
+      text-variant="dark"
+      header="Sorry! A problem occurred while loading your evaluation sample..."
+      lead="Please start another ranking!"
+    >
+      <b-button v-if="esId === null" variant="primary" @click="loadNextSample"
+        >Start!</b-button
+      >
     </b-jumbotron>
 
     <!--    Loading Icon -->
@@ -41,7 +60,7 @@
 
     <!--    Ranking Form -->
     <b-form
-      v-else-if="!loading && !submitSuccess && !submitError"
+      v-else-if="!loading && loadSuccess && !loadError"
       @submit="onSubmit"
       @reset="onReset"
     >
@@ -160,12 +179,17 @@
             <b-button type="submit" variant="primary" :disabled="ranksNotFull">
               <span v-if="ranksNotFull">
                 Which images are best described by the following sentence?
-                Please rank your Top 10!
+                Please rank your Top {{ numRanks }}!
               </span>
               <span v-else>Submit Ranking</span>
             </b-button>
             <b-button type="reset" variant="danger">Reset Ranking</b-button>
-            <b-button type="button" variant="warning" @click="loadNextSample">
+            <b-button
+              v-if="esId === null"
+              type="button"
+              variant="warning"
+              @click="loadNextSample"
+            >
               Get New Sample
             </b-button>
           </b-button-group>
@@ -176,7 +200,6 @@
 </template>
 
 <script>
-// import _ from 'lodash'
 import QueryPanel from '~/components/QueryPanel'
 
 export default {
@@ -191,6 +214,10 @@ export default {
       type: Number,
       default: 24,
     },
+    esId: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
@@ -200,7 +227,9 @@ export default {
       loading: true,
       submitSuccess: false,
       submitError: false,
-      img_size: '120px',
+      loadSuccess: false,
+      loadError: false,
+      img_size: '7.5em',
     }
   },
   computed: {
@@ -212,7 +241,8 @@ export default {
     },
   },
   created() {
-    this.loadNextSample()
+    if (this.esId === null) this.loadNextSample()
+    else this.loadSample()
   },
   methods: {
     removeRankedImage(evt, imgUrl) {
@@ -235,24 +265,60 @@ export default {
     async onSubmit(event) {
       event.preventDefault()
       this.loading = true
+      this.submitError = false
+      this.submitSuccess = false
+
       const ids = await this.getImageIds(this.rankedImages)
       this.submitSuccess = await this.$resultApiClient.submitResult(
         this.sample.id,
         ids
       )
       this.submitError = !this.submitSuccess
+      this.loadError = false
+      this.loadSuccess = false
       this.loading = false
 
       this.$nuxt.$emit('study-progress-changed')
     },
     async loadNextSample() {
       this.loading = true
-      this.submitSuccess = false
+      this.loadSuccess = false
+      this.loadError = false
       this.submitError = false
+      this.submitSuccess = false
+
       this.rankedImages = []
 
       this.sample = await this.$sampleApiClient.nextSample()
-      this.imageUrls = await this.$imageApiClient.getUrls(this.sample.image_ids)
+      this.loadSuccess = this.sample !== null
+      this.loadError = !this.loadSuccess
+
+      if (this.loadSuccess)
+        this.imageUrls = await this.$imageApiClient.getUrls(
+          this.sample.image_ids
+        )
+
+      this.loading = false
+
+      this.$nuxt.$emit('study-progress-changed')
+    },
+    async loadSample() {
+      this.loading = true
+      this.loadSuccess = false
+      this.loadError = false
+      this.submitError = false
+      this.submitSuccess = false
+
+      this.rankedImages = []
+
+      this.sample = await this.$sampleApiClient.load(this.esId)
+      this.loadSuccess = this.sample !== null
+      this.loadError = !this.loadSuccess
+
+      if (this.loadSuccess)
+        this.imageUrls = await this.$imageApiClient.getUrls(
+          this.sample.image_ids
+        )
 
       this.loading = false
 
@@ -264,9 +330,9 @@ export default {
 
 <style scoped>
 .ranks {
-  min-height: 120px !important;
-  max-height: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
+  min-height: 7.5em !important;
+  max-height: 7.5em !important;
+  min-width: 7.5em !important;
+  max-width: 7.5em !important;
 }
 </style>
