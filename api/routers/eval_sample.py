@@ -1,11 +1,11 @@
-from typing import Union
+from typing import Union, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from loguru import logger
 
 from backend import StudyCoordinator
 from backend.db import RedisHandler
-from models import EvalSample
+from models import EvalSample, MTurkParams
 
 PREFIX = "/sample"
 TAG = ["sample"]
@@ -28,6 +28,9 @@ async def get_next_sample():
 @router.get("/{sample_id}", tags=TAG,
             response_model=EvalSample,
             description="Returns the EvalSample with the specified ID")
-async def load_sample(sample_id: str):
+async def load_sample(sample_id: str, mt: Optional[MTurkParams] = Depends(MTurkParams)):
     logger.info(f"GET request on {PREFIX}/{sample_id}")
-    return redis.load_eval_sample(sample_id)
+    sample = redis.load_eval_sample(sample_id)
+    sample.add_mt_params(mt)
+
+    return sample
