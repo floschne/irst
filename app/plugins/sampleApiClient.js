@@ -23,6 +23,23 @@ export default ({ app, axios }, inject) => {
         return null
       }
     },
+    load: async (esId) => {
+      try {
+        const resp = await app.$axios.get(
+          `/api/sample/${esId}`,
+          jsonHeaderConfig
+        )
+        if (resp.status === 200) {
+          return resp.data
+        } else {
+          logger('e', resp)
+          return null
+        }
+      } catch (error) {
+        logger('e', error)
+        return null
+      }
+    },
   }
 
   // inject methods so that they can be called in any component or function with this.$sampleApiClient.
