@@ -17,7 +17,6 @@ const proxyConfig = () => {
     },
   }
 }
-
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -50,6 +49,7 @@ export default {
     { src: '@/plugins/vuedraggable.js' },
     { src: '@/plugins/vuechart.js' },
     { src: '@/plugins/logger.js' },
+    { src: '@/plugins/axisLoggingInterceptor.js' },
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -77,6 +77,7 @@ export default {
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
     proxy: true,
+    debug: true,
   },
 
   // https://bootstrap-vue.org/docs#icons
