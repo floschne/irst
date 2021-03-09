@@ -34,7 +34,7 @@ services:
     image: "p0w3r/mt_user_study_app:latest"
     environment:
       - "APP_DEPLOY=${APP_DEPLOY}"
-      - "APP_CTX_PTH=${APP_CTX_PATH}"
+      - "APP_CTX_PTH=${APP_CTX_PTH}"
       - "API_HOST=${API_HOST}"
       - "API_PORT=${API_PORT}"
     ports:
