@@ -88,7 +88,7 @@ export default {
   build: {},
 
   router: {
-    base: process.env.APP_CONTEXT_PATH,
+    base: process.env.APP_CTX_PTH,
   },
 
   server: {
