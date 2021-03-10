@@ -22,6 +22,7 @@ services:
       - "REDIS_STATE_DB_IDX=${REDIS_STATE_DB_IDX}"
       - "IMG_SRV_HOST=${IMG_SRV_HOST}"
       - "IMG_SRV_PORT=${IMG_SRV_PORT}"
+      - "IMG_SRV_CTX_PTH=${IMG_SRV_CTX_PTH}"
       - "IMG_SRV_REL_URL=${IMG_SRV_REL_URL}"
     ports:
       - "${API_EXPOSED_PORT}:80"
