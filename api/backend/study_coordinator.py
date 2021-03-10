@@ -98,7 +98,7 @@ class StudyCoordinator(object):
         # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
         # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
         # times
-        time.sleep(np.random.uniform(low=0.01, high=0.1))
+        time.sleep(np.random.uniform(low=0.05, high=0.5))
         init_flag = self.__progress.get(Keys.INIT_FLAG)
         if init_flag is not None and not bool(int(init_flag)):
             self.__progress.set(Keys.INIT_FLAG, 1)
