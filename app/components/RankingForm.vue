@@ -122,7 +122,7 @@
       </b-container>
 
       <!-- IMAGE RANKING -->
-      <b-container fluid class="p-0 m-1 fixed-bottom">
+      <b-container fluid class="p-1 fixed-bottom">
         <Draggable
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
