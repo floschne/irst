@@ -57,7 +57,8 @@ class ImageServer(object):
         return [self.get_img_url(img_id) for img_id in img_ids]
 
     def get_img_id(self, img_url: str) -> str:
-        img_id = img_url.replace(self.__base_url, "") \
+        u = self.__relative_url if self.__use_relative_url else self.__base_url
+        img_id = img_url.replace(u, "") \
             .replace(self.__img_prefix, "") \
             .replace(self.__img_suffix, "") \
             .replace("/", "")
