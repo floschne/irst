@@ -1,5 +1,5 @@
 <template>
-  <RankingForm :es-id="esid" />
+  <RankingForm :es-id="esid" :num-ranks="$config.numRanks" />
 </template>
 
 <script>

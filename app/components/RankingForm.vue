@@ -208,7 +208,7 @@ export default {
   props: {
     numRanks: {
       type: Number,
-      default: 3,
+      default: 10,
     },
     numImages: {
       type: Number,

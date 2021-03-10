@@ -31,17 +31,6 @@ import HeartbeatCheckButton from '~/components/HeartbeatCheckButton'
 export default {
   name: 'AppHeader',
   components: { HeartbeatCheckButton },
-  props: {
-    numRanks: {
-      type: Number,
-      default: 10,
-    },
-  },
-  data() {
-    return {
-      numRankedImages: 0,
-    }
-  },
 }
 </script>
 

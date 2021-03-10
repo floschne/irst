@@ -97,4 +97,9 @@ export default {
     host: '0.0.0.0', // default: localhost,
     timing: false,
   },
+
+  // https://nuxtjs.org/docs/2.x/directory-structure/nuxt-config#runtimeconfig
+  publicRuntimeConfig: {
+    numRanks: process.env.APP_NUM_RANKS || 10,
+  },
 }
