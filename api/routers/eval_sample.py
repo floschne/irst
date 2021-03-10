@@ -31,6 +31,7 @@ async def get_next_sample():
 async def load_sample(sample_id: str, mt: Optional[MTurkParams] = Depends(MTurkParams)):
     logger.info(f"GET request on {PREFIX}/{sample_id}")
     sample = redis.load_eval_sample(sample_id)
-    sample.add_mt_params(mt)
+    if sample is not None:
+        sample.add_mt_params(mt)
 
     return sample

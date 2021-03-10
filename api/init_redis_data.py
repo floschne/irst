@@ -35,7 +35,7 @@ def init_redis_data(data_root: str, flush: bool, num_samples: int = -1):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_root', type=str, default=f'{os.getcwd()}/data')
+    parser.add_argument('--data_root', type=str, default=f'../data')
     parser.add_argument('--flush', default=True, action='store_true')
     parser.add_argument('--num_samples', type=int, default=-1)
 

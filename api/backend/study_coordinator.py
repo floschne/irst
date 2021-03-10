@@ -150,7 +150,7 @@ class StudyCoordinator(object):
         random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
         # make sure intersection set has 0 elements!
-        while len(tk_imgs & random_imgs) != 0:
+        while len(tk_imgs.intersection(random_imgs)) != 0:
             random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
         es = EvalSample(mr_id=mr.id,
