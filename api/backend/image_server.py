@@ -18,6 +18,7 @@ class ImageServer(object):
 
             cls.__img_prefix = conf.img_prefix
             cls.__img_suffix = conf.img_suffix
+            cls.__use_relative_url = bool(conf.relative_url)
 
             cls.__img_root = conf.img_root
             if not os.path.lexists(cls.__img_root):
@@ -31,6 +32,14 @@ class ImageServer(object):
             base_url += ":" + str(conf.port)
             base_url += conf.context_path
             cls.__base_url = base_url
+
+            # setup relative url
+            cls.__relative_url = conf.context_path
+            if cls.__relative_url[-1] != '/':
+                cls.__relative_url += '/'
+            if cls.__relative_url[0] != '/':
+                cls.__relative_url = '/' + cls.__relative_url
+
         return cls.__singleton
 
     def __get_img_filename(self, img_id: str):
@@ -41,7 +50,8 @@ class ImageServer(object):
 
     def get_img_url(self, img_id: str) -> str:
         img_file_name = self.__get_img_filename(img_id)
-        return url.urljoin(self.__base_url, img_file_name)
+        u = self.__relative_url if self.__use_relative_url else self.__base_url
+        return url.urljoin(u, img_file_name)
 
     def get_img_urls(self, img_ids: List[str]) -> List[str]:
         return [self.get_img_url(img_id) for img_id in img_ids]
