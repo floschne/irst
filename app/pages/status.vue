@@ -6,8 +6,10 @@
         :options="chartOptions"
         :styles="chartStyles"
       />
-      <h1 class="mt-3">Current Study Run: {{ progress.run }}</h1>
-      <b-button variant="info" @click="loadProgress">Refresh</b-button>
+      <div class="w-100 fixed-bottom mt-3 mb-1">
+        <h1 class="">Current Study Run: {{ progress.run }}</h1>
+        <b-button variant="info" @click="loadProgress">Refresh</b-button>
+      </div>
     </div>
 
     <h1 v-else>Loading...</h1>

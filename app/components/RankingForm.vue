@@ -175,7 +175,7 @@
 
         <!-- FORM BUTTONS -->
         <b-form-row class="m-0">
-          <b-button-group class="w-100 mt-1">
+          <b-button-group class="w-100 mt-1 mb-1">
             <b-button type="submit" variant="primary" :disabled="ranksNotFull">
               <span v-if="ranksNotFull">
                 Which images are best described by the following sentence?
