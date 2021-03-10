@@ -5,7 +5,7 @@ from omegaconf import OmegaConf
 
 from backend import StudyCoordinator, ImageServer
 from backend.db import RedisHandler
-from routers import general, eval_sample, result, image, study
+from routers import general, eval_sample, result, image, study, mranking
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -47,6 +47,7 @@ app.include_router(eval_sample.router, prefix=eval_sample.PREFIX)
 app.include_router(result.router, prefix=result.PREFIX)
 app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)
+app.include_router(mranking.router, prefix=mranking.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":

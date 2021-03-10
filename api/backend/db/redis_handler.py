@@ -95,10 +95,11 @@ class RedisHandler(object):
         logger.debug(f"Successfully stored ModelRanking {mr.id}")
         return mr.id
 
-    def load_model_ranking(self, mr_id: str) -> ModelRanking:
+    def load_model_ranking(self, mr_id: str) -> Optional[ModelRanking]:
         s = self.__m_rankings.get(mr_id)
         if s is None:
             logger.error(f"Cannot load ModelRanking {mr_id}")
+            return None
         else:
             sample = ModelRanking.parse_raw(s)
             logger.debug(f"Successfully loaded ModelRanking {sample.id}")
@@ -146,10 +147,11 @@ class RedisHandler(object):
             logger.debug(f"Successfully stored EvalResult {result.id}")
             return result.id
 
-    def load_result(self, result_id: str) -> EvalResult:
+    def load_result(self, result_id: str) -> Optional[EvalResult]:
         s = self.__results.get(result_id)
         if s is None:
             logger.error(f"Cannot load EvalResult {result_id}")
+            return None
         else:
             result = EvalResult.parse_raw(s)
             logger.debug(f"Successfully loaded EvalResult {result.id}")
