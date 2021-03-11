@@ -18,6 +18,7 @@ class ImageServer(object):
 
             cls.__img_prefix = conf.img_prefix
             cls.__img_suffix = conf.img_suffix
+            cls.__img_thumbnail_infix = conf.img_thumbnail_infix
             cls.__use_relative_url = bool(conf.relative_url)
 
             cls.__img_root = conf.img_root
@@ -48,18 +49,25 @@ class ImageServer(object):
             logger.warning(f"Cannot find Image {img_id} at {img_fn}")
         return img_fn
 
-    def get_img_url(self, img_id: str) -> str:
-        img_file_name = self.__get_img_filename(img_id)
-        u = self.__relative_url if self.__use_relative_url else self.__base_url
-        return url.urljoin(u, img_file_name)
+    def __get_thumbnail_filename(self, img_id: str):
+        thumbnail_fn = f"{self.__img_prefix}{img_id}{self.__img_thumbnail_infix}{self.__img_suffix}"
+        if not os.path.lexists(os.path.join(self.__img_root, thumbnail_fn)):
+            logger.warning(f"Cannot find Image Thumbnail of {img_id} at {thumbnail_fn}")
+        return thumbnail_fn
 
-    def get_img_urls(self, img_ids: List[str]) -> List[str]:
-        return [self.get_img_url(img_id) for img_id in img_ids]
+    def get_img_url(self, img_id: str, thumbnail: bool = False) -> str:
+        img_fn = self.__get_img_filename(img_id) if not thumbnail else self.__get_thumbnail_filename(img_id)
+        u = self.__relative_url if self.__use_relative_url else self.__base_url
+        return url.urljoin(u, img_fn)
+
+    def get_img_urls(self, img_ids: List[str], thumbnail: bool = False) -> List[str]:
+        return [self.get_img_url(img_id, thumbnail) for img_id in img_ids]
 
     def get_img_id(self, img_url: str) -> str:
         u = self.__relative_url if self.__use_relative_url else self.__base_url
         img_id = img_url.replace(u, "") \
             .replace(self.__img_prefix, "") \
+            .replace(self.__img_thumbnail_infix, "") \
             .replace(self.__img_suffix, "") \
             .replace("/", "")
         return img_id

@@ -9,30 +9,12 @@ export default ({ app, axios }, inject) => {
 
   // define the methods
   const imageApiClient = {
-    getUrl: async (imgId) => {
+    getUrls: async (imgIds, thumbnail = false) => {
       try {
-        const resp = await app.$axios.get(
-          `${app.$config.ctxPath}api/image/${imgId}`,
-          jsonHeaderConfig
-        )
-        if (resp.status === 200) {
-          return resp.data
-        } else {
-          logger('e', resp)
-          return null
-        }
-      } catch (error) {
-        logger('e', error)
-        return null
-      }
-    },
-    getUrls: async (imgIds) => {
-      try {
-        const resp = await app.$axios.post(
-          `${app.$config.ctxPath}api/image/urls`,
-          imgIds,
-          jsonHeaderConfig
-        )
+        let u = `${app.$config.ctxPath}api/image/`
+        if (thumbnail) u += 'thumbnails'
+        else u += 'urls'
+        const resp = await app.$axios.post(u, imgIds, jsonHeaderConfig)
         if (resp.status === 200) {
           return resp.data
         } else {

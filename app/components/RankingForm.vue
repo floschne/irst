@@ -76,21 +76,21 @@
           class="row text-center no-gutters"
         >
           <b-col
-            v-for="imgUrl in imageUrls"
-            :key="imgUrl"
+            v-for="(tnUrl, idx) in thumbnailUrls"
+            :key="tnUrl"
             class="mt-1"
             lg="2"
             md="3"
             sm="4"
             :style="`min-width: ${img_size}px; min-height: ${img_size}px`"
           >
-            <b-link v-b-modal="`modal-${imgUrl}`" href="#">
+            <b-link v-b-modal="`modal-${tnUrl}`" href="#">
               <b-img
-                :id="`img-${imgUrl}`"
+                :id="`img-${tnUrl}`"
                 v-b-tooltip.hover.bottom="'Click to enlarge'"
                 thumbnail
                 rounded
-                :src="imgUrl"
+                :src="tnUrl"
                 :style="`
                   max-width: ${img_size}px;
                   max-height: ${img_size}px;
@@ -100,7 +100,7 @@
               />
             </b-link>
             <b-modal
-              :id="`modal-${imgUrl}`"
+              :id="`modal-${tnUrl}`"
               centered
               ok-only
               hide-header
@@ -113,7 +113,7 @@
                 center
                 rounded="sm"
                 class="border border-dark"
-                :src="imgUrl"
+                :src="imageUrls[idx]"
               />
               <template #modal-footer>
                 <p>{{ sample.query }}</p>
@@ -231,6 +231,7 @@ export default {
     return {
       rankedImages: [],
       imageUrls: [],
+      thumbnailUrls: [],
       sample: null,
       loading: true,
       submitSuccess: false,
@@ -301,10 +302,18 @@ export default {
       this.loadSuccess = this.sample !== null
       this.loadError = !this.loadSuccess
 
-      if (this.loadSuccess)
+      if (this.loadSuccess) {
+        // load image urls
         this.imageUrls = await this.$imageApiClient.getUrls(
-          this.sample.image_ids
+          this.sample.image_ids,
+          false
         )
+        // load thumbnail urls
+        this.thumbnailUrls = await this.$imageApiClient.getUrls(
+          this.sample.image_ids,
+          true
+        )
+      }
 
       this.loading = false
 
@@ -323,10 +332,18 @@ export default {
       this.loadSuccess = this.sample !== null
       this.loadError = !this.loadSuccess
 
-      if (this.loadSuccess)
+      if (this.loadSuccess) {
+        // load image urls
         this.imageUrls = await this.$imageApiClient.getUrls(
-          this.sample.image_ids
+          this.sample.image_ids,
+          false
         )
+        // load thumbnail urls
+        this.thumbnailUrls = await this.$imageApiClient.getUrls(
+          this.sample.image_ids,
+          true
+        )
+      }
 
       this.loading = false
 

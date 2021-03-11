@@ -31,4 +31,5 @@ image_server:
   context_path: ${env:IMG_SRV_CTX_PTH, /}
   img_root: ${env:IMG_SRV_ROOT, data/images}
   img_prefix: wikicaps_
-  img_suffix: .png
+  img_thumbnail_infix: _thumbnail
+  img_suffix: .webp
