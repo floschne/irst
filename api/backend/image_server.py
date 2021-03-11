@@ -1,9 +1,12 @@
 import os
+import time
 import urllib.parse as url
 from typing import List
 
+import numpy as np
 from loguru import logger
 from omegaconf import OmegaConf
+from init_imgs import init_images
 
 
 class ImageServer(object):
@@ -74,3 +77,11 @@ class ImageServer(object):
 
     def get_img_ids(self, img_urls: List[str]) -> List[str]:
         return [self.get_img_id(img_url) for img_url in img_urls]
+
+    def init_image_data(self):
+        # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
+        # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
+        # times
+        time.sleep(np.random.uniform(low=0.05, high=0.5))
+        logger.info("Initializing Image Data")
+        init_images(image_dir=self.__img_root)

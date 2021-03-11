@@ -5,13 +5,14 @@ from loguru import logger
 from starlette.responses import JSONResponse
 
 router = APIRouter()
+from backend import StudyCoordinator
 
 
 @logger.catch(reraise=True)
 @router.get("/heartbeat", tags=["general"], description="Return True if the API is alive and running")
 async def heartbeat():
     logger.info("GET request on /heartbeat")
-    return JSONResponse(content=True)
+    return JSONResponse(content=StudyCoordinator().init_done())
 
 
 @logger.catch(reraise=True)

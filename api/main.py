@@ -21,12 +21,15 @@ def startup_event():
         # setup logger
         logger.add('logs/{time}.log', rotation=f"{conf.logging.rotation} MB", level=conf.logging.level)
 
-        # instantiate singletons
+        # init redis
         RedisHandler()
-        ImageServer()
-        coord = StudyCoordinator()
+
+        # init image server
+        img_srv = ImageServer()
+        img_srv.init_image_data()
 
         # init study
+        coord = StudyCoordinator()
         coord.init_study()
 
     except Exception as e:
