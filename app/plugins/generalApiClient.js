@@ -12,7 +12,10 @@ export default ({ app, axios }, inject) => {
     heartbeat: async () => {
       let apiAlive
       try {
-        const resp = await app.$axios.get('/api/heartbeat', jsonHeaderConfig)
+        const resp = await app.$axios.get(
+          `${app.$config.ctxPath}api/heartbeat`,
+          jsonHeaderConfig
+        )
         if (resp.status === 200) {
           apiAlive = resp.data
         } else {

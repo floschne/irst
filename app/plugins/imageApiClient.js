@@ -12,7 +12,7 @@ export default ({ app, axios }, inject) => {
     getUrl: async (imgId) => {
       try {
         const resp = await app.$axios.get(
-          `/api/image/${imgId}`,
+          `${app.$config.ctxPath}api/image/${imgId}`,
           jsonHeaderConfig
         )
         if (resp.status === 200) {
@@ -29,7 +29,7 @@ export default ({ app, axios }, inject) => {
     getUrls: async (imgIds) => {
       try {
         const resp = await app.$axios.post(
-          '/api/image/urls',
+          `${app.$config.ctxPath}api/image/urls`,
           imgIds,
           jsonHeaderConfig
         )
@@ -47,7 +47,7 @@ export default ({ app, axios }, inject) => {
     getIds: async (imgUrls) => {
       try {
         const resp = await app.$axios.post(
-          '/api/image/ids',
+          `${app.$config.ctxPath}api/image/ids`,
           imgUrls,
           jsonHeaderConfig
         )

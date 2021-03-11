@@ -12,7 +12,7 @@ export default ({ app, axios }, inject) => {
     getProgress: async () => {
       try {
         const resp = await app.$axios.get(
-          '/api/study/progress',
+          `${app.$config.ctxPath}api/study/progress`,
           jsonHeaderConfig
         )
         if (resp.status === 200) {

@@ -1,6 +1,6 @@
 const proxyConfig = () => {
   let proxyTarget = ''
-
+  const ctxPath = process.env.APP_CTX_PTH || '/'
   if (process.env.APP_DEPLOY === 'docker') {
     const dockerApiHost = process.env.API_HOST
     const dockerApiPort = process.env.API_PORT
@@ -10,13 +10,30 @@ const proxyConfig = () => {
     proxyTarget = 'http://localhost:8081/'
   }
 
-  return {
-    '/api/': {
-      target: proxyTarget,
-      pathRewrite: { '^/api/': '' },
-    },
+  // https://github.com/chimurai/http-proxy-middleware/blob/master/recipes/pathRewrite.md#custom-rewrite-function
+  const customRewrite = (pth, req) => {
+    const ctx = `${ctxPath}api/`
+    return pth.replace(ctx, '/')
   }
+
+  // https://github.com/chimurai/http-proxy-middleware#context-matching
+  const customMatching = (pathname, req) => {
+    const ctx = `${ctxPath}api/`
+    return pathname.match(ctx)
+  }
+
+  // https://github.com/nuxt-community/proxy-module/issues/57
+  return [
+    [
+      customMatching,
+      {
+        target: proxyTarget,
+        pathRewrite: customRewrite,
+      },
+    ],
+  ]
 }
+
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -101,5 +118,6 @@ export default {
   // https://nuxtjs.org/docs/2.x/directory-structure/nuxt-config#runtimeconfig
   publicRuntimeConfig: {
     numRanks: process.env.APP_NUM_RANKS || 10,
+    ctxPath: process.env.APP_CTX_PTH || '',
   },
 }

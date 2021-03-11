@@ -17,7 +17,7 @@ export default ({ app, axios }, inject) => {
       logger('i', result)
       try {
         const resp = await app.$axios.put(
-          '/api/result/submit',
+          `${app.$config.ctxPath}api/result/submit`,
           result,
           jsonHeaderConfig
         )

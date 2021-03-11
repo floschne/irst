@@ -11,7 +11,10 @@ export default ({ app, axios }, inject) => {
   const sampleApiClient = {
     nextSample: async () => {
       try {
-        const resp = await app.$axios.get('/api/sample/next', jsonHeaderConfig)
+        const resp = await app.$axios.get(
+          `${app.$config.ctxPath}api/sample/next`,
+          jsonHeaderConfig
+        )
         if (resp.status === 200) {
           return resp.data
         } else {
@@ -26,7 +29,7 @@ export default ({ app, axios }, inject) => {
     load: async (esId) => {
       try {
         const resp = await app.$axios.get(
-          `/api/sample/${esId}`,
+          `${app.$config.ctxPath}api/sample/${esId}`,
           jsonHeaderConfig
         )
         if (resp.status === 200) {
