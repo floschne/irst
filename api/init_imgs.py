@@ -15,9 +15,9 @@ def convert_to_webp(im, f, webp_quality):
     im.save(f + ".webp", "WEBP", quality=webp_quality, lossless=True, method=6)
 
 
-def create_thumbnail(im, f, size, webp_quality):
+def create_thumbnail(im, f, size):
     im.thumbnail((size, size))
-    im.save(f + "_thumbnail.webp", "WEBP", quality=webp_quality, lossless=True, method=6)
+    im.save(f + "_thumbnail.webp", "WEBP", quality=85, lossless=True, method=6)
 
 
 def task(pth: str,
@@ -32,7 +32,7 @@ def task(pth: str,
         if webp:
             convert_to_webp(im, f, webp_quality)
         if thumbnails:
-            create_thumbnail(im, f, thumbnail_size, webp_quality)
+            create_thumbnail(im, f, thumbnail_size)
     if remove_original:
         os.remove(pth)
 
