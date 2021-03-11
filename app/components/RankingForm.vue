@@ -68,7 +68,7 @@
       <QueryPanel :query="sample.query" :num-ranks="numRanks" />
 
       <!-- Image Selection -->
-      <b-container>
+      <b-container fluid style="max-height: 500px" class="overflow-auto">
         <Draggable
           :value="imageUrls"
           :group="{ name: 'images', pull: 'clone', put: false, sort: false }"
@@ -79,25 +79,22 @@
             :key="imgUrl"
             class="mt-1"
             lg="2"
-            md="2"
-            sm="3"
-            :style="`min-width: ${img_size}; min-height: ${img_size}`"
+            md="3"
+            sm="4"
+            :style="`min-width: ${img_size}px; min-height: ${img_size}px`"
           >
             <b-link v-b-modal="`modal-${imgUrl}`" href="#">
               <b-img
                 :id="`img-${imgUrl}`"
                 v-b-tooltip.hover.bottom="'Click to enlarge'"
                 thumbnail
-                fluid
                 rounded
                 :src="imgUrl"
-                :height="img_size"
-                :width="img_size"
                 :style="`
-                  max-width: ${img_size};
-                  max-height: ${img_size};
-                  min-width: ${img_size};
-                  min-height: ${img_size};
+                  max-width: ${img_size}px;
+                  max-height: ${img_size}px;
+                  min-width: ${img_size}px;
+                  min-height: ${img_size}px;
                   `"
               />
             </b-link>
@@ -127,8 +124,9 @@
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
           tag="div"
-          class="d-flex flex-row justify-content-center mt-1 bg-light flex-wrap border border-dark h-100 rounded"
-          :style="`min-height: ${img_size}`"
+          class="d-flex flex-row flex-nowrap justify-content-center mt-1 bg-light border border-dark h-100 rounded overflow-auto"
+          :style="`min-height: ${img_size}px;
+           max-height: ${img_size + 15}px; max-width: 100vw`"
           @add="addToRankedImages"
         >
           <h1 v-if="showDragabbleHint" class="text-dark my-auto">
@@ -152,7 +150,7 @@
               :src="imgUrl"
               :badge="`${idx + 1}`"
               rounded="sm"
-              :size="img_size"
+              :size="`${img_size}px`"
               badge-top
               class="ml-1 border border-dark border"
             />
@@ -229,7 +227,7 @@ export default {
       submitError: false,
       loadSuccess: false,
       loadError: false,
-      img_size: '7.5em',
+      img_size: 120,
     }
   },
   computed: {
