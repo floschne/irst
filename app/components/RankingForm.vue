@@ -64,11 +64,12 @@
       @submit="onSubmit"
       @reset="onReset"
     >
-      <!-- Query -->
-      <QueryPanel :query="sample.query" :num-ranks="numRanks" />
-
       <!-- Image Selection -->
-      <b-container fluid style="max-height: 500px" class="overflow-auto">
+      <b-container
+        fluid
+        style="max-height: 550px"
+        class="overflow-auto border border-dark rounded-top bg-secondary p-3"
+      >
         <Draggable
           :value="imageUrls"
           :group="{ name: 'images', pull: 'clone', put: false, sort: false }"
@@ -101,10 +102,11 @@
             <b-modal
               :id="`modal-${imgUrl}`"
               centered
-              :title="sample.query"
               ok-only
-              hide-footer
+              hide-header
               size="lg"
+              footer-bg-variant="dark"
+              footer-text-variant="light"
             >
               <b-img
                 fluid
@@ -113,10 +115,21 @@
                 class="border border-dark"
                 :src="imgUrl"
               />
+              <template #modal-footer>
+                <p>{{ sample.query }}</p>
+              </template>
             </b-modal>
           </b-col>
         </Draggable>
       </b-container>
+
+      <!-- Query -->
+      <h4
+        class="p-2 border border-dark rounded-bottom bg-info font-italic"
+        :style="`height: ${img_size + 10}px;`"
+      >
+        {{ sample.query }}
+      </h4>
 
       <!-- IMAGE RANKING -->
       <b-container fluid class="p-1 fixed-bottom">
@@ -176,8 +189,8 @@
           <b-button-group class="w-100 mt-1 mb-1">
             <b-button type="submit" variant="primary" :disabled="ranksNotFull">
               <span v-if="ranksNotFull">
-                Which images are best described by the following sentence?
-                Please rank your Top {{ numRanks }}!
+                Which images are best described by the caption? Please rank your
+                Top {{ numRanks }}!
               </span>
               <span v-else>Submit Ranking</span>
             </b-button>
@@ -198,11 +211,8 @@
 </template>
 
 <script>
-import QueryPanel from '~/components/QueryPanel'
-
 export default {
   name: 'RankingForm',
-  components: { QueryPanel },
   props: {
     numRanks: {
       type: Number,

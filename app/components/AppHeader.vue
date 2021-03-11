@@ -16,6 +16,11 @@
         />
       </b-navbar-brand>
 
+      <b-nav-text class="w-100 text-center h2 p-0 m-0 text-danger">
+        Which images are best described by the caption? Please rank your Top
+        {{ $config.numRanks }}!
+      </b-nav-text>
+
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
           <HeartbeatCheckButton />
