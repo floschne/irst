@@ -6,7 +6,8 @@ from omegaconf import OmegaConf
 from backend import StudyCoordinator, ImageServer
 from backend.auth import AuthHandler
 from backend.db import RedisHandler
-from routers import general, eval_sample, result, image, study, mranking, user
+from backend.mturk import MTurkHandler
+from routers import general, eval_sample, result, image, study, mranking, user, mturk
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -38,6 +39,10 @@ def startup_event():
         coord = StudyCoordinator()
         coord.init_study()
 
+        # init mturk
+        mt = MTurkHandler()
+        mt.init()
+
     except Exception as e:
         msg = f"Error while starting the API! Exception: {str(e)}"
         logger.error(msg)
@@ -59,6 +64,7 @@ app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)
 app.include_router(mranking.router, prefix=mranking.PREFIX)
 app.include_router(user.router, prefix=user.PREFIX)
+app.include_router(mturk.router, prefix=mturk.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":

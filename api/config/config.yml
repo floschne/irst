@@ -24,16 +24,22 @@ backend:
     progress_db_idx: ${env:REDIS_STATE_DB_IDX, 6}
     auth_db_idx: ${env:REDIS_STATE_DB_IDX, 7}
   mturk:
+    sandbox: True
     aws_access_key: ${env:AWS_ACCESS_KEY}
     aws_secret: ${env:AWS_SECRET}
     aws_region_name: ${env:AWS_REGION_NAME, us-east-1}
-    hit_auto_approval_delay_in_seconds: 3600
-    hit_assignment_duration_in_seconds: 300
-    hit_reward_live: 0.1
+    hit_auto_approval_delay_in_seconds: 21600 # 21600 = 6 hours
+    hit_assignment_duration_in_seconds: 300 # 5 min
+    hit_reward_live: 0.2
     hit_reward_sandbox: 0.0
     hit_title: Image ranking according to a caption
     hit_description: This survey's goal is to evaluate the ranking of an AI by letting you re-rank images according to captions.
     hit_keywords: image, ranking, AI, visual
+    hit_max_assignments: 3
+    hit_lifetime: 604800 # 604800 = 1 week's seconds
+    worker_quali_req_min_hits_approved: 100
+    worker_quali_req_min_percent_approved: 90
+    external_question_base_url: ${env:EQ_BASE_URL, http://ltdemos.informatik.uni-hamburg.de/imagerank/study/}
   auth:
     jwt_secret: ${env:JWT_SECRET, }
     jwt_algo: ${env:JWT_ALGO, HS256}
