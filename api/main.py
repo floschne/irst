@@ -4,8 +4,9 @@ from loguru import logger
 from omegaconf import OmegaConf
 
 from backend import StudyCoordinator, ImageServer
+from backend.auth import AuthHandler
 from backend.db import RedisHandler
-from routers import general, eval_sample, result, image, study, mranking
+from routers import general, eval_sample, result, image, study, mranking, user
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -13,6 +14,7 @@ app = FastAPI(title="User Study API",
               version="beta")
 
 
+@logger.catch(reraise=True)
 @app.on_event("startup")
 def startup_event():
     try:
@@ -23,6 +25,10 @@ def startup_event():
 
         # init redis
         RedisHandler()
+
+        # init auth handler
+        auth = AuthHandler()
+        auth.register_admin()
 
         # init image server
         img_srv = ImageServer()
@@ -38,6 +44,7 @@ def startup_event():
         raise SystemExit(msg)
 
 
+@logger.catch(reraise=True)
 @app.on_event("shutdown")
 def shutdown_event():
     RedisHandler().shutdown()
@@ -51,6 +58,7 @@ app.include_router(result.router, prefix=result.PREFIX)
 app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)
 app.include_router(mranking.router, prefix=mranking.PREFIX)
+app.include_router(user.router, prefix=user.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":

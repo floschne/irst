@@ -12,7 +12,7 @@ from omegaconf import OmegaConf
 
 from backend import ImageServer
 from backend.db import RedisHandler
-from init_redis_data import init_redis_data
+from init_redis_data import init_study_data
 from models import EvalResult, EvalSample
 
 
@@ -115,9 +115,9 @@ class StudyCoordinator(object):
             # set init state to in_progress
             self.__progress.set(Keys.INIT_STATE, InitState.IN_PROGRESS.value)
 
-            # initialize Redis data
-            logger.info("Initializing Redis data")
-            init_redis_data(data_root=self.__init_data_root,
+            # initialize study data
+            logger.info("Initializing Study data")
+            init_study_data(data_root=self.__init_data_root,
                             flush=self.__init_flush,
                             num_samples=self.__init_num_samples)
 

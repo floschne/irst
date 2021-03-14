@@ -11,9 +11,6 @@ from models import EvalSample, EvalResult, ModelRanking
 class RedisHandler(object):
     __singleton = None
     __sync_lock = None
-    __eval_samples: redis.Redis = None
-    __m_rankings: redis.Redis = None
-    __results: redis.Redis = None
 
     def __new__(cls, *args, **kwargs):
         if cls.__singleton is None:
@@ -44,13 +41,17 @@ class RedisHandler(object):
             cls.__results = redis.Redis(host=r_host, port=r_port, db=r_result_db_idx)
             assert cls.__results.ping(), f"Couldn't connect to Redis DB {r_result_db_idx} at {r_host}:{r_port}!"
 
-        return cls.__singleton
+            r_auth_db_idx = conf.backend.redis.auth_db_idx
+            cls.__auth = redis.Redis(host=r_host, port=r_port, db=r_auth_db_idx)
+            assert cls.__auth.ping(), f"Couldn't connect to Redis DB {r_auth_db_idx} at {r_host}:{r_port}!"
 
-    def __init__(self):
-        self.__progress_pubsub = None
+        return cls.__singleton
 
     def get_progress_client(self):
         return self.__progress
+
+    def get_auth_client(self):
+        return self.__auth
 
     def shutdown(self) -> None:
         logger.info("Shutting down RedisHandler!")
@@ -58,18 +59,23 @@ class RedisHandler(object):
         self.__eval_samples.close()
         self.__m_rankings.close()
         self.__results.close()
+        self.__auth.close()
 
-    def flush_all(self):
+    def flush(self, auth: bool = False):
         logger.warning(f"Flushing Redis DBs!")
         self.__eval_samples.flushdb()
         self.__m_rankings.flushdb()
         self.__results.flushdb()
         self.__progress.flushdb()
+        if auth:
+            self.__auth.flushdb()
         # save necessary when deployed via docker
         self.__eval_samples.save()
         self.__m_rankings.save()
         self.__results.save()
         self.__progress.save()
+        if auth:
+            self.__auth.save()
 
     # TODO: I know there is a lot of redundant code here, which could be simplified by inheritance, flags AND TIME...
 

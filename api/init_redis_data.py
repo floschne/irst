@@ -21,11 +21,11 @@ def generate_model_rankings(data_root: str, num_samples: int) -> List[ModelRanki
     return df.apply(generate_model_ranking, axis=1).tolist()[:num_samples]
 
 
-def init_redis_data(data_root: str, flush: bool, num_samples: int = -1):
+def init_study_data(data_root: str, flush: bool, num_samples: int = -1):
     assert os.path.lexists(data_root), f"Cannot find data root at {data_root}"
     rh = RedisHandler()
     if flush:
-        rh.flush_all()
+        rh.flush(auth=False)
 
     # generate ModelRankings
     mrs = generate_model_rankings(data_root, num_samples)
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     parser.add_argument('--num_samples', type=int, default=-1)
 
     opts = parser.parse_args()
-    init_redis_data(opts.data_root, opts.flush)
+    init_study_data(opts.data_root, opts.flush)

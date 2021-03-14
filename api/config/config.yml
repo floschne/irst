@@ -8,7 +8,7 @@ study:
   samples:
     num_top_k_imgs: 10
     num_random_imgs: 14
-    in_prog_ttl: 60 # in seconds
+    in_prog_ttl: 300 # in seconds
   init:
     data_root: ${env:DATA_ROOT, data}
     flush: true
@@ -22,6 +22,24 @@ backend:
     m_rank_db_idx: ${env:REDIS_M_RANK_DB_IDX, 4}
     result_db_idx: ${env:REDIS_RESULT_DB_IDX, 5}
     progress_db_idx: ${env:REDIS_STATE_DB_IDX, 6}
+    auth_db_idx: ${env:REDIS_STATE_DB_IDX, 7}
+  mturk:
+    aws_access_key: ${env:AWS_ACCESS_KEY}
+    aws_secret: ${env:AWS_SECRET}
+    aws_region_name: ${env:AWS_REGION_NAME, us-east-1}
+    hit_auto_approval_delay_in_seconds: 3600
+    hit_assignment_duration_in_seconds: 300
+    hit_reward_live: 0.1
+    hit_reward_sandbox: 0.0
+    hit_title: Image ranking according to a caption
+    hit_description: This survey's goal is to evaluate the ranking of an AI by letting you re-rank images according to captions.
+    hit_keywords: image, ranking, AI, visual
+  auth:
+    jwt_secret: ${env:JWT_SECRET, }
+    jwt_algo: ${env:JWT_ALGO, HS256}
+    jwt_ttl: ${env:JWT_TTL, 300}
+    admin_id: ${env:ADMIN_ID, admin}
+    admin_pwd: ${env:ADMIN_PWD}
 
 image_server:
   https: false
