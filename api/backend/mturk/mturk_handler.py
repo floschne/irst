@@ -1,10 +1,11 @@
 import pprint
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import boto3
 from loguru import logger
 from omegaconf import OmegaConf
 
+from backend.db import RedisHandler
 from backend.mturk.external_question import ExternalQuestion
 from models import EvalSample
 
@@ -44,6 +45,8 @@ class MTurkHandler(object):
                 aws_access_key_id=cls.__conf.aws_access_key,
                 aws_secret_access_key=cls.__conf.aws_secret,
             )
+
+            cls.__rh = RedisHandler()
 
         return cls.__singleton
 
@@ -88,7 +91,7 @@ class MTurkHandler(object):
             logger.error(f"Cannot create HIT Type")
             logger.error(f"Exception: {e}")
 
-    def create_hit_from_es(self, es: EvalSample):
+    def create_hit_from_es(self, es: EvalSample) -> Optional[Dict]:
         logger.debug(f"Creating HIT from EvalSample {es.id}")
         try:
             # create an ExternalQuestion
@@ -103,10 +106,44 @@ class MTurkHandler(object):
                 Question=eq.get_encoded()
             )
             logger.debug(pprint.pformat(resp, indent=2))
+
+            # store HIT Info
+            self.__rh.store_hit_info(resp['HIT'], es)
+
+            return resp['HIT']
         except Exception as e:
             logger.error(f"Cannot create HIT from EvalSample {es.id}")
             logger.error(f"Exception: {e}")
+            return None
 
     def create_hits_from_es(self, samples: List[EvalSample]):
         for es in samples:
             self.create_hit_from_es(es)
+
+    def delete_hit(self, hit_id: str):
+        try:
+            self.__client.delete_hit(HITId=hit_id)
+            logger.debug(f"Deleted HIT {hit_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Cannot delete HIT! Exception: {e}")
+            return False
+
+    def list_hits(self) -> List[Dict]:
+        try:
+            resp = self.__client.list_hits()
+            logger.debug(f"Found {resp['NumResults']} HITs!")
+            return resp['HITs']
+        except Exception as e:
+            logger.error(f"Cannot delete HIT! Exception: {e}")
+
+    def list_hit_ids(self) -> List[Dict]:
+        try:
+            resp = self.__client.list_hits()
+            logger.debug(f"Found {resp['NumResults']} HITs!")
+            return resp['HITs']
+        except Exception as e:
+            logger.error(f"Cannot delete HIT! Exception: {e}")
+
+    def get_hit_info(self, es: EvalSample):
+        return self.__rh.load_hit_info(es)

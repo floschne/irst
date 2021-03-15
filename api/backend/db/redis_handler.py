@@ -1,5 +1,6 @@
+import json
 import threading
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 import redis
 from loguru import logger
@@ -45,6 +46,10 @@ class RedisHandler(object):
             cls.__auth = redis.Redis(host=r_host, port=r_port, db=r_auth_db_idx)
             assert cls.__auth.ping(), f"Couldn't connect to Redis AUTH DB {r_auth_db_idx} at {r_host}:{r_port}!"
 
+            r_mturk_db_idx = conf.backend.redis.mturk_db_idx
+            cls.__mturk = redis.Redis(host=r_host, port=r_port, db=r_mturk_db_idx)
+            assert cls.__mturk.ping(), f"Couldn't connect to Redis MTURK DB {r_mturk_db_idx} at {r_host}:{r_port}!"
+
         return cls.__singleton
 
     def get_progress_client(self):
@@ -60,8 +65,9 @@ class RedisHandler(object):
         self.__m_rankings.close()
         self.__results.close()
         self.__auth.close()
+        self.__mturk.close()
 
-    def flush(self, auth: bool = False):
+    def flush(self, auth: bool = False, mturk: bool = False):
         logger.warning(f"Flushing Redis DBs!")
         self.__eval_samples.flushdb()
         self.__m_rankings.flushdb()
@@ -69,6 +75,8 @@ class RedisHandler(object):
         self.__progress.flushdb()
         if auth:
             self.__auth.flushdb()
+        if mturk:
+            self.__mturk.flushdb()
         # save necessary when deployed via docker
         self.__eval_samples.save()
         self.__m_rankings.save()
@@ -76,6 +84,8 @@ class RedisHandler(object):
         self.__progress.save()
         if auth:
             self.__auth.save()
+        if mturk:
+            self.__mturk.save()
 
     # TODO: I know there is a lot of redundant code here, which could be simplified by inheritance, flags AND TIME...
 
@@ -162,3 +172,26 @@ class RedisHandler(object):
             result = EvalResult.parse_raw(s)
             logger.debug(f"Successfully loaded EvalResult {result.id}")
             return result
+
+    ############### MTURK ##############################
+
+    def store_hit_info(self, hit_info: Dict, es: EvalSample) -> Optional[str]:
+        if self.__mturk.set(str(es.id + '_hit_info').encode('utf-8'), json.dumps(hit_info)) != 1:
+            logger.error(f"Cannot store  HIT Info {hit_info['HIT']['HITId']} for EvalSample {es.id}")
+            return None
+
+        logger.debug(f"Successfully stored HIT Info {hit_info['HIT']['HITId']} for EvalSample {es.id}")
+        return es.id
+
+    def load_hit_info(self, es: EvalSample) -> Optional[Dict]:
+        s = self.__mturk.get(str(es.id + '_hit_info').encode('utf-8'))
+        if s is None:
+            logger.error(f"Cannot retrieve HIT Info for EvalSample {es.id}")
+            return None
+        else:
+            logger.debug(f"Successfully loaded HIT Info for EvalSample {es.id}")
+            return json.loads(s)
+
+    def list_hit_ids(self):
+        ids = self.__mturk.keys('*_hit_info')
+        logger.debug(f"Found {len(ids)} HIT IDs")
