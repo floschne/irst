@@ -39,7 +39,7 @@ backend:
     hit_lifetime: 604800 # 604800 = 1 week's seconds
     worker_quali_req_min_hits_approved: 100
     worker_quali_req_min_percent_approved: 90
-    external_question_base_url: ${env:EQ_BASE_URL, http://ltdemos.informatik.uni-hamburg.de/imagerank/study/}
+    external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/study/}
   auth:
     jwt_secret: ${env:JWT_SECRET, }
     jwt_algo: ${env:JWT_ALGO, HS256}
