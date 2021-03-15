@@ -3,6 +3,7 @@ from typing import List, Optional, Dict
 import boto3
 from loguru import logger
 from omegaconf import OmegaConf
+from tqdm import tqdm
 
 from backend.db import RedisHandler
 from backend.mturk.external_question import ExternalQuestion
@@ -90,7 +91,7 @@ class MTurkHandler(object):
             logger.error(f"Cannot create HIT Type")
             logger.error(f"Exception: {e}")
 
-    def create_hit_from_es(self, es: EvalSample) -> Optional[Dict]:
+    def create_hit_from_es(self, es: EvalSample, verbose:bool = True) -> Optional[Dict]:
         logger.debug(f"Creating HIT from EvalSample {es.id}")
         try:
             # create an ExternalQuestion
@@ -104,10 +105,11 @@ class MTurkHandler(object):
                 RequesterAnnotation=es.id,
                 Question=eq.get_encoded()
             )
-            logger.debug(f"Successfully created HIT {resp['HIT']} for EvalSample {es.id}!")
+            if verbose:
+                logger.debug(f"Successfully created HIT {resp['HIT']} for EvalSample {es.id}!")
 
             # store HIT Info
-            self.__rh.store_hit_info(resp['HIT'], es)
+            self.__rh.store_hit_info(resp['HIT'], es, verbose)
 
             return resp['HIT']
         except Exception as e:
@@ -116,14 +118,15 @@ class MTurkHandler(object):
             return None
 
     def create_hits_from_es(self, samples: List[EvalSample]):
-        for es in samples:
-            self.create_hit_from_es(es)
+        for es in tqdm(samples):
+            self.create_hit_from_es(es, verbose=False)
 
-    def delete_hit(self, hit_id: str):
+    def delete_hit(self, hit_id: str, verbose: bool = True):
         try:
             self.__client.update_expiration_for_hit(HITId=hit_id, ExpireAt=0)
             self.__client.delete_hit(HITId=hit_id)
-            logger.debug(f"Deleted HIT {hit_id}")
+            if verbose:
+                logger.debug(f"Deleted HIT {hit_id}")
             return True
         except Exception as e:
             logger.error(f"Cannot delete HIT! Exception: {e}")
@@ -131,24 +134,35 @@ class MTurkHandler(object):
 
     def delete_all_hits(self):
         hit_ids = self.list_hit_ids()
-        for hid in hit_ids:
-            self.delete_hit(hid)
+        for hid in tqdm(hit_ids):
+            self.delete_hit(hid, verbose=False)
 
     def list_hits(self) -> List[Dict]:
         try:
-            resp = self.__client.list_hits()
-            logger.debug(f"Found {resp['NumResults']} HITs!")
-            return resp['HITs']
+            hits = []
+            next_token = None
+            resp = self.__client.list_hits(MaxResults=100)
+            if resp['NumResults'] > 0:
+                hits.extend(resp['HITs'])
+                next_token = resp['NextToken']
+            while next_token is not None:
+                resp = self.__client.list_hits(MaxResults=100, NextToken=next_token)
+                if resp['NumResults'] > 0:
+                    hits.extend(resp['HITs'])
+                    next_token = resp['NextToken']
+                else:
+                    next_token = None
+            logger.debug(f"Found {len(hits)} HITs!")
+            return hits
         except Exception as e:
-            logger.error(f"Cannot delete HIT! Exception: {e}")
+            logger.error(f"Cannot ListHITs! Exception: {e}")
+            return []
 
     def list_hit_ids(self) -> List[str]:
         try:
-            resp = self.__client.list_hits()
-            logger.debug(f"Found {resp['NumResults']} HITs!")
-            return resp['HITs']['HITId']
+            return [hit['HITId'] for hit in self.list_hits()]
         except Exception as e:
-            logger.error(f"Cannot delete HIT! Exception: {e}")
+            logger.error(f"Cannot ListHIT IDs! Exception: {e}")
 
     def get_hit_info(self, es: EvalSample):
         return self.__rh.load_hit_info(es)
