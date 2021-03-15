@@ -41,13 +41,13 @@ backend:
     hit_reward_live: 0.2
     hit_reward_sandbox: 0.0
     hit_title: Image ranking according to a caption
-    hit_description: This survey's goal is to evaluate the ranking of an AI by letting you re-rank images according to captions.
+    hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you re-rank images according to captions.
     hit_keywords: image, ranking, AI, visual
     hit_max_assignments: 3
     hit_lifetime: 604800 # 604800 = 1 week's seconds
     worker_quali_req_min_hits_approved: 100
     worker_quali_req_min_percent_approved: 90
-    external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/study/}
+    external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/}
   auth:
     jwt_secret: ${env:JWT_SECRET, }
     jwt_algo: ${env:JWT_ALGO, HS256}
