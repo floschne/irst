@@ -25,6 +25,7 @@ async def create_hit(es_id: str):
         return mturk.create_hit_from_es(es)
     return False
 
+
 @logger.catch(reraise=True)
 @router.put("/create_hits", tags=TAG,
             description="Creates a HIT for every EvalSample of the Study (current run)",
@@ -34,6 +35,7 @@ async def create_hits(es_id: str):
     es = rh.list_eval_samples()
     return mturk.create_hits_from_es(es)
 
+
 @logger.catch(reraise=True)
 @router.delete("/delete_hit", tags=TAG,
                description="Deletes the HIT with the given ID",
@@ -41,6 +43,15 @@ async def create_hits(es_id: str):
 async def delete_hit(hit_id: str):
     logger.info(f"DELETE request on {PREFIX}/delete_hit")
     return mturk.delete_hit(hit_id)
+
+
+@logger.catch(reraise=True)
+@router.delete("/delete_all_hits", tags=TAG,
+               description="Deletes all HITs associated with this Study",
+               dependencies=[Depends(JWTBearer())])
+async def delete_all_hit():
+    logger.info(f"DELETE request on {PREFIX}/delete_all_hits")
+    return mturk.delete_all_hits()
 
 
 @logger.catch(reraise=True)

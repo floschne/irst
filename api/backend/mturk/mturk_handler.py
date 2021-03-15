@@ -122,12 +122,18 @@ class MTurkHandler(object):
 
     def delete_hit(self, hit_id: str):
         try:
+            self.__client.update_expiration_for_hit(HITId=hit_id, ExpireAt=0)
             self.__client.delete_hit(HITId=hit_id)
             logger.debug(f"Deleted HIT {hit_id}")
             return True
         except Exception as e:
             logger.error(f"Cannot delete HIT! Exception: {e}")
             return False
+
+    def delete_all_hits(self):
+        hit_ids = self.list_hit_ids()
+        for hid in hit_ids:
+            self.delete_hit(hid)
 
     def list_hits(self) -> List[Dict]:
         try:
