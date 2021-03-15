@@ -97,7 +97,8 @@ class AuthHandler(object):
     def __clear_token_cache(self):
         logger.debug(f"Clearing token cache!")
         cached_keys = self.__auth.keys(str('*_token').encode('utf-8'))
-        self.__auth.delete(*cached_keys)
+        if len(cached_keys) > 0:
+            self.__auth.delete(*cached_keys)
 
     @staticmethod
     def __hash_password(pwd: str, salt: bytes) -> bytes:
