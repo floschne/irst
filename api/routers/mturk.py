@@ -19,12 +19,20 @@ rh = RedisHandler()
             description="Creates a HIT for the EvalSample with the given ES ID",
             dependencies=[Depends(JWTBearer())])
 async def create_hit(es_id: str):
-    logger.info(f"POST request on {PREFIX}/create_hit")
+    logger.info(f"PUT request on {PREFIX}/create_hit")
     es = rh.load_eval_sample(sample_id=es_id)
     if es is not None:
         return mturk.create_hit_from_es(es)
     return False
 
+@logger.catch(reraise=True)
+@router.put("/create_hits", tags=TAG,
+            description="Creates a HIT for every EvalSample of the Study (current run)",
+            dependencies=[Depends(JWTBearer())])
+async def create_hits(es_id: str):
+    logger.info(f"PUT request on {PREFIX}/create_hits")
+    es = rh.list_eval_samples()
+    return mturk.create_hits_from_es(es)
 
 @logger.catch(reraise=True)
 @router.delete("/delete_hit", tags=TAG,
@@ -42,6 +50,15 @@ async def delete_hit(hit_id: str):
 async def list_hit_ids():
     logger.info(f"GET request on {PREFIX}/list_hit_ids")
     return mturk.list_hit_ids()
+
+
+@logger.catch(reraise=True)
+@router.get("/list_hits", tags=TAG,
+            description="Returns all HITs",
+            dependencies=[Depends(JWTBearer())])
+async def list_hit_ids():
+    logger.info(f"GET request on {PREFIX}/list_hits")
+    return mturk.list_hits()
 
 
 @logger.catch(reraise=True)
