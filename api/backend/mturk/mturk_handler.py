@@ -146,7 +146,7 @@ class MTurkHandler(object):
         try:
             resp = self.__client.list_hits()
             logger.debug(f"Found {resp['NumResults']} HITs!")
-            return resp['HITs']
+            return resp['HITs']['HITId']
         except Exception as e:
             logger.error(f"Cannot delete HIT! Exception: {e}")
 
