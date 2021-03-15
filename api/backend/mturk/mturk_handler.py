@@ -91,8 +91,7 @@ class MTurkHandler(object):
             logger.error(f"Cannot create HIT Type")
             logger.error(f"Exception: {e}")
 
-    def create_hit_from_es(self, es: EvalSample, verbose:bool = True) -> Optional[Dict]:
-        logger.debug(f"Creating HIT from EvalSample {es.id}")
+    def create_hit_from_es(self, es: EvalSample) -> Optional[Dict]:
         try:
             # create an ExternalQuestion
             eq = ExternalQuestion(es, base_url=self.__conf.external_question_base_url)
@@ -105,28 +104,26 @@ class MTurkHandler(object):
                 RequesterAnnotation=es.id,
                 Question=eq.get_encoded()
             )
-            if verbose:
-                logger.debug(f"Successfully created HIT {resp['HIT']} for EvalSample {es.id}!")
+
+            logger.debug(f"Successfully created HIT {resp['HIT']} for EvalSample {es.id}!")
 
             # store HIT Info
-            self.__rh.store_hit_info(resp['HIT'], es, verbose)
+            self.__rh.store_hit_info(resp['HIT'], es)
 
             return resp['HIT']
         except Exception as e:
-            logger.error(f"Cannot create HIT from EvalSample {es.id}")
-            logger.error(f"Exception: {e}")
+            logger.error(f"Cannot create HIT from EvalSample {es.id}. Exception: {e}")
             return None
 
     def create_hits_from_es(self, samples: List[EvalSample]):
         for es in tqdm(samples):
-            self.create_hit_from_es(es, verbose=False)
+            self.create_hit_from_es(es)
 
-    def delete_hit(self, hit_id: str, verbose: bool = True):
+    def delete_hit(self, hit_id: str):
         try:
             self.__client.update_expiration_for_hit(HITId=hit_id, ExpireAt=0)
             self.__client.delete_hit(HITId=hit_id)
-            if verbose:
-                logger.debug(f"Deleted HIT {hit_id}")
+            logger.debug(f"Deleted HIT {hit_id}")
             return True
         except Exception as e:
             logger.error(f"Cannot delete HIT! Exception: {e}")
@@ -135,7 +132,7 @@ class MTurkHandler(object):
     def delete_all_hits(self):
         hit_ids = self.list_hit_ids()
         for hid in tqdm(hit_ids):
-            self.delete_hit(hid, verbose=False)
+            self.delete_hit(hid)
 
     def list_hits(self) -> List[Dict]:
         try:
