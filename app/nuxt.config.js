@@ -63,6 +63,7 @@ export default {
     { src: '@/plugins/sampleApiClient.js' },
     { src: '@/plugins/imageApiClient.js' },
     { src: '@/plugins/studyApiClient.js' },
+    { src: '@/plugins/userApiClient.js' },
     { src: '@/plugins/vuedraggable.js' },
     { src: '@/plugins/vuechart.js' },
     { src: '@/plugins/logger.js' },
