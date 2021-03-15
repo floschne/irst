@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from loguru import logger
 
 from backend.auth import AuthHandler
@@ -15,4 +15,7 @@ router = APIRouter()
              description="Returns the current progress of the Study")
 async def authenticate(user: User):
     logger.info(f"GET request on {PREFIX}/login")
-    return AuthHandler().authenticate(user)
+    token = AuthHandler().authenticate(user)
+    if token is None:
+        raise HTTPException(status_code=403, detail="Invalid user information provided!")
+    return token

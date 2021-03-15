@@ -54,6 +54,7 @@ def startup_event():
 def shutdown_event():
     RedisHandler().shutdown()
     StudyCoordinator().shutdown()
+    AuthHandler().shutdown()
 
 
 # include the routers

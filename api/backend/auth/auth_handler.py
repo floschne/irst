@@ -20,7 +20,7 @@ class AuthHandler(object):
 
     def __new__(cls, *args, **kwargs):
         if cls.__singleton is None:
-            logger.info(f"Instantiating Auth Handler!")
+            logger.info(f"Instantiating AuthHandler!")
             cls.__singleton = super(AuthHandler, cls).__new__(cls)
 
             cls.__auth = RedisHandler().get_auth_client()
@@ -43,15 +43,18 @@ class AuthHandler(object):
     def register_admin(self):
         self.register(User(id=self.__admin_id, password=self.__admin_pwd))
 
-    def __encode_jwt(self, user_id: str) -> Dict[str, str]:
-        payload = {
-            'user_id': user_id,
-            'ttl': time.time() + self.__jwt_ttl
-        }
-
-        logger.debug(f"Generated JWT for {user_id} that expires at {datetime.fromtimestamp(payload['ttl'])}!")
-        token = jwt.encode(payload, self.__jwt_secret, algorithm=self.__jwt_algo)
-        return {'access_token': token}
+    def __get_jwt(self, user: User) -> Dict[str, str]:
+        # try to load from cache
+        token = self.__get_cached_token(user)
+        if token is None:
+            payload = {
+                'user_id': user.id,
+                'ttl': time.time() + self.__jwt_ttl
+            }
+            logger.debug(f"Generated JWT for {user.id} that expires at {datetime.fromtimestamp(payload['ttl'])}!")
+            token = jwt.encode(payload, self.__jwt_secret, algorithm=self.__jwt_algo)
+            self.__cache_token(user, token)
+        return {'jwt': token}
 
     def decode_jwt(self, token: str) -> Optional[Dict]:
         try:
@@ -77,6 +80,19 @@ class AuthHandler(object):
             logger.warning(f'User {user.id} does not exist!')
             return None
         return salt
+
+    def __cache_token(self, user: User, token: str):
+        logger.debug(f"Caching token of User {user.id} for {self.__jwt_ttl} seconds!")
+        self.__auth.set(str(user.id + '_token').encode('utf-8'), token, ex=self.__jwt_ttl, nx=True)
+
+    def __get_cached_token(self, user: User):
+        logger.debug(f"Found cached token of {user.id}!")
+        return self.__auth.get(str(user.id + '_token').encode('utf-8'))
+
+    def __clear_token_cache(self):
+        logger.debug(f"Clearing token cache!")
+        cached_keys = self.__auth.keys(str('*_token').encode('utf-8'))
+        self.__auth.delete(*cached_keys)
 
     @staticmethod
     def __hash_password(pwd: str, salt: bytes) -> bytes:
@@ -118,7 +134,11 @@ class AuthHandler(object):
         if key == key2:
             # return jwt
             logger.info(f'User {user.id} successfully authenticated!')
-            return self.__encode_jwt(user.id)
+            return self.__get_jwt(user)
         else:
             logger.warning(f'Provided password does not match!')
             return None
+
+    def shutdown(self):
+        self.__clear_token_cache()
+        logger.info('Shutting down AuthHandler!')
