@@ -22,7 +22,7 @@ backend:
     m_rank_db_idx: ${env:REDIS_M_RANK_DB_IDX, 4}
     result_db_idx: ${env:REDIS_RESULT_DB_IDX, 5}
     progress_db_idx: ${env:REDIS_STATE_DB_IDX, 6}
-    auth_db_idx: ${env:REDIS_STATE_DB_IDX, 7}
+    auth_db_idx: ${env:REDIS_AUTH_DB_IDX, 7}
   mturk:
     sandbox: True
     aws_access_key: ${env:AWS_ACCESS_KEY}

@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Dict, Optional
 
 import jwt
+import numpy as np
 from loguru import logger
 from omegaconf import OmegaConf
 
@@ -41,6 +42,10 @@ class AuthHandler(object):
         return cls.__singleton
 
     def register_admin(self):
+        # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
+        # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
+        # times
+        time.sleep(np.random.uniform(low=0.3, high=1.0))
         self.register(User(id=self.__admin_id, password=self.__admin_pwd))
 
     def __get_jwt(self, user: User) -> Dict[str, str]:
@@ -71,7 +76,7 @@ class AuthHandler(object):
     def __store_salt(self, user: User) -> bytes:
         logger.debug(f"Generating 32 Bit PBKDF2 Salt for User {user.id}")
         salt = os.urandom(32)
-        self.__auth.set(str(user.id + '_salt').encode('utf-8'), salt)
+        self.__auth.set(str(user.id + '_salt').encode('utf-8'), salt, nx=True)
         return salt
 
     def __get_salt(self, user: User) -> Optional[bytes]:
@@ -114,7 +119,7 @@ class AuthHandler(object):
         salt = self.__store_salt(user)
         logger.debug('Hashing password with PBKDF2')
         key = self.__hash_password(user.password, salt)
-        self.__auth.set(user.id, key)
+        self.__auth.set(user.id, key, nx=True)
         logger.info(f'User {user.id} registered successfully')
 
     def authenticate(self, user: User) -> Optional[Dict[str, str]]:

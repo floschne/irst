@@ -27,23 +27,23 @@ class RedisHandler(object):
 
             r_eval_sample_db_idx = conf.backend.redis.eval_sample_db_idx
             cls.__eval_samples = redis.Redis(host=r_host, port=r_port, db=r_eval_sample_db_idx)
-            assert cls.__eval_samples.ping(), f"Couldn't connect to Redis DB {r_eval_sample_db_idx} at {r_host}:{r_port}!"
+            assert cls.__eval_samples.ping(), f"Couldn't connect to Redis EVAL SAMPLE DB {r_eval_sample_db_idx} at {r_host}:{r_port}!"
 
             r_m_rank_db_idx = conf.backend.redis.m_rank_db_idx
             cls.__m_rankings = redis.Redis(host=r_host, port=r_port, db=r_m_rank_db_idx)
-            assert cls.__m_rankings.ping(), f"Couldn't connect to Redis DB {r_m_rank_db_idx} at {r_host}:{r_port}!"
+            assert cls.__m_rankings.ping(), f"Couldn't connect to Redis MODEL RANKING DB {r_m_rank_db_idx} at {r_host}:{r_port}!"
 
             r_progress_db_idx = conf.backend.redis.progress_db_idx
             cls.__progress = redis.Redis(host=r_host, port=r_port, db=r_progress_db_idx)
-            assert cls.__progress.ping(), f"Couldn't connect to Redis DB {r_progress_db_idx} at {r_host}:{r_port}!"
+            assert cls.__progress.ping(), f"Couldn't connect to Redis PROGRESS DB {r_progress_db_idx} at {r_host}:{r_port}!"
 
             r_result_db_idx = conf.backend.redis.result_db_idx
             cls.__results = redis.Redis(host=r_host, port=r_port, db=r_result_db_idx)
-            assert cls.__results.ping(), f"Couldn't connect to Redis DB {r_result_db_idx} at {r_host}:{r_port}!"
+            assert cls.__results.ping(), f"Couldn't connect to Redis RESULT DB {r_result_db_idx} at {r_host}:{r_port}!"
 
             r_auth_db_idx = conf.backend.redis.auth_db_idx
             cls.__auth = redis.Redis(host=r_host, port=r_port, db=r_auth_db_idx)
-            assert cls.__auth.ping(), f"Couldn't connect to Redis DB {r_auth_db_idx} at {r_host}:{r_port}!"
+            assert cls.__auth.ping(), f"Couldn't connect to Redis AUTH DB {r_auth_db_idx} at {r_host}:{r_port}!"
 
         return cls.__singleton
 
