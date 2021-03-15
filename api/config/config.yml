@@ -48,7 +48,7 @@ backend:
     admin_pwd: ${env:ADMIN_PWD}
 
 image_server:
-  https: false
+  https: true
   host: ${env:IMG_SRV_HOST, localhost}
   port: ${env:IMG_SRV_PORT, 8082}
   relative_url: ${env:IMG_SRV_REL_URL, 0}
