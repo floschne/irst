@@ -186,8 +186,11 @@
         </b-progress>
 
         <!-- FORM BUTTONS -->
-        <b-form-row class="m-0">
-          <b-button-group class="w-100 mt-1 mb-1">
+        <b-form-row class="m-0 text-center">
+          <h3 v-if="hitPreview" class="text-warning bg-dark w-100">
+            You must accept this HIT before working on it!
+          </h3>
+          <b-button-group v-else class="w-100 mt-1 mb-1">
             <b-button type="submit" variant="primary" :disabled="ranksNotFull">
               <span v-if="ranksNotFull">
                 Which images are best described by the caption? Please rank your
@@ -227,6 +230,18 @@ export default {
       type: String,
       default: null,
     },
+    assignmentId: {
+      type: String,
+      default: null,
+    },
+    workerId: {
+      type: String,
+      default: null,
+    },
+    hitId: {
+      type: String,
+      default: null,
+    },
   },
   emits: ['study-progress-changed'],
   data() {
@@ -249,6 +264,9 @@ export default {
     },
     showDragabbleHint() {
       return this.rankedImages.length === 0
+    },
+    hitPreview() {
+      return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
     },
   },
   created() {
@@ -282,7 +300,10 @@ export default {
       const ids = await this.getImageIds(this.rankedImages)
       this.submitSuccess = await this.$resultApiClient.submitResult(
         this.sample.id,
-        ids
+        ids,
+        this.workerId,
+        this.assignmentId,
+        this.hitId
       )
       this.submitError = !this.submitSuccess
       this.loadError = false

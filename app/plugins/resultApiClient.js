@@ -9,10 +9,25 @@ export default ({ app, axios }, inject) => {
 
   // define the methods
   const resultApiClient = {
-    submitResult: async (esId, rankingData) => {
+    submitResult: async (
+      esId,
+      rankingData,
+      workerId = null,
+      assignmentId = null,
+      hitId = null
+    ) => {
+      let mtParams = null
+      if (workerId !== null && assignmentId !== null && hitId !== null) {
+        mtParams = {
+          worker_id: workerId,
+          assignment_id: assignmentId,
+          hit_id: hitId,
+        }
+      }
       const result = {
         es_id: esId,
         ranking: rankingData,
+        mt_params: mtParams,
       }
       logger('i', result)
       try {

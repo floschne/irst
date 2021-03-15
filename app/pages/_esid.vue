@@ -4,7 +4,14 @@
       v-if="showInstructions"
       @instructions-read="showInstructions = false"
     />
-    <RankingForm v-else :es-id="esid" :num-ranks="$config.numRanks" />
+    <RankingForm
+      v-else
+      :es-id="esid"
+      :num-ranks="$config.numRanks"
+      :assignment-id="assignmentId"
+      :worker-id="workerId"
+      :hit-id="hitId"
+    />
   </div>
 </template>
 
@@ -23,12 +30,21 @@ export default {
   data() {
     return {
       showInstructions: true,
+      assignmentId: '',
+      hitId: '',
+      workerId: '',
     }
   },
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
     })
+    // check if mturk params available
+    if ('hitId' in this.$route.query) {
+      this.assignmentId = this.$route.query.assignmentId
+      this.hitId = this.$route.query.hitId
+      this.workerId = this.$route.query.workerId
+    }
   },
 }
 </script>
