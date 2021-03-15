@@ -1,7 +1,7 @@
 <template>
-  <div class="vh-100">
+  <div class="w-100 d-flex justify-content-center outer-container">
     <AppHeader />
-    <main class="container-fluid h-100" role="main" style="padding-top: 60px">
+    <main class="my-auto" role="main">
       <Nuxt />
     </main>
   </div>
@@ -11,10 +11,19 @@
 import AppHeader from '~/components/AppHeader'
 export default {
   components: { AppHeader },
+  data() {
+    return {
+      rankingFooterSize: null,
+    }
+  },
 }
 </script>
 
 <style>
+.outer-container {
+  height: calc(100vh - 160px) !important;
+}
+
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;

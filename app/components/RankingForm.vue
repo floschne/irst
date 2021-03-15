@@ -68,10 +68,10 @@
       <b-container
         fluid
         style="max-height: 550px"
-        class="overflow-auto border border-dark rounded-top bg-secondary p-3"
+        class="overflow-auto border border-dark rounded-top bg-secondary p-1"
       >
         <Draggable
-          :value="imageUrls"
+          :value="thumbnailUrls"
           :group="{ name: 'images', pull: 'clone', put: false, sort: false }"
           class="row text-center no-gutters"
         >
@@ -79,9 +79,9 @@
             v-for="(tnUrl, idx) in thumbnailUrls"
             :key="tnUrl"
             class="mt-1"
-            lg="2"
-            md="3"
-            sm="4"
+            lg="1"
+            md="2"
+            sm="3"
             :style="`min-width: ${img_size}px; min-height: ${img_size}px`"
           >
             <b-link v-b-modal="`modal-${tnUrl}`" href="#">
@@ -114,6 +114,7 @@
                 rounded="sm"
                 class="border border-dark"
                 :src="imageUrls[idx]"
+                style="max-height: 60vh"
               />
               <template #modal-footer>
                 <p>{{ sample.query }}</p>
@@ -124,15 +125,15 @@
       </b-container>
 
       <!-- Query -->
-      <h4
-        class="p-2 border border-dark rounded-bottom bg-info font-italic"
-        :style="`height: ${img_size + 10}px;`"
+      <h5
+        class="p-1 border border-dark rounded-bottom bg-info font-italic text-center"
+        style="max-height: 100px; overflow-y: scroll"
       >
         {{ sample.query }}
-      </h4>
+      </h5>
 
       <!-- IMAGE RANKING -->
-      <b-container fluid class="p-1 fixed-bottom">
+      <b-container id="imageRankingFooter" fluid class="p-1 fixed-bottom">
         <Draggable
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
@@ -147,20 +148,20 @@
           </h1>
 
           <b-link
-            v-for="(imgUrl, idx) in rankedImages"
+            v-for="(tnUrl, idx) in rankedImages"
             v-else
             :key="idx"
-            v-b-modal="`modal-${imgUrl}`"
+            v-b-modal="`modal-${tnUrl}`"
             v-b-tooltip.hover.bottom.html="
               'Click to enlarge </br> Right-click to remove'
             "
             href="#"
             size="lg"
-            @contextmenu="removeRankedImage($event, imgUrl)"
+            @contextmenu="removeRankedImage($event, tnUrl)"
           >
             <b-avatar
-              :id="`ranked-${imgUrl}`"
-              :src="imgUrl"
+              :id="`ranked-${tnUrl}`"
+              :src="tnUrl"
               :badge="`${idx + 1}`"
               rounded="sm"
               :size="`${img_size}px`"
@@ -227,6 +228,7 @@ export default {
       default: null,
     },
   },
+  emits: ['study-progress-changed'],
   data() {
     return {
       rankedImages: [],
