@@ -59,6 +59,7 @@ class RedisHandler(object):
     def get_auth_client(self):
         return self.__auth
 
+    @logger.catch(level='error', reraise=True)
     def shutdown(self) -> None:
         logger.info("Shutting down RedisHandler!")
         self.__progress.close()
@@ -68,6 +69,7 @@ class RedisHandler(object):
         self.__auth.close()
         self.__mturk.close()
 
+    @logger.catch(level='error', reraise=True)
     def flush(self, auth: bool = False, mturk: bool = False):
         logger.warning(f"Flushing Redis DBs!")
         self.__eval_samples.flushdb()
@@ -92,16 +94,19 @@ class RedisHandler(object):
 
     ################# Images #################
 
+    @logger.catch(level='error', reraise=True)
     def store_image_ids(self, mr: ModelRanking):
         # store in progress DB because in __m_rankings we need KEYS to get all MRs...
         self.__progress.sadd('m_rankings', *mr.top_k_image_ids)
 
+    @logger.catch(level='error', reraise=True)
     def get_random_image_ids(self, num: int = 1) -> List[str]:
         # store in progress DB because in __m_rankings we need KEYS to get all MRs...
         return self.__progress.srandmember('m_rankings', num)
 
     ################# ModelRanking #################
 
+    @logger.catch(level='error', reraise=True)
     def store_model_ranking(self, mr: ModelRanking) -> str:
         if self.__m_rankings.set(mr.id, mr.json()) != 1:
             logger.error(f"Cannot store ModelRanking {mr.json()}")
@@ -112,6 +117,7 @@ class RedisHandler(object):
         logger.debug(f"Successfully stored ModelRanking {mr.id}")
         return mr.id
 
+    @logger.catch(level='error', reraise=True)
     def load_model_ranking(self, mr_id: str) -> Optional[ModelRanking]:
         s = self.__m_rankings.get(mr_id)
         if s is None:
@@ -122,20 +128,24 @@ class RedisHandler(object):
             logger.debug(f"Successfully loaded ModelRanking {sample.id}")
             return sample
 
+    @logger.catch(level='error', reraise=True)
     def model_ranking_exists(self, mr_id: str) -> bool:
         return bool(self.__m_rankings.exists(mr_id))
 
+    @logger.catch(level='error', reraise=True)
     def get_all_mr_ids(self) -> List[str]:
         return self.__m_rankings.keys()
 
     ################# EvalSample #################
 
+    @logger.catch(level='error', reraise=True)
     def store_eval_sample(self, sample: EvalSample) -> str:
         if self.__eval_samples.set(sample.id, sample.json()) != 1:
             logger.error(f"Cannot store EvalSample {sample.json()}")
         logger.debug(f"Successfully stored EvalSample {sample.id}")
         return sample.id
 
+    @logger.catch(level='error', reraise=True)
     def load_eval_sample(self, sample_id: str, verbose: bool = True) -> Optional[EvalSample]:
         s = self.__eval_samples.get(sample_id)
         if s is None:
@@ -147,9 +157,11 @@ class RedisHandler(object):
                 logger.debug(f"Successfully loaded EvalSample {sample.id}")
             return sample
 
+    @logger.catch(level='error', reraise=True)
     def eval_sample_exists(self, sample_id: str) -> bool:
         return bool(self.__eval_samples.exists(sample_id))
 
+    @logger.catch(level='error', reraise=True)
     def list_eval_samples(self) -> List[EvalSample]:
         es = [self.load_eval_sample(sample_id=es_id, verbose=False) for es_id in self.__eval_samples.keys()]
         logger.debug(f"Retrieved {len(es)} EvalSamples!")
@@ -157,6 +169,7 @@ class RedisHandler(object):
 
     ################# EvalResult #################
 
+    @logger.catch(level='error', reraise=True)
     def store_result(self, result: EvalResult) -> Optional[str]:
         if not self.eval_sample_exists(result.es_id):
             logger.error(
@@ -170,6 +183,7 @@ class RedisHandler(object):
             logger.debug(f"Successfully stored EvalResult {result.id}")
             return result.id
 
+    @logger.catch(level='error', reraise=True)
     def load_result(self, result_id: str) -> Optional[EvalResult]:
         s = self.__results.get(result_id)
         if s is None:
@@ -182,15 +196,17 @@ class RedisHandler(object):
 
     ############### MTURK ##############################
 
+    @logger.catch(level='error', reraise=True)
     def store_hit_info(self, hit_info: Dict, es: EvalSample) -> Optional[str]:
         # we cannot use json.dumps(hit_info) because it throws an error since datetime objects are not json serializable
-        if self.__mturk.set(str(es.id + '_hit_info').encode('utf-8'), pprint.pformat(hit_info)) != 1:
-            logger.error(f"Cannot store  HIT Info {hit_info['HIT']['HITId']} for EvalSample {es.id}")
+        if self.__mturk.set(str(es.id + '_hit_info').encode('utf-8'), pprint.pformat(hit_info).encode('utf-8')) != 1:
+            logger.error(f"Cannot store Info of HIT {hit_info['HIT']['HITId']} for EvalSample {es.id}")
             return None
 
         logger.debug(f"Successfully stored HIT Info {hit_info['HIT']['HITId']} for EvalSample {es.id}")
         return es.id
 
+    @logger.catch(level='error', reraise=True)
     def load_hit_info(self, es: EvalSample) -> Optional[Dict]:
         s = self.__mturk.get(str(es.id + '_hit_info').encode('utf-8'))
         if s is None:
@@ -200,6 +216,7 @@ class RedisHandler(object):
             logger.debug(f"Successfully loaded HIT Info for EvalSample {es.id}")
             return json.loads(s)
 
+    @logger.catch(level='error', reraise=True)
     def list_hit_ids(self):
         ids = self.__mturk.keys('*_hit_info')
         logger.debug(f"Found {len(ids)} HIT IDs")

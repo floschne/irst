@@ -104,12 +104,9 @@ class MTurkHandler(object):
                 RequesterAnnotation=es.id,
                 Question=eq.get_encoded()
             )
-
-            logger.debug(f"Successfully created HIT {resp['HIT']} for EvalSample {es.id}!")
-
+            logger.debug(f"Successfully created HIT {resp['HIT']['HITId']} for EvalSample {es.id}!")
             # store HIT Info
             self.__rh.store_hit_info(resp['HIT'], es)
-
             return resp['HIT']
         except Exception as e:
             logger.error(f"Cannot create HIT from EvalSample {es.id}. Exception: {e}")
