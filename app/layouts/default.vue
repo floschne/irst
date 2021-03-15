@@ -1,7 +1,7 @@
 <template>
   <div class="w-100 d-flex justify-content-center outer-container">
     <AppHeader />
-    <main class="my-auto" role="main">
+    <main class="my-auto w-100" role="main">
       <Nuxt />
     </main>
   </div>

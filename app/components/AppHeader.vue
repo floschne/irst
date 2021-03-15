@@ -8,7 +8,7 @@
       class="pt-0 pb-0"
     >
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-      <b-navbar-brand to="/">
+      <b-navbar-brand @click="helpRequested">
         <b-icon
           v-b-tooltip.hover.bottom="'Help'"
           font-scale="1.5"
@@ -36,6 +36,12 @@ import HeartbeatCheckButton from '~/components/HeartbeatCheckButton'
 export default {
   name: 'AppHeader',
   components: { HeartbeatCheckButton },
+  emits: ['help-requested'],
+  methods: {
+    helpRequested() {
+      this.$nuxt.$emit('help-requested')
+    },
+  },
 }
 </script>
 

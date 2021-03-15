@@ -1,10 +1,10 @@
 <template>
-  <div class="w-100">
+  <div>
     <Instructions
       v-if="showInstructions"
       @instructions-read="showInstructions = false"
     />
-    <RankingForm v-else :num-ranks="$config.numRanks" />
+    <RankingForm v-else :es-id="esid" :num-ranks="$config.numRanks" />
   </div>
 </template>
 
@@ -13,8 +13,13 @@ import RankingForm from '~/components/RankingForm'
 import Instructions from '~/components/Instructions'
 
 export default {
-  name: 'Index',
+  name: 'EsId',
   components: { RankingForm, Instructions },
+  // eslint-disable-next-line require-await
+  async asyncData({ params }) {
+    const esid = params.esid // When calling /abc the esid will be "abc"
+    return { esid }
+  },
   data() {
     return {
       showInstructions: true,
@@ -27,3 +32,5 @@ export default {
   },
 }
 </script>
+
+<style scoped></style>
