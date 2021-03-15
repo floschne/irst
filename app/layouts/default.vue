@@ -21,7 +21,7 @@ export default {
 
 <style>
 .outer-container {
-  height: calc(100vh - 160px) !important;
+  height: calc(100vh - 155px) !important;
 }
 
 html {

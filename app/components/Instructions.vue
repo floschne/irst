@@ -1,13 +1,24 @@
 <template>
   <b-jumbotron
     fluid
-    header="Welcome to the Image Ranking User Study"
-    lead="Please view the instructions below and make sure you understand what to do before you start!"
+    header="Welcome!"
+    lead="Please watch the instructions video and make sure you know what to do before you start!"
     class="rounded my-auto"
   >
-    <b-button variant="primary" @click="onSubmit">
-      Alright, let's start!
-    </b-button>
+    <div class="text-center">
+      <iframe
+        width="800"
+        height="450"
+        src="https://www.youtube-nocookie.com/embed/ErMXs3ydaqE?controls=0&vq=hd720"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+
+      <b-button block variant="primary" @click="onSubmit">
+        Alright, let's start!
+      </b-button>
+    </div>
   </b-jumbotron>
 </template>
 

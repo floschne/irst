@@ -30,7 +30,7 @@ async def create_hit(es_id: str):
 @router.put("/create_hits", tags=TAG,
             description="Creates a HIT for every EvalSample of the Study (current run)",
             dependencies=[Depends(JWTBearer())])
-async def create_hits(es_id: str):
+async def create_hits():
     logger.info(f"PUT request on {PREFIX}/create_hits")
     es = rh.list_eval_samples()
     return mturk.create_hits_from_es(es)

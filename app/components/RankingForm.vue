@@ -81,7 +81,7 @@
             class="mt-1"
             lg="1"
             md="2"
-            sm="3"
+            sm="6"
             :style="`min-width: ${img_size}px; min-height: ${img_size}px`"
           >
             <b-link v-b-modal="`modal-${tnUrl}`" href="#">
