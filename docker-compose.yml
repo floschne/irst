@@ -24,6 +24,11 @@ services:
       - "IMG_SRV_PORT=${IMG_SRV_PORT}"
       - "IMG_SRV_CTX_PTH=${IMG_SRV_CTX_PTH}"
       - "IMG_SRV_REL_URL=${IMG_SRV_REL_URL}"
+      - "AWS_ACCESS_KEY=${AWS_ACCESS_KEY}"
+      - "AWS_SECRET=${AWS_SECRET}"
+      - "JWT_SECRET=${JWT_SECRET}"
+      - "ADMIN_ID=${ADMIN_ID}"
+      - "ADMIN_PWD=${ADMIN_PWD}"
     ports:
       - "${API_EXPOSED_PORT}:80"
     volumes:
