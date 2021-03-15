@@ -10,39 +10,37 @@ export default ({ app, axios }, inject) => {
   // define the methods
   const imageApiClient = {
     getUrls: async (imgIds, thumbnail = false) => {
-      try {
-        let u = `${app.$config.ctxPath}api/image/`
-        if (thumbnail) u += 'thumbnails'
-        else u += 'urls'
-        const resp = await app.$axios.post(u, imgIds, jsonHeaderConfig)
-        if (resp.status === 200) {
-          return resp.data
-        } else {
-          logger('e', resp)
+      let u = `${app.$config.ctxPath}api/image/`
+      if (thumbnail) u += 'thumbnails'
+      else u += 'urls'
+      return await app.$axios
+        .post(u, imgIds, jsonHeaderConfig)
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            return null
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
           return null
-        }
-      } catch (error) {
-        logger('e', error)
-        return null
-      }
+        })
     },
     getIds: async (imgUrls) => {
-      try {
-        const resp = await app.$axios.post(
-          `${app.$config.ctxPath}api/image/ids`,
-          imgUrls,
-          jsonHeaderConfig
-        )
-        if (resp.status === 200) {
-          return resp.data
-        } else {
-          logger('e', resp)
+      return await app.$axios
+        .post(`${app.$config.ctxPath}api/image/ids`, imgUrls, jsonHeaderConfig)
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            return null
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
           return null
-        }
-      } catch (error) {
-        logger('e', error)
-        return null
-      }
+        })
     },
   }
 

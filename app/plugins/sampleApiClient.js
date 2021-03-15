@@ -10,38 +10,34 @@ export default ({ app, axios }, inject) => {
   // define the methods
   const sampleApiClient = {
     nextSample: async () => {
-      try {
-        const resp = await app.$axios.get(
-          `${app.$config.ctxPath}api/sample/next`,
-          jsonHeaderConfig
-        )
-        if (resp.status === 200) {
-          return resp.data
-        } else {
-          logger('e', resp)
+      return await app.$axios
+        .get(`${app.$config.ctxPath}api/sample/next`, jsonHeaderConfig)
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            return null
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
           return null
-        }
-      } catch (error) {
-        logger('e', error)
-        return null
-      }
+        })
     },
     load: async (esId) => {
-      try {
-        const resp = await app.$axios.get(
-          `${app.$config.ctxPath}api/sample/${esId}`,
-          jsonHeaderConfig
-        )
-        if (resp.status === 200) {
-          return resp.data
-        } else {
-          logger('e', resp)
+      return await app.$axios
+        .get(`${app.$config.ctxPath}api/sample/${esId}`, jsonHeaderConfig)
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            return null
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
           return null
-        }
-      } catch (error) {
-        logger('e', error)
-        return null
-      }
+        })
     },
   }
 

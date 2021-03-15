@@ -22,7 +22,6 @@ export default ({ app, axios }, inject) => {
           jsonHeaderConfig
         )
         if (resp.status === 200) {
-          logger('e', resp)
           return true
         } else {
           logger('e', resp)

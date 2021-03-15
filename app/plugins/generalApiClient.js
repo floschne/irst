@@ -10,22 +10,19 @@ export default ({ app, axios }, inject) => {
   // define the methods
   const generalApiClient = {
     heartbeat: async () => {
-      let apiAlive
-      try {
-        const resp = await app.$axios.get(
-          `${app.$config.ctxPath}api/heartbeat`,
-          jsonHeaderConfig
-        )
-        if (resp.status === 200) {
-          apiAlive = resp.data
-        } else {
-          apiAlive = false
-        }
-      } catch (error) {
-        logger('e', error)
-        apiAlive = false
-      }
-      return apiAlive
+      return await app.$axios
+        .get(`${app.$config.ctxPath}api/heartbeat`, jsonHeaderConfig)
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            return false
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
+          return false
+        })
     },
   }
 
