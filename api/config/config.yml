@@ -4,6 +4,13 @@ logging:
   level: DEBUG
   rotation: 500 # MB
 
+gunicorn:
+  graceful_timeout_str: ${env:GU_GRACEFUL_TIMEOUT, "600"}
+  timeout_str: ${env:GU_TIMEOUT, "600"}
+  keepalive_str: ${env:GU_KEEP_ALIVE, "5"}
+  use_loglevel: ${env:GU_LOG_LEVEL, "debug"}
+  max_workers_str: ${env:GU_MAX_WORKERS, "4"}
+
 study:
   samples:
     num_top_k_imgs: 10

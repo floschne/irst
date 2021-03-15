@@ -88,7 +88,7 @@ class StudyCoordinator(object):
             cls.expired_watcher.submit(expired_handler)
 
             # set init state to todo
-            cls.__progress.set(Keys.INIT_STATE, InitState.TODO.value)
+            cls.__progress.set(Keys.INIT_STATE, InitState.TODO.value, nx=True)
 
         return cls.__singleton
 

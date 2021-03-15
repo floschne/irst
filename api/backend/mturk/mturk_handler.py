@@ -1,4 +1,3 @@
-import pprint
 from typing import List, Optional, Dict
 
 import boto3
@@ -105,7 +104,7 @@ class MTurkHandler(object):
                 RequesterAnnotation=es.id,
                 Question=eq.get_encoded()
             )
-            logger.debug(pprint.pformat(resp, indent=2))
+            logger.debug(f"Successfully created HIT {resp['HIT']} for EvalSample {es.id}!")
 
             # store HIT Info
             self.__rh.store_hit_info(resp['HIT'], es)
@@ -143,7 +142,7 @@ class MTurkHandler(object):
         except Exception as e:
             logger.error(f"Cannot delete HIT! Exception: {e}")
 
-    def list_hit_ids(self) -> List[Dict]:
+    def list_hit_ids(self) -> List[str]:
         try:
             resp = self.__client.list_hits()
             logger.debug(f"Found {resp['NumResults']} HITs!")

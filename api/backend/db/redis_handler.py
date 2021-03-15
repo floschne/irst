@@ -1,3 +1,4 @@
+import pprint
 import json
 import threading
 from typing import Optional, List, Dict
@@ -182,7 +183,8 @@ class RedisHandler(object):
     ############### MTURK ##############################
 
     def store_hit_info(self, hit_info: Dict, es: EvalSample) -> Optional[str]:
-        if self.__mturk.set(str(es.id + '_hit_info').encode('utf-8'), json.dumps(hit_info)) != 1:
+        # we cannot use json.dumps(hit_info) because it throws an error since datetime objects are not json serializable
+        if self.__mturk.set(str(es.id + '_hit_info').encode('utf-8'), pprint.pformat(hit_info)) != 1:
             logger.error(f"Cannot store  HIT Info {hit_info['HIT']['HITId']} for EvalSample {es.id}")
             return None
 
