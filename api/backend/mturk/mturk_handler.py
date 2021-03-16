@@ -165,20 +165,49 @@ class MTurkHandler(object):
     def get_hit_info_via_es(self, es: EvalSample):
         return self.__rh.load_hit_info(es)
 
-    def get_hit_info(self, hit_id: str):
+    def get_hit_info(self, hit_id: str) -> Optional[Dict]:
         try:
             hit = self.__client.get_hit(HITId=hit_id)['HIT']
             logger.debug(f"Successfully retrieved HIT {hit_id}")
             return hit
         except Exception as e:
             logger.error(f"Cannot retrieve HIT {hit_id}! Exception: {e}")
+            return None
 
-    def list_assignments_for_hit(self, hit_id: str) -> Optional[Dict]:
+    def list_assignments_for_hit(self, hit_id: str) -> Optional[List[Dict]]:
         try:
             resp = self.__client.list_assignments_for_hit(HITId=hit_id)
             logger.debug(f"Found {resp['NumResults']} assignments for HIT {hit_id}")
             return resp['Assignments']
         except Exception as e:
-            logger.error(f"Cannot list assignments for HIT {hit_id}! Exception: {e}")
+            logger.error(f"Cannot list Assignments for HIT {hit_id}! Exception: {e}")
             return None
 
+    def list_reviewable_hits(self) -> Optional[List[Dict]]:
+        try:
+            reviewable_hits = []
+            next_token = None
+            resp = self.__client.list_reviewable_hits(
+                HITTypeId=self.__hit_type_id,
+                MaxResults=100
+            )
+            if resp['NumResults'] > 0:
+                reviewable_hits.extend(resp['HITs'])
+                next_token = resp['NextToken']
+            while next_token is not None:
+                resp = self.__client.list_reviewable_hits(MaxResults=100, NextToken=next_token)
+                if resp['NumResults'] > 0:
+                    reviewable_hits.extend(resp['HITs'])
+                    next_token = resp['NextToken']
+                else:
+                    next_token = None
+            logger.debug(f"Found {len(reviewable_hits)} reviewable HITs!")
+            return reviewable_hits
+        except Exception as e:
+            logger.error(f"Cannot list reviewable HITs! Exception: {e}")
+            return None
+
+    def list_reviewable_assignments(self) -> Optional[Dict]:
+        reviewable_hits = self.list_reviewable_hits()
+        # since we only have a little num of max assignments (3) per HIT we don't need to paginate through them
+        return {r_hit['HITId']: self.list_assignments_for_hit(r_hit['HITId']) for r_hit in reviewable_hits}

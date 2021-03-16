@@ -94,9 +94,18 @@ async def hit_info(es_id: str):
 
 
 @logger.catch(reraise=True)
-@router.get("/assignments/{hit_id}", tags=TAG,
-            description="Returns the Assignments of the HIT with the given ID",
+@router.get("/assignments/reviewable", tags=TAG,
+            description="Returns the all reviewable Assignments associated with this Study",
             dependencies=[Depends(JWTBearer())])
-async def hit_info(hit_id: str):
+async def list_reviewable_assignments():
+    logger.info(f"GET request on {PREFIX}/assignments/reviewable")
+    return mturk.list_reviewable_assignments()
+
+
+@logger.catch(reraise=True)
+@router.get("/assignments/{hit_id}", tags=TAG,
+            description="Returns all Assignments of the HIT with the given ID",
+            dependencies=[Depends(JWTBearer())])
+async def list_assignments_for_hit(hit_id: str):
     logger.info(f"GET request on {PREFIX}/assignments/{hit_id}")
     return mturk.list_assignments_for_hit(hit_id)
