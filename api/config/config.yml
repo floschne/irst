@@ -37,7 +37,7 @@ backend:
     aws_secret: ${env:AWS_SECRET}
     aws_region_name: ${env:AWS_REGION_NAME, us-east-1}
     hit_auto_approval_delay_in_seconds: 21600 # 21600 = 6 hours
-    hit_assignment_duration_in_seconds: 300 # 5 min
+    hit_assignment_duration_in_seconds: 600 # 10 min
     hit_reward_live: 0.15
     hit_reward_sandbox: 0.15
     hit_title: Image ranking according to a caption
