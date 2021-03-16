@@ -125,7 +125,7 @@ class MTurkHandler(object):
             logger.debug(f"Deleted HIT {hit_id}")
             return True
         except Exception as e:
-            logger.error(f"Cannot delete HIT! Exception: {e}")
+            logger.error(f"Cannot delete HIT {hit_id}! Exception: {e}")
             return False
 
     def delete_all_hits(self):
@@ -162,5 +162,23 @@ class MTurkHandler(object):
         except Exception as e:
             logger.error(f"Cannot ListHIT IDs! Exception: {e}")
 
-    def get_hit_info(self, es: EvalSample):
+    def get_hit_info_via_es(self, es: EvalSample):
         return self.__rh.load_hit_info(es)
+
+    def get_hit_info(self, hit_id: str):
+        try:
+            hit = self.__client.get_hit(HITId=hit_id)['HIT']
+            logger.debug(f"Successfully retrieved HIT {hit_id}")
+            return hit
+        except Exception as e:
+            logger.error(f"Cannot retrieve HIT {hit_id}! Exception: {e}")
+
+    def list_assignments_for_hit(self, hit_id: str) -> Optional[Dict]:
+        try:
+            resp = self.__client.list_assignments_for_hit(HITId=hit_id)
+            logger.debug(f"Found {resp['NumResults']} assignments for HIT {hit_id}")
+            return resp['Assignments']
+        except Exception as e:
+            logger.error(f"Cannot list assignments for HIT {hit_id}! Exception: {e}")
+            return None
+
