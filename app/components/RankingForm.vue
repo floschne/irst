@@ -78,21 +78,35 @@
           <b-col
             v-for="(tnUrl, idx) in thumbnailUrls"
             :key="tnUrl"
-            class="mt-1"
+            class="mt-1 d-flex justify-content-center"
             lg="1"
             md="2"
             sm="3"
             :style="`min-width: ${img_size}rem; min-height: ${img_size}rem`"
           >
-            <b-link v-b-modal="`modal-${tnUrl}`" href="#">
+            <b-link href="#" class="image-container ranks">
               <b-img
                 :id="`img-${tnUrl}`"
+                v-b-modal="`modal-${tnUrl}`"
                 v-b-tooltip.hover.bottom="'Click to enlarge'"
                 thumbnail
                 rounded
                 :src="tnUrl"
                 class="ranks"
               />
+              <div
+                :class="`image-overlay bg-light ranks ${imageOverlayDisplay(
+                  tnUrl
+                )}`"
+                @click="removeRankedImage($event, tnUrl)"
+              >
+                <b-icon
+                  icon="x-circle"
+                  variant="dark"
+                  font-scale="6.5"
+                  class="image-overlay-icon"
+                />
+              </div>
             </b-link>
             <b-modal
               :id="`modal-${tnUrl}`"
@@ -152,11 +166,11 @@
             v-else
             :key="idx"
             v-b-modal="`modal-${tnUrl}`"
-            v-b-tooltip.hover.bottom.html="
+            v-b-tooltip.hover.topright.html="
               'Click to enlarge </br> Right-click to remove'
             "
             href="#"
-            size="lg"
+            :size="`${img_size}rem`"
             @contextmenu="removeRankedImage($event, tnUrl)"
           >
             <b-avatar
@@ -410,6 +424,9 @@ export default {
 
       this.$nuxt.$emit('study-progress-changed')
     },
+    imageOverlayDisplay(tnUrl) {
+      return this.rankedImages.includes(tnUrl) ? 'd-flex' : 'd-none'
+    },
   },
 }
 </script>
@@ -420,5 +437,33 @@ export default {
   max-height: 7.5rem !important;
   min-width: 7.5rem !important;
   max-width: 7.5rem !important;
+}
+
+.image-container {
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  opacity: 0.75;
+  transition: 0.3s ease;
+  z-index: 999;
+}
+
+.image-overlay-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
 }
 </style>
