@@ -91,8 +91,10 @@ class AuthHandler(object):
         self.__auth.set(str(user.id + '_token').encode('utf-8'), token, ex=self.__jwt_ttl, nx=True)
 
     def __get_cached_token(self, user: User):
-        logger.debug(f"Found cached token of {user.id}!")
-        return self.__auth.get(str(user.id + '_token').encode('utf-8'))
+        cached = self.__auth.get(str(user.id + '_token').encode('utf-8'))
+        if cached is not None:
+            logger.debug(f"Found cached token of {user.id}!")
+        return cached
 
     def __clear_token_cache(self):
         logger.debug(f"Clearing token cache!")
