@@ -32,7 +32,7 @@ backend:
     auth_db_idx: ${env:REDIS_AUTH_DB_IDX, 7}
     mturk_db_idx: ${env:REDIS_MTURK_DB_IDX, 8}
   mturk:
-    sandbox: True
+    sandbox: ${env:MTURK_SANDBOX, true}
     aws_access_key: ${env:AWS_ACCESS_KEY}
     aws_secret: ${env:AWS_SECRET}
     aws_region_name: ${env:AWS_REGION_NAME, us-east-1}
