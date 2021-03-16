@@ -323,7 +323,8 @@ export default {
         this.assignmentId,
         this.hitId
       )
-      this.submitSuccess = this.erId != null
+      this.submitSuccess =
+        this.erId !== null && this.erId !== undefined && this.erId !== ''
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
