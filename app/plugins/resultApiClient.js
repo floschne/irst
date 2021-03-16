@@ -30,22 +30,24 @@ export default ({ app, axios }, inject) => {
         mt_params: mtParams,
       }
       logger('i', result)
-      try {
-        const resp = await app.$axios.put(
+      return await app.$axios
+        .put(
           `${app.$config.ctxPath}api/result/submit`,
           result,
           jsonHeaderConfig
         )
-        if (resp.status === 200) {
-          return true
-        } else {
-          logger('e', resp)
-          return false
-        }
-      } catch (error) {
-        logger('e', error)
-        return false
-      }
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            logger('e', resp)
+            return null
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
+          return null
+        })
     },
   }
 

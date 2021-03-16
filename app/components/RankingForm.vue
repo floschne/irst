@@ -242,6 +242,10 @@ export default {
       type: String,
       default: null,
     },
+    mTurkSubmitUrl: {
+      type: String,
+      default: null,
+    },
   },
   emits: ['study-progress-changed'],
   data() {
@@ -297,15 +301,31 @@ export default {
       this.submitError = false
       this.submitSuccess = false
 
+      // get the ids from URLs
       const ids = await this.getImageIds(this.rankedImages)
-      this.submitSuccess = await this.$resultApiClient.submitResult(
+      // submit to own API
+      const erId = await this.$resultApiClient.submitResult(
         this.sample.id,
         ids,
         this.workerId,
         this.assignmentId,
         this.hitId
       )
+      this.submitSuccess = erId != null
       this.submitError = !this.submitSuccess
+
+      // submit to MTurk if in MTurk mode
+      if (this.mTurkSubmitUrl !== null) {
+        this.submitSuccess = await this.$mturkSubmitService.submitAssignment(
+          this.mTurkSubmitUrl,
+          ids,
+          this.assignmentId,
+          erId
+        )
+        this.submitError = !this.submitSuccess
+      }
+
+      // reset flags
       this.loadError = false
       this.loadSuccess = false
       this.loading = false
