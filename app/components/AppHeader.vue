@@ -17,7 +17,7 @@
       </b-navbar-brand>
 
       <b-nav-text
-        class="w-100 text-center p-0 m-0 text-danger"
+        class="w-100 text-center p-0 m-0 text-warning"
         style="font-size: 2.1vw"
       >
         Which images are best described by the caption? Please rank your Top

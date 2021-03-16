@@ -46,6 +46,9 @@ export default {
       errorMessage: null,
     }
   },
+  created() {
+    this.$nuxt.$on('study-progress-changed', this.loadProgress)
+  },
   methods: {
     async loadProgress(jwt) {
       this.success = false
