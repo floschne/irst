@@ -14,7 +14,7 @@ export default ({ app, axios }, inject) => {
       bodyFormData.append('ranking', ranking)
       try {
         const resp = await app.$axios.post(
-          '/mturk/externalSubmit',
+          `${app.$config.ctxPath}mturk/externalSubmit`,
           bodyFormData,
           formDataHeaderConfig
         )
