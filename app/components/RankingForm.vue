@@ -81,8 +81,8 @@
             class="mt-1"
             lg="1"
             md="2"
-            sm="6"
-            :style="`min-width: ${img_size}px; min-height: ${img_size}px`"
+            sm="3"
+            :style="`min-width: ${img_size}rem; min-height: ${img_size}rem`"
           >
             <b-link v-b-modal="`modal-${tnUrl}`" href="#">
               <b-img
@@ -91,12 +91,7 @@
                 thumbnail
                 rounded
                 :src="tnUrl"
-                :style="`
-                  max-width: ${img_size}px;
-                  max-height: ${img_size}px;
-                  min-width: ${img_size}px;
-                  min-height: ${img_size}px;
-                  `"
+                class="ranks"
               />
             </b-link>
             <b-modal
@@ -138,15 +133,19 @@
           :list="rankedImages"
           :group="{ name: 'images', put: ranksNotFull }"
           tag="div"
-          class="d-flex flex-row flex-nowrap justify-content-center mt-1 bg-light border border-dark h-100 rounded overflow-auto"
-          :style="`min-height: ${img_size}px;
-           max-height: ${img_size + 15}px; max-width: 100vw`"
+          class="d-flex flex-row flex-nowrap justify-content-center align-items-center mt-1 bg-light border border-dark h-100 rounded overflow-auto"
+          :style="`min-height: ${img_size}rem;
+           max-height: ${img_size + 1}rem; max-width: 100vw`"
           @add="addToRankedImages"
         >
-          <h1 v-if="showDragabbleHint" class="text-dark my-auto">
-            Drag n' Drop Images Here To Rank (Starting From Highest (1) to
-            Lowest ({{ numRanks }}) )
-          </h1>
+          <div
+            v-if="showDragabbleHint"
+            class="text-dark"
+            style="font-size: 2.75vw"
+          >
+            Drag n' Drop Images Here To Rank Starting From Highest (1) to Lowest
+            ({{ numRanks }})
+          </div>
 
           <b-link
             v-for="(tnUrl, idx) in rankedImages"
@@ -165,7 +164,7 @@
               :src="tnUrl"
               :badge="`${idx + 1}`"
               rounded="sm"
-              :size="`${img_size}px`"
+              :size="`${img_size}rem`"
               badge-top
               class="ml-1 border border-dark border"
             />
@@ -256,7 +255,7 @@ export default {
       submitError: false,
       loadSuccess: false,
       loadError: false,
-      img_size: 120,
+      img_size: 7.5,
     }
   },
   computed: {
@@ -379,9 +378,9 @@ export default {
 
 <style scoped>
 .ranks {
-  min-height: 7.5em !important;
-  max-height: 7.5em !important;
-  min-width: 7.5em !important;
-  max-width: 7.5em !important;
+  min-height: 7.5rem !important;
+  max-height: 7.5rem !important;
+  min-width: 7.5rem !important;
+  max-width: 7.5rem !important;
 }
 </style>

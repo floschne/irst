@@ -19,7 +19,71 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
+
+@include media-breakpoint-up(sm) {
+  html {
+    font-size: 0.75rem !important;
+  }
+  .app-header-text {
+    font-size: $h4-font-size !important;
+    font-family: $headings-font-family !important;
+    font-weight: $headings-font-weight !important;
+    line-height: $headings-line-height !important;
+    margin-bottom: $headings-margin-bottom !important;
+  }
+  .drag-n-drop-text {
+    font-size: $h3-font-size !important;
+    font-family: $headings-font-family !important;
+    font-weight: $headings-font-weight !important;
+    line-height: $headings-line-height !important;
+    margin-bottom: $headings-margin-bottom !important;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  html {
+    font-size: 0.8rem !important;
+  }
+  .app-header-text {
+    font-size: $h3-font-size !important;
+    font-family: $headings-font-family !important;
+    font-weight: $headings-font-weight !important;
+    line-height: $headings-line-height !important;
+    margin-bottom: $headings-margin-bottom !important;
+  }
+  .drag-n-drop-text {
+    font-size: $h2-font-size !important;
+    font-family: $headings-font-family !important;
+    font-weight: $headings-font-weight !important;
+    line-height: $headings-line-height !important;
+    margin-bottom: $headings-margin-bottom !important;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  html {
+    font-size: 1rem !important;
+  }
+  .app-header-text {
+    font-size: $h2-font-size !important;
+    font-family: $headings-font-family !important;
+    font-weight: $headings-font-weight !important;
+    line-height: $headings-line-height !important;
+    margin-bottom: $headings-margin-bottom !important;
+  }
+  .drag-n-drop-text {
+    font-size: $h1-font-size !important;
+    font-family: $headings-font-family !important;
+    font-weight: $headings-font-weight !important;
+    line-height: $headings-line-height !important;
+    margin-bottom: $headings-margin-bottom !important;
+  }
+}
+
 .outer-container {
   height: calc(100vh - 155px) !important;
 }
