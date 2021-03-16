@@ -113,8 +113,10 @@ class MTurkHandler(object):
             return None
 
     def create_hits_from_es(self, samples: List[EvalSample]):
+        created = 0
         for es in tqdm(samples):
-            self.create_hit_from_es(es)
+            created += 1 if self.create_hit_from_es(es) is not None else 0
+        return created
 
     def delete_hit(self, hit_id: str):
         try:
@@ -127,9 +129,11 @@ class MTurkHandler(object):
             return False
 
     def delete_all_hits(self):
+        deleted = 0
         hit_ids = self.list_hit_ids()
         for hid in tqdm(hit_ids):
-            self.delete_hit(hid)
+            deleted += 1 if self.delete_hit(hid) else 0
+        return deleted
 
     def list_hits(self) -> List[Dict]:
         try:
