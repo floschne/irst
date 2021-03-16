@@ -221,7 +221,7 @@ class StudyCoordinator(object):
         with self.__sync_lock:
             logger.info(f"EvalResult {res.id} submission received!")
             # if the result is NOT for MTurk, check if the EvalSample is already expired in in_prog set
-            if res.mt_params is None and res.es_id not in self.__progress.smembers(Keys.IN_PROGRESS):
+            if res.mt_params is None and res.es_id.encode('utf-8') not in self.__progress.smembers(Keys.IN_PROGRESS):
                 logger.warning(f"EvalSample {res.es_id} referenced by EvalResult {res.id} already expired in "
                                "IN_PROGRESS! Submission Rejected")
                 return None

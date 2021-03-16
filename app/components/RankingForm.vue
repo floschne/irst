@@ -211,6 +211,16 @@
         </b-form-row>
       </b-container>
     </b-form>
+    <form id="hiddenMTurkForm" method="post" :action="mturkExternalSubmitUrl">
+      <input
+        id="assignmentId"
+        type="hidden"
+        name="assignmentId"
+        :value="assignmentId"
+      />
+      <input id="erId" type="hidden" name="erId" :value="erId" />
+      <input id="ranking" type="hidden" name="ranking" :value="rankedIds" />
+    </form>
   </b-container>
 </template>
 
@@ -256,6 +266,8 @@ export default {
       loadSuccess: false,
       loadError: false,
       img_size: 7.5,
+      erId: '',
+      rankedIds: [],
     }
   },
   computed: {
@@ -267,6 +279,10 @@ export default {
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
+    },
+    mturkExternalSubmitUrl() {
+      const sub = this.$config.mturkSandbox ? 'workersandbox' : 'www'
+      return `https://${sub}.mturk.com/mturk/externalSubmit`
     },
   },
   created() {
@@ -298,26 +314,32 @@ export default {
       this.submitSuccess = false
 
       // get the ids from URLs
-      const ids = await this.getImageIds(this.rankedImages)
+      this.rankedIds = await this.getImageIds(this.rankedImages)
       // submit to own API
-      const erId = await this.$resultApiClient.submitResult(
+      this.erId = await this.$resultApiClient.submitResult(
         this.sample.id,
-        ids,
+        this.rankedIds,
         this.workerId,
         this.assignmentId,
         this.hitId
       )
-      this.submitSuccess = erId != null
+      this.submitSuccess = this.erId != null
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
       if (this.assignmentId !== null) {
-        this.submitSuccess = await this.$mturkSubmitService.submitAssignment(
-          ids,
-          this.assignmentId,
-          erId
-        )
-        this.submitError = !this.submitSuccess
+        // via axios
+        // fixme currently not working because we would have to follow the redirect and set the cookie correctly
+        // fixme see the last comment (from AWS staff) https://forums.aws.amazon.com/thread.jspa?messageID=553442
+        // fixme we COULD get this working but it would be PITA
+        //   this.submitSuccess = await this.$mturkSubmitService.submitAssignment(
+        //     ids,
+        //     this.assignmentId,
+        //     this.erId
+        //   )
+        //   this.submitError = !this.submitSuccess
+        // via cgi html form
+        document.getElementById('hiddenMTurkForm').submit()
       }
 
       // reset flags

@@ -146,5 +146,6 @@ export default {
   publicRuntimeConfig: {
     numRanks: process.env.APP_NUM_RANKS || 10,
     ctxPath: process.env.APP_CTX_PTH || '',
+    mturkSandbox: process.env.MTURK_SANDBOX || true,
   },
 }
