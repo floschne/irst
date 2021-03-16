@@ -67,7 +67,7 @@ async def list_hit_ids():
 @router.get("/list_hits", tags=TAG,
             description="Returns all HITs",
             dependencies=[Depends(JWTBearer())])
-async def list_hit_ids():
+async def list_hit():
     logger.info(f"GET request on {PREFIX}/list_hits")
     return mturk.list_hits()
 
