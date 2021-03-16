@@ -26,6 +26,16 @@ async def get_next_sample():
 
 
 @logger.catch(reraise=True)
+@router.get("/list", tags=TAG,
+            response_model=List[EvalSample],
+            description="Returns all EvalSamples",
+            dependencies=[Depends(JWTBearer())])
+async def list_samples(num: int = 100):
+    logger.info(f"GET request on {PREFIX}/list")
+    return rh.list_eval_samples(num)
+
+
+@logger.catch(reraise=True)
 @router.get("/{sample_id}", tags=TAG,
             response_model=EvalSample,
             description="Returns the EvalSample with the specified ID")
@@ -36,13 +46,3 @@ async def load_sample(sample_id: str, mt: Optional[MTurkParams] = Depends(MTurkP
         sample.add_mt_params(mt)
 
     return sample
-
-
-@logger.catch(reraise=True)
-@router.get("/list", tags=TAG,
-            response_model=List[EvalSample],
-            description="Returns all EvalSamples",
-            dependencies=[Depends(JWTBearer())])
-async def list_samples():
-    logger.info(f"GET request on {PREFIX}/list")
-    return rh.list_eval_samples()
