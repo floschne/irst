@@ -220,25 +220,28 @@ class StudyCoordinator(object):
     def submit(self, res: EvalResult) -> Optional[str]:
         with self.__sync_lock:
             logger.info(f"EvalResult {res.id} submission received!")
-            # check if the EvalSample is already expired in in_prog set
-            if res.es_id not in self.__progress.smembers(Keys.IN_PROGRESS):
+            # if the result is NOT for MTurk, check if the EvalSample is already expired in in_prog set
+            if res.mt_params is None and res.es_id not in self.__progress.smembers(Keys.IN_PROGRESS):
                 logger.warning(f"EvalSample {res.es_id} referenced by EvalResult {res.id} already expired in "
                                "IN_PROGRESS! Submission Rejected")
                 return None
             # store the EvalResult
             if self.__rh.store_result(res) is None:
                 return None
-            # reference the EvalResult in the current run results
-            self.__reference_in_current_run_results(res)
-            # move referenced EvalSample to DONE
-            self.__progress.smove(Keys.IN_PROGRESS, Keys.DONE, res.es_id)
-            logger.info(f"Moved EvalSample {res.es_id} from IN_PROGRESS to DONE")
-            prog = self.current_progress()
-            logger.info(f"Current Progress: {prog}")
 
-            # if this was the last remaining EvalSample, we start a new study run
-            if self.__study_run_finished():
-                self.__start_new_run()
+            # only coordinate the study if the result is NOT for MTurk
+            if res.mt_params is None:
+                # reference the EvalResult in the current run results
+                self.__reference_in_current_run_results(res)
+                # move referenced EvalSample to DONE
+                self.__progress.smove(Keys.IN_PROGRESS, Keys.DONE, res.es_id)
+                logger.info(f"Moved EvalSample {res.es_id} from IN_PROGRESS to DONE")
+                prog = self.current_progress()
+                logger.info(f"Current Progress: {prog}")
+
+                # if this was the last remaining EvalSample, we start a new study run
+                if self.__study_run_finished():
+                    self.__start_new_run()
 
         return res.id
 
