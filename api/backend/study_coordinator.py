@@ -3,7 +3,7 @@ import threading
 import time
 from concurrent.futures.thread import ThreadPoolExecutor
 from enum import Enum, unique
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Optional
 
 import numpy as np
 import redis
@@ -217,12 +217,17 @@ class StudyCoordinator(object):
                 logger.info(f"EvalSample {es_id} expired in IN_PROGRESS and moved back to TODO!")
                 logger.info(f"Current Progress: {self.current_progress()}")
 
-    def submit(self, res: EvalResult) -> bool:
+    def submit(self, res: EvalResult) -> Optional[str]:
         with self.__sync_lock:
             logger.info(f"EvalResult {res.id} submission received!")
+            # check if the EvalSample is already expired in in_prog set
+            if res.es_id not in self.__progress.smembers(Keys.IN_PROGRESS):
+                logger.warning(f"EvalSample {res.es_id} referenced by EvalResult {res.id} already expired in "
+                               "IN_PROGRESS! Submission Rejected")
+                return None
             # store the EvalResult
             if self.__rh.store_result(res) is None:
-                return False
+                return None
             # reference the EvalResult in the current run results
             self.__reference_in_current_run_results(res)
             # move referenced EvalSample to DONE
@@ -235,7 +240,7 @@ class StudyCoordinator(object):
             if self.__study_run_finished():
                 self.__start_new_run()
 
-        return True
+        return res.id
 
     def __reference_in_current_run_results(self, res: EvalResult):
         self.__progress.sadd(self.__current_run_results_key(), res.id)
