@@ -144,7 +144,8 @@
           @add="addToRankedImages"
         >
           <h1 v-if="showDragabbleHint" class="text-dark my-auto">
-            Drag n' Drop Images Here To Rank
+            Drag n' Drop Images Here To Rank (Starting From Highest (1) to
+            Lowest ({{ numRanks }}) )
           </h1>
 
           <b-link
