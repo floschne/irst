@@ -22,12 +22,15 @@ services:
       - "REDIS_STATE_DB_IDX=${REDIS_STATE_DB_IDX}"
       - "REDIS_AUTH_DB_IDX=${REDIS_AUTH_DB_IDX}"
       - "REDIS_MTURK_DB_IDX=${REDIS_MTURK_DB_IDX}"
+
       - "IMG_SRV_HOST=${IMG_SRV_HOST}"
       - "IMG_SRV_PORT=${IMG_SRV_PORT}"
       - "IMG_SRV_CTX_PTH=${IMG_SRV_CTX_PTH}"
       - "IMG_SRV_REL_URL=${IMG_SRV_REL_URL}"
+
       - "AWS_ACCESS_KEY=${AWS_ACCESS_KEY}"
       - "AWS_SECRET=${AWS_SECRET}"
+      - "MTURK_SANDBOX=${MTURK_SANDBOX}"
       - "JWT_SECRET=${JWT_SECRET}"
       - "ADMIN_ID=${ADMIN_ID}"
       - "ADMIN_PWD=${ADMIN_PWD}"
@@ -54,6 +57,7 @@ services:
       - "APP_CTX_PTH=${APP_CTX_PTH}"
       - "API_HOST=${API_HOST}"
       - "API_PORT=${API_PORT}"
+      - "MTURK_SANDBOX=${MTURK_SANDBOX}"
     ports:
       - "${APP_EXPOSED_PORT}:3000"
 

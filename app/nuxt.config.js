@@ -1,34 +1,59 @@
 const proxyConfig = () => {
-  let proxyTarget = ''
+  // ------------------ proxy config for API ----------------------
+  let apiProxyTarget = ''
   const ctxPath = process.env.APP_CTX_PTH || '/'
   if (process.env.APP_DEPLOY === 'docker') {
     const dockerApiHost = process.env.API_HOST
     const dockerApiPort = process.env.API_PORT
 
-    proxyTarget = 'http://' + dockerApiHost + ':' + dockerApiPort + '/'
+    apiProxyTarget = 'http://' + dockerApiHost + ':' + dockerApiPort + '/'
   } else {
-    proxyTarget = 'http://localhost:8081/'
+    apiProxyTarget = 'http://localhost:8081/'
   }
 
   // https://github.com/chimurai/http-proxy-middleware/blob/master/recipes/pathRewrite.md#custom-rewrite-function
-  const customRewrite = (pth, req) => {
+  const apiCustomRewrite = (pth, req) => {
     const ctx = `${ctxPath}api/`
     return pth.replace(ctx, '/')
   }
 
   // https://github.com/chimurai/http-proxy-middleware#context-matching
-  const customMatching = (pathname, req) => {
+  const apiCustomMatching = (pathname, req) => {
     const ctx = `${ctxPath}api/`
+    return pathname.match(ctx)
+  }
+
+  // ------------------ proxy config for MTurk ----------------------
+  let mturkProxyTarget = ''
+  if (process.env.MTURK_SANDBOX !== 'False')
+    mturkProxyTarget = 'https://workersandbox.mturk.com'
+  else mturkProxyTarget = 'https://mturk.com'
+
+  // https://github.com/chimurai/http-proxy-middleware/blob/master/recipes/pathRewrite.md#custom-rewrite-function
+  // const mturkCustomRewrite = (pth, req) => {
+  //   const ctx = `${ctxPath}mturk/`
+  //   return pth.replace(ctx, '/')
+  // }
+
+  // https://github.com/chimurai/http-proxy-middleware#context-matching
+  const mturkCustomMatching = (pathname, req) => {
+    const ctx = `${ctxPath}mturk/`
     return pathname.match(ctx)
   }
 
   // https://github.com/nuxt-community/proxy-module/issues/57
   return [
     [
-      customMatching,
+      apiCustomMatching,
       {
-        target: proxyTarget,
-        pathRewrite: customRewrite,
+        target: apiProxyTarget,
+        pathRewrite: apiCustomRewrite,
+      },
+    ],
+    [
+      mturkCustomMatching,
+      {
+        target: mturkProxyTarget,
       },
     ],
   ]

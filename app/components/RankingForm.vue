@@ -242,10 +242,6 @@ export default {
       type: String,
       default: null,
     },
-    mTurkSubmitUrl: {
-      type: String,
-      default: null,
-    },
   },
   emits: ['study-progress-changed'],
   data() {
@@ -315,9 +311,8 @@ export default {
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
-      if (this.mTurkSubmitUrl !== null) {
+      if (this.assignmentId !== null) {
         this.submitSuccess = await this.$mturkSubmitService.submitAssignment(
-          this.mTurkSubmitUrl,
           ids,
           this.assignmentId,
           erId

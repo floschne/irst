@@ -6,7 +6,7 @@ export default ({ app, axios }, inject) => {
   }
   // define the methods
   const mturkSubmitService = {
-    submitAssignment: async (submitUrl, ranking, assignmentId, erId) => {
+    submitAssignment: async (ranking, assignmentId, erId) => {
       // https://stackoverflow.com/questions/47630163/axios-post-request-to-send-form-data
       const bodyFormData = new FormData()
       bodyFormData.append('assignmentId', assignmentId)
@@ -14,7 +14,7 @@ export default ({ app, axios }, inject) => {
       bodyFormData.append('ranking', ranking)
       try {
         const resp = await app.$axios.post(
-          submitUrl,
+          '/mturk/externalSubmit',
           bodyFormData,
           formDataHeaderConfig
         )

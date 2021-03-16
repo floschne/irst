@@ -11,7 +11,6 @@
       :assignment-id="assignmentId"
       :worker-id="workerId"
       :hit-id="hitId"
-      :m-turk-submit-url="mTurkSubmitUrl"
     />
   </div>
 </template>
@@ -34,7 +33,7 @@ export default {
       assignmentId: '',
       hitId: '',
       workerId: '',
-      mTurkSubmitUrl: '',
+      mTurkSubmitPath: '',
     }
   },
   created() {
@@ -46,8 +45,7 @@ export default {
       this.assignmentId = this.$route.query.assignmentId
       this.hitId = this.$route.query.hitId
       this.workerId = this.$route.query.workerId
-      this.mTurkSubmitUrl =
-        this.$route.query.turkSubmitTo + '/mturk/externalSubmit'
+      // the URL to submit to is set in proxy config to prevent CORS issues
     }
   },
 }
