@@ -88,20 +88,23 @@
               <b-img
                 :id="`img-${tnUrl}`"
                 v-b-modal="`modal-${tnUrl}`"
-                v-b-tooltip.hover.bottom="'Click to enlarge'"
+                v-b-tooltip.hover.bottom.html="
+                  'Click to enlarge </br> Right-click to tag as irrelevant'
+                "
                 thumbnail
                 rounded
                 :src="tnUrl"
                 class="ranks"
+                @contextmenu="tagAsIrrelevant($event, tnUrl)"
               />
               <div
-                :class="`image-overlay bg-light ranks ${imageOverlayDisplay(
-                  tnUrl
-                )}`"
-                @click="removeRankedImage($event, tnUrl)"
+                :class="`image-overlay ranks ranks
+                ${imageOverlayBgVariant(tnUrl)}
+                ${imageOverlayDisplay(tnUrl)}`"
+                @click="removeOrUntagImage($event, tnUrl)"
               >
                 <b-icon
-                  icon="x-circle"
+                  :icon="`${imageOverlayIcon(tnUrl)}-circle`"
                   variant="dark"
                   font-scale="6.5"
                   class="image-overlay-icon"
@@ -171,7 +174,7 @@
             "
             href="#"
             :size="`${img_size}rem`"
-            @contextmenu="removeRankedImage($event, tnUrl)"
+            @contextmenu="removeOrUntagImage($event, tnUrl)"
           >
             <b-avatar
               :id="`ranked-${tnUrl}`"
@@ -271,8 +274,11 @@ export default {
   data() {
     return {
       rankedImages: [],
+      irrelevantImages: [],
       imageUrls: [],
       thumbnailUrls: [],
+      rankedIds: [],
+      irrelevantIds: [],
       sample: null,
       loading: true,
       submitSuccess: false,
@@ -281,7 +287,6 @@ export default {
       loadError: false,
       img_size: 7.5,
       erId: '',
-      rankedIds: [],
     }
   },
   computed: {
@@ -304,15 +309,32 @@ export default {
     else this.loadSample()
   },
   methods: {
-    removeRankedImage(evt, imgUrl) {
-      evt.preventDefault()
-      const pos = this.rankedImages.indexOf(imgUrl)
-      this.rankedImages.splice(pos, 1)
-    },
     addToRankedImages(evt) {
+      evt.preventDefault()
       // remove duplicates
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
+    },
+    removeRankedImage(imgUrl) {
+      const pos = this.rankedImages.indexOf(imgUrl)
+      this.rankedImages.splice(pos, 1)
+    },
+    tagAsIrrelevant(evt, imgUrl) {
+      evt.preventDefault()
+      this.irrelevantImages.push(imgUrl)
+      // remove duplicates
+      // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
+      this.irrelevantImages = [...new Set(this.irrelevantImages)]
+    },
+    untagAsIrrelevant(imgUrl) {
+      const pos = this.irrelevantImages.indexOf(imgUrl)
+      this.irrelevantImages.splice(pos, 1)
+    },
+    removeOrUntagImage(evt, imgUrl) {
+      evt.preventDefault()
+      if (this.irrelevantImages.includes(imgUrl)) this.untagAsIrrelevant(imgUrl)
+      else if (this.rankedImages.includes(imgUrl))
+        this.removeRankedImage(imgUrl)
     },
     getImageIds(urls) {
       return this.$imageApiClient.getIds(urls)
@@ -425,7 +447,18 @@ export default {
       this.$nuxt.$emit('study-progress-changed')
     },
     imageOverlayDisplay(tnUrl) {
-      return this.rankedImages.includes(tnUrl) ? 'd-flex' : 'd-none'
+      return this.rankedImages.includes(tnUrl) ||
+        this.irrelevantImages.includes(tnUrl)
+        ? 'd-flex'
+        : 'd-none'
+    },
+    imageOverlayIcon(tnUrl) {
+      if (this.rankedImages.includes(tnUrl)) return 'check'
+      else if (this.irrelevantImages.includes(tnUrl)) return 'x'
+    },
+    imageOverlayBgVariant(tnUrl) {
+      if (this.rankedImages.includes(tnUrl)) return 'bg-success'
+      else if (this.irrelevantImages.includes(tnUrl)) return 'bg-danger'
     },
   },
 }
