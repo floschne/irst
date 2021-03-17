@@ -88,7 +88,7 @@
               <b-img
                 :id="`img-${tnUrl}`"
                 v-b-modal="`modal-${tnUrl}`"
-                v-b-tooltip.hover.bottom.html="
+                v-b-tooltip.hover.top.html="
                   'Click to enlarge </br> Right-click to tag as irrelevant'
                 "
                 thumbnail
@@ -98,10 +98,12 @@
                 @contextmenu="tagAsIrrelevant($event, tnUrl)"
               />
               <div
+                v-b-tooltip.hover.top="'Click to untag'"
                 :class="`image-overlay ranks ranks
                 ${imageOverlayBgVariant(tnUrl)}
                 ${imageOverlayDisplay(tnUrl)}`"
                 @click="removeOrUntagImage($event, tnUrl)"
+                @contextmenu="removeOrUntagImage($event, tnUrl)"
               >
                 <b-icon
                   :icon="`${imageOverlayIcon(tnUrl)}-circle`"
@@ -236,7 +238,6 @@
         :value="assignmentId"
       />
       <input id="erId" type="hidden" name="erId" :value="erId" />
-      <input id="ranking" type="hidden" name="ranking" :value="rankedIds" />
     </form>
   </b-container>
 </template>
@@ -277,8 +278,6 @@ export default {
       irrelevantImages: [],
       imageUrls: [],
       thumbnailUrls: [],
-      rankedIds: [],
-      irrelevantIds: [],
       sample: null,
       loading: true,
       submitSuccess: false,
@@ -315,26 +314,25 @@ export default {
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
     },
-    removeRankedImage(imgUrl) {
-      const pos = this.rankedImages.indexOf(imgUrl)
+    removeRankedImage(tnUrl) {
+      const pos = this.rankedImages.indexOf(tnUrl)
       this.rankedImages.splice(pos, 1)
     },
-    tagAsIrrelevant(evt, imgUrl) {
+    tagAsIrrelevant(evt, tnUrl) {
       evt.preventDefault()
-      this.irrelevantImages.push(imgUrl)
+      this.irrelevantImages.push(tnUrl)
       // remove duplicates
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.irrelevantImages = [...new Set(this.irrelevantImages)]
     },
-    untagAsIrrelevant(imgUrl) {
-      const pos = this.irrelevantImages.indexOf(imgUrl)
+    untagAsIrrelevant(tnUrl) {
+      const pos = this.irrelevantImages.indexOf(tnUrl)
       this.irrelevantImages.splice(pos, 1)
     },
-    removeOrUntagImage(evt, imgUrl) {
+    removeOrUntagImage(evt, tnUrl) {
       evt.preventDefault()
-      if (this.irrelevantImages.includes(imgUrl)) this.untagAsIrrelevant(imgUrl)
-      else if (this.rankedImages.includes(imgUrl))
-        this.removeRankedImage(imgUrl)
+      if (this.irrelevantImages.includes(tnUrl)) this.untagAsIrrelevant(tnUrl)
+      else if (this.rankedImages.includes(tnUrl)) this.removeRankedImage(tnUrl)
     },
     getImageIds(urls) {
       return this.$imageApiClient.getIds(urls)
@@ -350,11 +348,13 @@ export default {
       this.submitSuccess = false
 
       // get the ids from URLs
-      this.rankedIds = await this.getImageIds(this.rankedImages)
+      const rankedIds = await this.getImageIds(this.rankedImages)
+      const irrelevantIds = await this.getImageIds(this.irrelevantImages)
       // submit to own API
       this.erId = await this.$resultApiClient.submitResult(
         this.sample.id,
-        this.rankedIds,
+        rankedIds,
+        irrelevantIds,
         this.workerId,
         this.assignmentId,
         this.hitId
@@ -364,7 +364,7 @@ export default {
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
-      if (this.assignmentId !== null) {
+      if (this.submitSuccess && this.assignmentId !== null) {
         // via axios
         // fixme currently not working because we would have to follow the redirect and set the cookie correctly
         // fixme see the last comment (from AWS staff) https://forums.aws.amazon.com/thread.jspa?messageID=553442
@@ -394,6 +394,7 @@ export default {
       this.submitSuccess = false
 
       this.rankedImages = []
+      this.irrelevantImages = []
 
       this.sample = await this.$sampleApiClient.nextSample()
       this.loadSuccess = this.sample !== null
@@ -424,6 +425,7 @@ export default {
       this.submitSuccess = false
 
       this.rankedImages = []
+      this.irrelevantImages = []
 
       this.sample = await this.$sampleApiClient.load(this.esId)
       this.loadSuccess = this.sample !== null

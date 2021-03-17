@@ -10,7 +10,8 @@ from models import MTurkParams
 class EvalResult(BaseModel):
     id: str = Field(description="result uuid", default_factory=uuid)
     es_id: str = Field(description="UUID of the related EvalSample")
-    ranking: List[str] = Field(description="User ranking of images (URLs) related to the EvalSample's query")
+    ranking: List[str] = Field(description="User ranking of image ids related to the EvalSample's query")
+    irrelevant: List[str] = Field(description="Image ids which are not related to the EvalSample's query according to the user")
     created: datetime = Field(description="Timestamp of the result", default_factory=datetime.now)
     mt_params: Optional[MTurkParams] = Field(description="Optional MTurk Parameters", default=None)
 

@@ -11,7 +11,8 @@ export default ({ app, axios }, inject) => {
   const resultApiClient = {
     submitResult: async (
       esId,
-      rankingData,
+      rankedImages,
+      irrelevantImages,
       workerId = null,
       assignmentId = null,
       hitId = null
@@ -26,10 +27,10 @@ export default ({ app, axios }, inject) => {
       }
       const result = {
         es_id: esId,
-        ranking: rankingData,
+        ranking: rankedImages,
+        irrelevant: irrelevantImages,
         mt_params: mtParams,
       }
-      logger('i', result)
       return await app.$axios
         .put(
           `${app.$config.ctxPath}api/result/submit`,
