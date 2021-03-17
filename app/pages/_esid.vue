@@ -7,7 +7,7 @@
     <RankingForm
       v-else
       :es-id="esid"
-      :num-ranks="$config.numRanks"
+      :min-num-ranks="$config.minNumRanks"
       :assignment-id="assignmentId"
       :worker-id="workerId"
       :hit-id="hitId"

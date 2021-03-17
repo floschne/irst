@@ -162,8 +162,7 @@
             class="text-dark"
             style="font-size: 2.75vw"
           >
-            Drag n' Drop Images Here To Rank Starting From Highest (1) to Lowest
-            ({{ numRanks }})
+            Drag n' Drop Images Here To Rank From Highest To Lowest
           </div>
 
           <b-link
@@ -191,15 +190,20 @@
         </Draggable>
 
         <b-progress
-          :max="numRanks"
+          :max="imageUrls.length"
           show-progress
           variant="success"
           class="mt-1"
         >
-          <b-progress-bar :value="rankedImages.length">
+          <b-progress-bar
+            :value="rankedImages.length + irrelevantImages.length"
+          >
             <span>
               Progress:
-              <strong>{{ rankedImages.length }} / {{ numRanks }}</strong>
+              <strong>
+                {{ rankedImages.length + irrelevantImages.length }} /
+                {{ imageUrls.length }}
+              </strong>
             </span>
           </b-progress-bar>
         </b-progress>
@@ -210,14 +214,22 @@
             You must accept this HIT before working on it!
           </h3>
           <b-button-group v-else class="w-100 mt-1 mb-1">
-            <b-button type="submit" variant="primary" :disabled="ranksNotFull">
-              <span v-if="ranksNotFull">
+            <b-button
+              type="submit"
+              variant="primary"
+              :disabled="submitDisabled"
+            >
+              <div
+                v-if="submitDisabled"
+                class="w-100"
+                @click="showMinNumRanksNotPossibleToast"
+              >
                 Which images are best described by the caption? Please rank your
-                Top {{ numRanks }}!
-              </span>
+                top images and tag irrelevant images!
+              </div>
               <span v-else>Submit Ranking</span>
             </b-button>
-            <b-button type="reset" variant="danger">Reset Ranking</b-button>
+            <b-button type="reset" variant="danger">Reset</b-button>
             <b-button
               v-if="esId === null"
               type="button"
@@ -246,7 +258,7 @@
 export default {
   name: 'RankingForm',
   props: {
-    numRanks: {
+    minNumRanks: {
       type: Number,
       default: 10,
     },
@@ -289,8 +301,11 @@ export default {
     }
   },
   computed: {
-    ranksNotFull() {
-      return this.rankedImages.length < this.numRanks
+    submitDisabled() {
+      const allProcessed =
+        this.irrelevantImages.length + this.rankedImages.length ===
+        this.imageUrls.length
+      return !allProcessed || this.rankedImages.length < this.minNumRanks
     },
     showDragabbleHint() {
       return this.rankedImages.length === 0
@@ -313,6 +328,13 @@ export default {
       // remove duplicates
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
+      // if one of ranked is in irrelevant, remove from irrelevant
+      // https://stackoverflow.com/questions/1885557/simplest-code-for-array-intersection-in-javascript
+      const intersection = this.irrelevantImages.filter((value) =>
+        this.rankedImages.includes(value)
+      )
+      // there should always only be exactly one element
+      if (intersection.length === 1) this.untagAsIrrelevant(intersection[0])
     },
     removeRankedImage(tnUrl) {
       const pos = this.rankedImages.indexOf(tnUrl)
@@ -324,6 +346,14 @@ export default {
       // remove duplicates
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.irrelevantImages = [...new Set(this.irrelevantImages)]
+      // if the number of irrelevant images wouldn't allow the minimum number of ranked images, reject and show toast
+      if (
+        this.irrelevantImages.length >
+        this.imageUrls.length - this.minNumRanks
+      ) {
+        this.untagAsIrrelevant(tnUrl)
+        this.showMinNumRanksNotPossibleToast()
+      }
     },
     untagAsIrrelevant(tnUrl) {
       const pos = this.irrelevantImages.indexOf(tnUrl)
@@ -340,6 +370,7 @@ export default {
     onReset(event) {
       event.preventDefault()
       this.rankedImages = []
+      this.irrelevantImages = []
     },
     async onSubmit(event) {
       event.preventDefault()
@@ -461,6 +492,19 @@ export default {
     imageOverlayBgVariant(tnUrl) {
       if (this.rankedImages.includes(tnUrl)) return 'bg-success'
       else if (this.irrelevantImages.includes(tnUrl)) return 'bg-danger'
+    },
+    showMinNumRanksNotPossibleToast() {
+      this.$nuxt.$bvToast.toast(
+        `Please rank at least your top ${this.minNumRanks} images and tag the remaining! For instructions, please click the (?) on the top-left`,
+        {
+          title: 'Invalid Data!',
+          autoHideDelay: 3000,
+          appendToast: true,
+          variant: 'danger',
+          solid: true,
+          toaster: 'b-toaster-top-full',
+        }
+      )
     },
   },
 }

@@ -18,10 +18,10 @@
 
       <b-nav-text
         class="w-100 text-center p-0 m-0 text-warning"
-        style="font-size: 2.1vw"
+        style="font-size: 2vw"
       >
-        Which images are best described by the caption? Please rank your Top
-        {{ $config.numRanks }}!
+        Which images are related to the caption? Rank your top and tag
+        irrelevant images!
       </b-nav-text>
 
       <b-collapse id="nav-collapse" is-nav>

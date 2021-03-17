@@ -4,7 +4,7 @@
       v-if="showInstructions"
       @instructions-read="showInstructions = false"
     />
-    <RankingForm v-else :num-ranks="$config.numRanks" />
+    <RankingForm v-else :min-num-ranks="$config.minNumRanks" />
   </div>
 </template>
 
