@@ -30,10 +30,9 @@ export default {
   data() {
     return {
       showInstructions: true,
-      assignmentId: '',
-      hitId: '',
-      workerId: '',
-      mTurkSubmitPath: '',
+      assignmentId: null,
+      hitId: null,
+      workerId: null,
     }
   },
   created() {
