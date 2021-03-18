@@ -495,10 +495,10 @@ export default {
     },
     showMinNumRanksNotPossibleToast() {
       this.$nuxt.$bvToast.toast(
-        `Please rank at least your top ${this.minNumRanks} images and tag the remaining! For instructions, please click the (?) on the top-left`,
+        `Please RANK AT LEAST YOUR TOP ${this.minNumRanks} images AND TAG ALL THE REMAINING images as irrelevant! For instructions, please click the (?) on the top-left`,
         {
           title: 'Invalid Data!',
-          autoHideDelay: 3000,
+          autoHideDelay: 5000,
           appendToast: true,
           variant: 'danger',
           solid: true,
