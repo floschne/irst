@@ -38,13 +38,14 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
+      localStorage.setItem('readBefore', 'true')
     })
     // check if mturk params available
     if ('hitId' in this.$route.query) {
+      // the URL to submit to is set in proxy config to prevent CORS issues
       this.assignmentId = this.$route.query.assignmentId
       this.hitId = this.$route.query.hitId
       this.workerId = this.$route.query.workerId
-      // the URL to submit to is set in proxy config to prevent CORS issues
     }
   },
 }

@@ -150,7 +150,7 @@
       <b-container id="imageRankingFooter" fluid class="p-1 fixed-bottom">
         <Draggable
           :list="rankedImages"
-          :group="{ name: 'images', put: ranksNotFull }"
+          :group="{ name: 'images' }"
           tag="div"
           class="d-flex flex-row flex-nowrap justify-content-center align-items-center mt-1 bg-light border border-dark h-100 rounded overflow-auto"
           :style="`min-height: ${img_size}rem;
