@@ -89,6 +89,7 @@ export default {
     { src: '@/plugins/imageApiClient.js' },
     { src: '@/plugins/studyApiClient.js' },
     { src: '@/plugins/userApiClient.js' },
+    { src: '@/plugins/feedbackApiClient.js' },
     { src: '@/plugins/mturkSubmitService.js' },
     { src: '@/plugins/vuedraggable.js' },
     { src: '@/plugins/vuechart.js' },

@@ -10,9 +10,9 @@
       header="Thanks! Your ranking was submitted successfully"
       lead="Start another ranking?"
     >
-      <b-button v-if="esId === null" variant="primary" @click="loadNextSample"
-        >Start!</b-button
-      >
+      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample"
+        >Start!
+      </b-button>
     </b-jumbotron>
 
     <!--     Submit Error Jumbotron -->
@@ -25,9 +25,9 @@
       header="Sorry! A problem occurred during your submission..."
       lead="Start another ranking?"
     >
-      <b-button v-if="esId === null" variant="primary" @click="loadNextSample"
-        >Start!</b-button
-      >
+      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample"
+        >Start!
+      </b-button>
     </b-jumbotron>
 
     <!--     Load Error Jumbotron -->
@@ -40,9 +40,9 @@
       header="Sorry! A problem occurred while loading your evaluation sample..."
       lead="Please start another ranking!"
     >
-      <b-button v-if="esId === null" variant="primary" @click="loadNextSample"
-        >Start!</b-button
-      >
+      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample"
+        >Start!
+      </b-button>
     </b-jumbotron>
 
     <!--    Loading Icon -->
@@ -239,17 +239,28 @@
             </b-button>
             <b-button type="reset" variant="danger">Reset</b-button>
             <b-button
-              v-if="esId === null"
+              v-if="esId === ''"
               type="button"
               variant="warning"
               @click="loadNextSample"
             >
               Get New Sample
             </b-button>
+            <b-button v-b-modal.feedbackModal variant="info">
+              Provide Feedback
+            </b-button>
           </b-button-group>
         </b-form-row>
       </b-container>
     </b-form>
+    <b-modal
+      id="feedbackModal"
+      title="Any comments, criticism or thoughts?"
+      hide-footer
+    >
+      <FeedbackForm :worker-id="workerId" :es-id="esId" :hit-id="hitId" />
+    </b-modal>
+
     <form id="hiddenMTurkForm" method="post" :action="mturkExternalSubmitUrl">
       <input
         id="assignmentId"
@@ -263,8 +274,11 @@
 </template>
 
 <script>
+import FeedbackForm from '~/components/FeedbackForm'
+
 export default {
   name: 'RankingForm',
+  components: { FeedbackForm },
   props: {
     minNumRanks: {
       type: Number,
@@ -276,19 +290,19 @@ export default {
     },
     esId: {
       type: String,
-      default: null,
+      default: '',
     },
     assignmentId: {
       type: String,
-      default: null,
+      default: '',
     },
     workerId: {
       type: String,
-      default: null,
+      default: '',
     },
     hitId: {
       type: String,
-      default: null,
+      default: '',
     },
   },
   emits: ['study-progress-changed'],
@@ -328,7 +342,7 @@ export default {
     },
   },
   created() {
-    if (this.esId === null) this.loadNextSample()
+    if (this.esId === '') this.loadNextSample()
     else this.loadSample()
   },
   methods: {
@@ -405,11 +419,11 @@ export default {
         this.hitId
       )
       this.submitSuccess =
-        this.erId !== null && this.erId !== undefined && this.erId !== ''
+        this.erId !== '' && this.erId !== undefined && this.erId !== ''
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
-      if (this.submitSuccess && this.assignmentId !== null) {
+      if (this.submitSuccess && this.assignmentId !== '') {
         // via axios
         // fixme currently not working because we would have to follow the redirect and set the cookie correctly
         // fixme see the last comment (from AWS staff) https://forums.aws.amazon.com/thread.jspa?messageID=553442
