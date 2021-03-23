@@ -12,12 +12,12 @@
     </b-alert>
     <b-container fluid class="text-center">
       <b-form-checkbox
-        v-model="readBefore"
+        v-model="instructionsRead"
         name="show-next-time-checkbox"
         class="text-left"
         switch
       >
-        Show instructions next time
+        Hide instructions next time
       </b-form-checkbox>
       <b-row class="mb-2">
         <section class="w-100 p-2 text-left">
@@ -303,11 +303,11 @@
           Ok, I got it! Let's start!
         </b-button>
         <b-form-checkbox
-          v-model="readBefore"
+          v-model="instructionsRead"
           name="show-next-time-checkbox"
           switch
         >
-          Show instructions next time
+          Hide instructions next time
         </b-form-checkbox>
       </b-row>
     </b-container>
@@ -320,21 +320,26 @@ export default {
   emits: ['instructions-read'],
   data() {
     return {
-      readBefore: true,
+      instructionsRead: false,
     }
   },
   watch: {
-    readBefore(show) {
-      localStorage.setItem('readBefore', show)
+    instructionsRead(read) {
+      localStorage.setItem('instructionsRead', read)
+      this.instructionsRead = read
     },
   },
   mounted() {
-    this.readBefore = JSON.parse(localStorage.getItem('readBefore'))
-    if (this.readBefore === false) {
+    this.instructionsRead = JSON.parse(localStorage.getItem('instructionsRead'))
+    if (this.instructionsRead === true) {
       this.$nextTick(() => {
         this.$emit('instructions-read')
       })
     }
+  },
+  created() {
+    if (process.browser && localStorage.getItem('instructionsRead') === null)
+      localStorage.setItem('instructionsRead', 'false')
   },
   methods: {
     onSubmit(event) {
