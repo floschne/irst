@@ -8,6 +8,7 @@ from loguru import logger
 from omegaconf import OmegaConf
 
 from models import EvalSample, EvalResult, ModelRanking
+from models.feedback import Feedback
 
 
 class RedisHandler(object):
@@ -228,3 +229,48 @@ class RedisHandler(object):
     def list_hit_ids(self):
         ids = self.__mturk.keys('*_hit_info')
         logger.debug(f"Found {len(ids)} HIT IDs")
+
+    ############### FEEDBACK (in MTurk DB) ##############################
+
+    @logger.catch(reraise=True)
+    def store_feedback(self, feedback: Feedback) -> Optional[str]:
+        # store
+        key = str('feedback_' + feedback.id)
+        if self.__mturk.set(key.encode('utf-8'), feedback.json()) != 1:
+            logger.error(f"Cannot store Feedback {feedback.id} for EvalSample {feedback.es_id}")
+            return None
+
+        # reference in ES set
+        set_key = str(feedback.es_id + '_feedback')
+        if self.__mturk.sadd(set_key.encode('utf-8'), feedback.id) != 1:
+            logger.error(f"Cannot reference Feedback {feedback.id} with EvalSample {feedback.es_id}")
+            return None
+        else:
+            logger.debug(f"Successfully referenced Feedback {feedback.id} with EvalSample {feedback.es_id}")
+
+        logger.debug(f"Successfully stored Feedback {feedback.es_id} for EvalSample {feedback.es_id}")
+        return feedback.id
+
+    @logger.catch(reraise=True)
+    def load_feedback(self, fb_id: str) -> Optional[Feedback]:
+        key = str('feedback_' + fb_id)
+        fb = self.__mturk.get(key.encode('utf-8'))
+        if fb is None:
+            logger.error(f"Cannot retrieve Feedback {fb_id}")
+            return None
+        else:
+            logger.debug(f"Successfully loaded Feedback {fb_id}")
+            return Feedback.parse_raw(fb)
+
+    @logger.catch(reraise=True)
+    def list_feedbacks_of_eval_sample(self, es_id: str) -> List[Feedback]:
+        key = str(es_id + '_feedback')
+        return [self.load_feedback(str(fb_id, 'utf-8')) for fb_id in self.__mturk.smembers(key.encode('utf-8'))]
+
+    @logger.catch(reraise=True)
+    def list_all_feedbacks(self) -> List[Feedback]:
+        fb_ids = []
+        for key in self.__mturk.keys('*_feedback'):
+            fb_ids.extend(self.__mturk.smembers(key))
+
+        return [self.load_feedback(str(fb_id, 'utf-8')) for fb_id in fb_ids]

@@ -7,7 +7,7 @@ from backend import StudyCoordinator, ImageServer
 from backend.auth import AuthHandler
 from backend.db import RedisHandler
 from backend.mturk import MTurkHandler
-from routers import general, eval_sample, result, image, study, mranking, user, mturk
+from routers import general, eval_sample, result, image, study, mranking, user, mturk, feedback
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -66,6 +66,7 @@ app.include_router(study.router, prefix=study.PREFIX)
 app.include_router(mranking.router, prefix=mranking.PREFIX)
 app.include_router(user.router, prefix=user.PREFIX)
 app.include_router(mturk.router, prefix=mturk.PREFIX)
+app.include_router(feedback.router, prefix=feedback.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":
