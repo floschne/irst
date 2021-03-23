@@ -95,7 +95,7 @@
                 @contextmenu="tagAsIrrelevant($event, tnUrl)"
               />
               <div
-                v-b-tooltip.hover.top="'Click to untag'"
+                v-b-tooltip.hover.noninteractive.top="'Click to untag'"
                 :class="`image-overlay ranks ranks
                 ${imageOverlayBgVariant(tnUrl)}
                 ${imageOverlayDisplay(tnUrl)}`"
@@ -178,7 +178,7 @@
             v-else
             :key="idx"
             v-b-modal="`modal-${tnUrl}`"
-            v-b-tooltip.hover.topright.html="
+            v-b-tooltip.hover.top.noninteractive.html="
               'Click to enlarge </br> Right-click to remove'
             "
             href="#"
