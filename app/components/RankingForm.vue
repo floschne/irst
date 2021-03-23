@@ -77,7 +77,7 @@
         >
           <b-col
             v-for="(tnUrl, idx) in thumbnailUrls"
-            :key="tnUrl"
+            :key="`tn-col-${idx}`"
             class="mt-1 d-flex justify-content-center"
             lg="1"
             md="2"
@@ -86,11 +86,8 @@
           >
             <b-link href="#" class="image-container ranks">
               <b-img
-                :id="`img-${tnUrl}`"
+                :id="`tn-img-${idx}`"
                 v-b-modal="`modal-${tnUrl}`"
-                v-b-tooltip.hover.top.html="
-                  'Click to enlarge </br> Right-click to tag as irrelevant'
-                "
                 thumbnail
                 rounded
                 :src="tnUrl"
@@ -112,6 +109,17 @@
                   class="image-overlay-icon"
                 />
               </div>
+
+              <b-tooltip
+                :target="`tn-img-${idx}`"
+                :show.sync="tooltipStates[`tn-img-${idx}`]"
+                placement="top"
+                triggers="hover"
+                noninteractive
+              >
+                Click to enlarge <br />
+                Right-click to tag as irrelevant
+              </b-tooltip>
             </b-link>
             <b-modal
               :id="`modal-${tnUrl}`"
@@ -298,6 +306,7 @@ export default {
       loadError: false,
       img_size: 7.5,
       erId: '',
+      tooltipStates: {},
     }
   },
   computed: {
@@ -325,6 +334,7 @@ export default {
   methods: {
     addToRankedImages(evt) {
       evt.preventDefault()
+      this.hideTooltip(evt.oldIndex)
       // remove duplicates
       // https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
       this.rankedImages = [...new Set(this.rankedImages)]
@@ -335,6 +345,10 @@ export default {
       )
       // there should always only be exactly one element
       if (intersection.length === 1) this.untagAsIrrelevant(intersection[0])
+    },
+    hideTooltip(idx) {
+      // this.$nuxt.$emit('bv::tooltip::hide', `tn-img-${idx}`)  FIXME event gets emitted but without any effect
+      this.tooltipStates[`tn-img-${idx}`] = false
     },
     removeRankedImage(tnUrl) {
       const pos = this.rankedImages.indexOf(tnUrl)
@@ -442,6 +456,10 @@ export default {
           this.sample.image_ids,
           true
         )
+        // init tooltip states
+        this.thumbnailUrls.forEach((tnUrl, idx) => {
+          this.tooltipStates[`tn-img-${idx}`] = false
+        })
       }
 
       this.loading = false
