@@ -41,7 +41,7 @@ backend:
     hit_reward_live: 0.15
     hit_reward_sandbox: 0.15
     hit_title: Image ranking according to a caption
-    hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you re-rank images according to captions.
+    hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you re-rank images according to captions. Please note that mobile devices are not support and a minimum screen size of 900x800 pixels with no browser zoom is required.
     hit_keywords: image, ranking, AI, visual
     hit_max_assignments: 3
     hit_lifetime: 604800 # 604800 = 1 week's seconds
