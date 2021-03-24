@@ -92,10 +92,9 @@
                 rounded
                 :src="tnUrl"
                 class="ranks"
-                @contextmenu="tagAsIrrelevant($event, tnUrl)"
               />
               <div
-                v-b-tooltip.hover.noninteractive.top="'Click to untag'"
+                v-b-tooltip.hover.noninteractive.top="'Click to remove ranking'"
                 :class="`image-overlay ranks ranks
                 ${imageOverlayBgVariant(tnUrl)}
                 ${imageOverlayDisplay(tnUrl)}`"
@@ -118,7 +117,7 @@
                 noninteractive
               >
                 Click to enlarge <br />
-                Right-click to tag as irrelevant
+                Drag n' Drop to rank
               </b-tooltip>
             </b-link>
             <b-modal
@@ -232,8 +231,8 @@
                 class="w-100"
                 @click="showMinNumRanksNotPossibleToast"
               >
-                Which images are best described by the caption? Please rank your
-                top images and tag irrelevant images!
+                Which images are best described by the caption? Please rank at
+                least your top {{ minNumRanks }} images!
               </div>
               <span v-else>Submit Ranking</span>
             </b-button>
@@ -325,10 +324,7 @@ export default {
   },
   computed: {
     submitDisabled() {
-      const allProcessed =
-        this.irrelevantImages.length + this.rankedImages.length ===
-        this.imageUrls.length
-      return !allProcessed || this.rankedImages.length < this.minNumRanks
+      return this.rankedImages.length < this.minNumRanks
     },
     showDragabbleHint() {
       return this.rankedImages.length === 0
@@ -405,6 +401,11 @@ export default {
       this.loading = true
       this.submitError = false
       this.submitSuccess = false
+
+      // all images not ranked are implicitly tagged as irrelevant
+      this.irrelevantImages = this.thumbnailUrls.filter(
+        (tnUrl) => !this.rankedImages.includes(tnUrl)
+      )
 
       // get the ids from URLs
       const rankedIds = await this.getImageIds(this.rankedImages)
@@ -527,9 +528,9 @@ export default {
     },
     showMinNumRanksNotPossibleToast() {
       this.$nuxt.$bvToast.toast(
-        `Please RANK AT LEAST YOUR TOP ${this.minNumRanks} images AND TAG ALL THE REMAINING images as irrelevant! For instructions, please click the (?) on the top-left`,
+        `Please rank at least your top ${this.minNumRanks} images! For instructions, please click the (?) on the top-left`,
         {
-          title: 'Invalid Data!',
+          title: 'Submit not yet enabled!',
           autoHideDelay: 5000,
           appendToast: true,
           variant: 'danger',

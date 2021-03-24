@@ -145,7 +145,7 @@ export default {
 
   // https://nuxtjs.org/docs/2.x/directory-structure/nuxt-config#runtimeconfig
   publicRuntimeConfig: {
-    minNumRanks: process.env.APP_MIN_NUM_RANKS || 5,
+    minNumRanks: process.env.APP_MIN_NUM_RANKS || 3,
     ctxPath: process.env.APP_CTX_PTH || '',
     mturkSandbox: process.env.MTURK_SANDBOX || true,
   },

@@ -2,7 +2,7 @@
   <b-jumbotron
     fluid
     header="Welcome!"
-    lead="Please read the instructions or watch the instructions video(s) to make sure you know what to do before you start!"
+    lead="Please read the instructions or watch the instructions videos to make sure you know what to do before you start!"
     class="rounded my-auto"
   >
     <b-alert show dismissible fade variant="warning" class="border border-dark">
@@ -22,21 +22,31 @@
       <b-row class="mb-2">
         <section class="w-100 p-2 text-left">
           <header>
-            <h2 class="text-monospace">
+            <h1 class="text-monospace">
               <u style="text-decoration-style: dashed"> Goal of the task </u>
-            </h2>
+            </h1>
           </header>
-          <p>
+          <p style="font-size: 1.2rem">
             To complete the task, you have to
             <strong>
-              rank at least your top {{ $nuxt.$config.minNumRanks }} images and
-              tag all remaining images as irrelevant
+              rank at least your top {{ $nuxt.$config.minNumRanks }} images
             </strong>
-            regarding a given caption in the green-ish box below the
-            image-selection area in the middle part of the application. Your
-            progress is highlighted by a progress bar in the bottom part of the
-            application. Once you've processed every image, the submit button
-            becomes available.
+            regarding a given caption in the
+            <span class="bg-info rounded p-1">green-ish box</span> below the
+            image-selection area in the middle part of the application.
+            <br />
+            <strong>
+              Note that the images
+              <u style="text-decoration-style: solid">
+                do not have to match exactly
+              </u>
+              but should just be related to the caption.
+            </strong>
+            <br />
+            For example, if the caption is about specific a person, all images
+            with persons are regarded as being related.
+            <br />
+            Once you've ranked your top image, the submit button gets enabled.
           </p>
         </section>
       </b-row>
@@ -123,48 +133,6 @@
 
       <b-row class="mb-2">
         <section class="w-100 p-2 text-left">
-          <header>
-            <h3 class="text-monospace">
-              <u style="text-decoration-style: dashed">
-                Tag an image as irrelevant
-              </u>
-            </h3>
-          </header>
-          <p>
-            To tag an image as irrelevant,
-            <strong>
-              simply right-click it in the image-selection area in the center of
-              the application.
-            </strong>
-            An image is tagged as irrelevant if a red x-overlay appears on the
-            respective image in the image-selection area.
-          </p>
-          <b-button
-            v-b-toggle="'tag-irrelevant-video'"
-            variant="primary"
-            size="sm"
-          >
-            Toggle Example
-          </b-button>
-
-          <b-collapse
-            id="tag-irrelevant-video"
-            class="pt-1 border border-dark rounded-bottom w-100 text-center"
-          >
-            <iframe
-              width="800"
-              height="450"
-              src="https://www.youtube-nocookie.com/embed/RgJzTmvjg_A"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </b-collapse>
-        </section>
-      </b-row>
-
-      <b-row class="mb-2">
-        <section class="w-100 p-2 text-left">
           <h3 class="text-monospace">
             <u style="text-decoration-style: dashed"> Remove a ranked image </u>
           </h3>
@@ -193,48 +161,6 @@
               width="800"
               height="450"
               src="https://www.youtube-nocookie.com//embed/E6wgS4rEZiM"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </b-collapse>
-        </section>
-      </b-row>
-
-      <b-row class="mb-2">
-        <section class="w-100 p-2 text-left">
-          <header>
-            <h3 class="text-monospace">
-              <u style="text-decoration-style: dashed">
-                Remove the irrelevant tag of an image
-              </u>
-            </h3>
-          </header>
-          <p>
-            To remove the irrelevant tag of an image,
-            <strong>
-              (left or right) click on the red x-overlay in the image-selection
-              area.
-            </strong>
-            You can see, that the red x-overlay of the respective image has
-            disappeared.
-          </p>
-          <b-button
-            v-b-toggle="'remove-irrelevant-video'"
-            variant="primary"
-            size="sm"
-          >
-            Toggle Example
-          </b-button>
-
-          <b-collapse
-            id="remove-irrelevant-video"
-            class="pt-1 border border-dark rounded-bottom w-100 text-center"
-          >
-            <iframe
-              width="800"
-              height="450"
-              src="https://www.youtube-nocookie.com//embed/Bb8TvK48wBc"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
@@ -278,25 +204,25 @@
         </section>
       </b-row>
 
-      <b-row class="mb-2">
-        <b-button v-b-toggle="'full-video'" class="w-100" variant="primary">
-          Full tutorial video (1:40 min)
-        </b-button>
+      <!--      <b-row class="mb-2">-->
+      <!--        <b-button v-b-toggle="'full-video'" class="w-100" variant="primary">-->
+      <!--          Full tutorial video (1:40 min)-->
+      <!--        </b-button>-->
 
-        <b-collapse
-          id="full-video"
-          class="pt-1 border border-dark rounded-bottom w-100 text-center"
-        >
-          <iframe
-            width="800"
-            height="450"
-            src="https://www.youtube-nocookie.com/embed/SqV9ta6DNi8?controls=0&vq=hd720"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        </b-collapse>
-      </b-row>
+      <!--        <b-collapse-->
+      <!--          id="full-video"-->
+      <!--          class="pt-1 border border-dark rounded-bottom w-100 text-center"-->
+      <!--        >-->
+      <!--          <iframe-->
+      <!--            width="800"-->
+      <!--            height="450"-->
+      <!--            src="https://www.youtube-nocookie.com/embed/SqV9ta6DNi8?controls=0&vq=hd720"-->
+      <!--            frameborder="0"-->
+      <!--            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"-->
+      <!--            allowfullscreen-->
+      <!--          ></iframe>-->
+      <!--        </b-collapse>-->
+      <!--      </b-row>-->
 
       <b-row class="mb-2 mt-2">
         <b-button block variant="success" @click="onSubmit">

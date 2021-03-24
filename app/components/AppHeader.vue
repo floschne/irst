@@ -20,8 +20,8 @@
         class="w-100 text-center p-0 m-0 text-warning"
         style="font-size: 2vw"
       >
-        Which images are related to the caption? Rank your top and tag
-        irrelevant images!
+        Which images are <strong>related</strong> to the caption? Please rank
+        your top {{ $config.minNumRanks }}!
       </b-nav-text>
 
       <b-collapse id="nav-collapse" is-nav>
