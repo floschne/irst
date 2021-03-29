@@ -122,7 +122,7 @@
             <iframe
               width="800"
               height="450"
-              src="https://www.youtube-nocookie.com/embed/RGYN5OW_c2c"
+              src="https://www.youtube-nocookie.com/embed/l1Bu5yxAQDY"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
@@ -160,7 +160,7 @@
             <iframe
               width="800"
               height="450"
-              src="https://www.youtube-nocookie.com//embed/E6wgS4rEZiM"
+              src="https://www.youtube-nocookie.com/embed/Oc0dN7C7yuI"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
@@ -195,7 +195,7 @@
             <iframe
               width="800"
               height="450"
-              src="https://www.youtube-nocookie.com/embed/dhHQR_WAEnc"
+              src="https://www.youtube-nocookie.com/embed/nErYZd4T7R4"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
@@ -204,25 +204,42 @@
         </section>
       </b-row>
 
-      <!--      <b-row class="mb-2">-->
-      <!--        <b-button v-b-toggle="'full-video'" class="w-100" variant="primary">-->
-      <!--          Full tutorial video (1:40 min)-->
-      <!--        </b-button>-->
+      <b-row class="mb-2">
+        <section class="w-100 p-2 text-left">
+          <header>
+            <h3 class="text-monospace">
+              <u style="text-decoration-style: dashed">Providing Feedback</u>
+            </h3>
+          </header>
+          <p>
+            If you have any comments or criticism you can provide your feedback
+            by
+            <strong>clicking on the</strong>
+            <span class="bg-info rounded p-1">'Provide Feedback'-button</span>
+            on the bottom of the application.
+            <br />
+            If you want to provide anonymous feedback, make your to set the
+            respective switch.
+          </p>
+          <b-button v-b-toggle="'provide-feedback'" variant="primary" size="sm">
+            Toggle Example
+          </b-button>
 
-      <!--        <b-collapse-->
-      <!--          id="full-video"-->
-      <!--          class="pt-1 border border-dark rounded-bottom w-100 text-center"-->
-      <!--        >-->
-      <!--          <iframe-->
-      <!--            width="800"-->
-      <!--            height="450"-->
-      <!--            src="https://www.youtube-nocookie.com/embed/SqV9ta6DNi8?controls=0&vq=hd720"-->
-      <!--            frameborder="0"-->
-      <!--            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"-->
-      <!--            allowfullscreen-->
-      <!--          ></iframe>-->
-      <!--        </b-collapse>-->
-      <!--      </b-row>-->
+          <b-collapse
+            id="provide-feedback"
+            class="pt-1 border border-dark rounded-bottom w-100 text-center"
+          >
+            <iframe
+              width="800"
+              height="450"
+              src="https://www.youtube-nocookie.com/embed/22ZXs1ztCBo"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </b-collapse>
+        </section>
+      </b-row>
 
       <b-row class="mb-2 mt-2">
         <b-button block variant="success" @click="onSubmit">
