@@ -226,7 +226,7 @@ class StudyCoordinator(object):
                                "IN_PROGRESS! Submission Rejected")
                 return None
             # store the EvalResult
-            if self.__rh.store_result(res) is None:
+            if self.__rh.store_eval_result(res) is None:
                 return None
 
             # only coordinate the study if the result is NOT for MTurk

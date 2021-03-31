@@ -179,7 +179,7 @@ class RedisHandler(object):
     ################# EvalResult #################
 
     @logger.catch(reraise=True)
-    def store_result(self, result: EvalResult) -> Optional[str]:
+    def store_eval_result(self, result: EvalResult) -> Optional[str]:
         if not self.eval_sample_exists(result.es_id):
             logger.error(
                 f"EvalSample {result.es_id} referenced in EvalResult {result.id} does not exist! Discarding!")
@@ -193,15 +193,22 @@ class RedisHandler(object):
             return result.id
 
     @logger.catch(reraise=True)
-    def load_result(self, result_id: str) -> Optional[EvalResult]:
+    def load_eval_result(self, result_id: str, verbose: bool = False) -> Optional[EvalResult]:
         s = self.__results.get(result_id)
         if s is None:
             logger.error(f"Cannot load EvalResult {result_id}")
             return None
         else:
             result = EvalResult.parse_raw(s)
-            logger.debug(f"Successfully loaded EvalResult {result.id}")
+            if verbose:
+                logger.debug(f"Successfully loaded EvalResult {result.id}")
             return result
+
+    @logger.catch(reraise=True)
+    def list_eval_results(self) -> List[EvalResult]:
+        res = [self.load_eval_result(result_id=res_id, verbose=False) for res_id in self.__results.keys()]
+        logger.debug(f"Retrieved {len(res)} EvalResults!")
+        return res
 
     ############### MTURK ##############################
 
@@ -226,9 +233,9 @@ class RedisHandler(object):
             return json.loads(s)
 
     @logger.catch(reraise=True)
-    def list_hit_ids(self):
-        ids = self.__mturk.keys('*_hit_info')
-        logger.debug(f"Found {len(ids)} HIT IDs")
+    def list_hit_ids(self) -> List[str]:
+        keys = self.__mturk.keys('*_hit_info')
+        return [json.loads(self.__mturk.get(key))['HITId'] for key in keys]
 
     ############### FEEDBACK (in MTurk DB) ##############################
 

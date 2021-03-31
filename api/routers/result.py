@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 from loguru import logger
 from starlette.responses import JSONResponse
@@ -17,13 +19,23 @@ sc = StudyCoordinator()
 
 
 @logger.catch(reraise=True)
+@router.get("/list", tags=TAG,
+            response_model=List[EvalResult],
+            description="Returns all submitted EvalResults",
+            dependencies=[Depends(JWTBearer())])
+async def list_results():
+    logger.info(f"GET request on {PREFIX}/list")
+    return redis.list_eval_results()
+
+
+@logger.catch(reraise=True)
 @router.get("/{result_id}", tags=TAG,
             response_model=EvalResult,
             description="Returns the EvalResult with the specified ID",
             dependencies=[Depends(JWTBearer())])
 async def load(result_id: str):
     logger.info(f"GET request on {PREFIX}/{result_id}")
-    return redis.load_result(result_id)
+    return redis.load_eval_result(result_id)
 
 
 @logger.catch(reraise=True)
