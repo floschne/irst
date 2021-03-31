@@ -38,19 +38,33 @@ class MTurkHandler(object):
 
             cls.__hit_type_id = None
 
-            cls.__client = boto3.client(
-                'mturk',
-                endpoint_url=cls.__mturk_env['sandbox' if cls.sandbox else 'live']['endpoint'],
-                region_name=cls.__conf.aws_region_name,
-                aws_access_key_id=cls.__conf.aws_access_key,
-                aws_secret_access_key=cls.__conf.aws_secret,
-            )
+            cls.__client = None
 
             cls.__rh = RedisHandler()
 
         return cls.__singleton
 
     def init(self):
+        self.__hit_type_id = self.__create_or_get_hit_type()
+
+    def __get_default_client(self):
+        self.__client = boto3.client(
+            'mturk',
+            endpoint_url=self.__mturk_env['sandbox' if self.sandbox else 'live']['endpoint'],
+            region_name=self.__conf.aws_region_name,
+            aws_access_key_id=self.__conf.aws_access_key,
+            aws_secret_access_key=self.__conf.aws_secret,
+        )
+        self.__hit_type_id = self.__create_or_get_hit_type()
+
+    def create_new_client(self, sandbox: bool, aws_access_key: str, aws_secret: str):
+        self.__client = boto3.client(
+            'mturk',
+            endpoint_url=self.__mturk_env['sandbox' if sandbox else 'live']['endpoint'],
+            region_name=self.__conf.aws_region_name,
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret,
+        )
         self.__hit_type_id = self.__create_or_get_hit_type()
 
     def __create_or_get_hit_type(self) -> Optional[str]:
