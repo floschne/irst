@@ -10,8 +10,8 @@
       header="Thanks! Your ranking was submitted successfully"
       lead="Start another ranking?"
     >
-      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample"
-        >Start!
+      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample">
+        Start!
       </b-button>
     </b-jumbotron>
 
@@ -56,6 +56,17 @@
         variant="dark"
         class="my-auto ranks"
       />
+    </div>
+
+    <div
+      v-if="sample_cooldown > 0"
+      class="d-flex justify-content-center h-100 w-100"
+    >
+      Next Sample is available in
+      <span class="badge badge-info p-1 mr-2 ml-2">
+        {{ sample_cooldown }}
+      </span>
+      seconds...
     </div>
 
     <!--    Ranking Form -->
@@ -320,6 +331,7 @@ export default {
       img_size: 7.5,
       erId: '',
       tooltipStates: {},
+      sample_cooldown: 0, // waiting time until next sample
     }
   },
   computed: {
@@ -340,6 +352,17 @@ export default {
   created() {
     if (this.esId === '') this.loadNextSample()
     else this.loadSample()
+
+    const self = this
+    // cooldown function if we have to wait for the next sample
+    setInterval(function () {
+      if (self.sample_cooldown > 0) {
+        self.sample_cooldown--
+        if (self.sample_cooldown === 0) {
+          self.loadNextSample()
+        }
+      }
+    }, 1000)
   },
   methods: {
     addToRankedImages(evt) {
@@ -456,30 +479,34 @@ export default {
       this.rankedImages = []
       this.irrelevantImages = []
 
-      this.sample = await this.$sampleApiClient.nextSample()
-      this.loadSuccess = this.sample !== null
-      this.loadError = !this.loadSuccess
+      const resp = await this.$sampleApiClient.nextSample()
+      // check if it's a sample or an int that expresses the waiting time in seconds until the next sample is available
+      if (Number.isInteger(resp)) {
+        this.sample_cooldown = resp
+      } else {
+        this.sample = resp
+        this.loadSuccess = this.sample !== null
+        this.loadError = !this.loadSuccess
 
-      if (this.loadSuccess) {
-        // load image urls
-        this.imageUrls = await this.$imageApiClient.getUrls(
-          this.sample.image_ids,
-          false
-        )
-        // load thumbnail urls
-        this.thumbnailUrls = await this.$imageApiClient.getUrls(
-          this.sample.image_ids,
-          true
-        )
-        // init tooltip states
-        this.thumbnailUrls.forEach((tnUrl, idx) => {
-          this.tooltipStates[`tn-img-${idx}`] = false
-        })
+        if (this.loadSuccess) {
+          // load image urls
+          this.imageUrls = await this.$imageApiClient.getUrls(
+            this.sample.image_ids,
+            false
+          )
+          // load thumbnail urls
+          this.thumbnailUrls = await this.$imageApiClient.getUrls(
+            this.sample.image_ids,
+            true
+          )
+          // init tooltip states
+          this.thumbnailUrls.forEach((tnUrl, idx) => {
+            this.tooltipStates[`tn-img-${idx}`] = false
+          })
+        }
+        this.$nuxt.$emit('study-progress-changed')
       }
-
       this.loading = false
-
-      this.$nuxt.$emit('study-progress-changed')
     },
     async loadSample() {
       this.loading = true
