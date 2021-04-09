@@ -1,4 +1,5 @@
 import argparse
+import glob
 import os
 from typing import List
 
@@ -9,14 +10,20 @@ from models import ModelRanking
 
 
 def generate_model_rankings(data_root: str, num_samples: int) -> List[ModelRanking]:
-    dataframe_path = os.path.join(data_root, "user_study_data.df.feather")
+    feathers = glob.glob(os.path.join(data_root, "*.df.feather"))
+    assert len(feathers) == 1, \
+        f"Found multiple datasources: {feathers}! Please make sure only one datasource exists is in {data_root}!"
+    dataframe_path = feathers[0]
     assert os.path.lexists(dataframe_path), f"Cannot find DataFrame at {dataframe_path}"
     df = pd.read_feather(dataframe_path)
 
+    for k in ['sample_id', 'caption', 'top_k_matches']:
+        assert k in df.columns, f"Cannot find {k} in the DataFrames columns!"
+
     def generate_model_ranking(row) -> ModelRanking:
-        return ModelRanking(ds_id=row['wikicaps_id'],
+        return ModelRanking(ds_id=row['sample_id'],
                             query=row['caption'],
-                            top_k_image_ids=row['top50_wids'].tolist())
+                            top_k_image_ids=row['top_k_matches'].tolist())
 
     return df.apply(generate_model_ranking, axis=1).tolist()[:num_samples]
 
