@@ -290,10 +290,10 @@ class StudyCoordinator(object):
 
     def __study_run_finished(self) -> bool:
         prog = self.current_progress()
-        if prog['num_todo'] == ['num_in_progress'] == 0 and prog['num_done'] == prog['num_total']:
+        if prog['num_todo'] == prog['num_in_progress'] == 0 and prog['num_done'] == prog['num_total']:
             return True
-        elif (prog['num_todo'] == ['num_in_progress'] == 0 and prog['num_done'] != prog['num_total']) or \
-                (prog['num_todo'] == ['num_in_progress'] != 0 and prog['num_done'] == prog['num_total']):
+        elif (prog['num_todo'] == prog['num_in_progress'] == 0 and prog['num_done'] != prog['num_total']) or \
+                (prog['num_todo'] == prog['num_in_progress'] != 0 and prog['num_done'] == prog['num_total']):
             logger.error("Erroneous state of study progress!")
             logger.error(f"Current Progress: {prog}")
         else:
