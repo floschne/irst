@@ -23,7 +23,7 @@ def generate_model_rankings(data_root: str, num_samples: int) -> List[ModelRanki
     def generate_model_ranking(row) -> ModelRanking:
         return ModelRanking(ds_id=row['sample_id'],
                             query=row['caption'],
-                            top_k_image_ids=row['top_k_matches'].tolist())
+                            top_k_image_ids=set(row['top_k_matches'].tolist()))
 
     return df.apply(generate_model_ranking, axis=1).tolist()[:num_samples]
 

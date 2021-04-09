@@ -161,11 +161,11 @@ class StudyCoordinator(object):
 
     def __generate_eval_sample(self, mr_id: str) -> EvalSample:
         mr = self.__rh.load_model_ranking(mr_id)
-        tk_imgs = set(mr.top_k_image_ids[0:self.__num_top_k_imgs])
+        tk_imgs = set(list(mr.top_k_image_ids)[0:self.__num_top_k_imgs])
         random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
         # make sure intersection set has 0 elements!
-        while len(tk_imgs.intersection(random_imgs)) != 0:
+        while len(tk_imgs.intersection(random_imgs)) != 0 or len(mr.top_k_image_ids.intersection(random_imgs)) != 0:
             random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
         es = EvalSample(mr_id=mr.id,
