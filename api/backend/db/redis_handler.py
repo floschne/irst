@@ -111,7 +111,7 @@ class RedisHandler(object):
     @logger.catch(reraise=True)
     def get_random_image_ids(self, num: int = 1) -> List[str]:
         # store in progress DB because in __m_rankings we need KEYS to get all MRs...
-        return self.__progress.srandmember('m_rankings', num)
+        return [str(i, encoding='utf-8') for i in self.__progress.srandmember('m_rankings', num)]
 
     ################# ModelRanking #################
 
