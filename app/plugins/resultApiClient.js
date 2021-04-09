@@ -13,12 +13,12 @@ export default ({ app, axios }, inject) => {
       esId,
       rankedImages,
       irrelevantImages,
-      workerId = null,
-      assignmentId = null,
-      hitId = null
+      workerId = '',
+      assignmentId = '',
+      hitId = ''
     ) => {
       let mtParams = null
-      if (workerId !== null && assignmentId !== null && hitId !== null) {
+      if (workerId !== '' && assignmentId !== '' && hitId !== '') {
         mtParams = {
           worker_id: workerId,
           assignment_id: assignmentId,

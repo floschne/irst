@@ -232,6 +232,7 @@
             You must accept this HIT before working on it!
           </h3>
           <b-button-group v-else class="w-100 mt-1 mb-1">
+            <!--  SUBMIT BUTTON   -->
             <b-button
               type="submit"
               variant="primary"
@@ -247,7 +248,13 @@
               </div>
               <span v-else>Submit Ranking</span>
             </b-button>
+            <!--  NO RELEVANT IMAGES BUTTON   -->
+            <b-button v-b-modal.noRelevantImagesModal variant="secondary">
+              No Images Are Relevant!
+            </b-button>
+            <!--  RESET BUTTON   -->
             <b-button type="reset" variant="danger">Reset</b-button>
+            <!--  LOAD NEXT SAMPLE BUTTON   -->
             <b-button
               v-if="esId === ''"
               type="button"
@@ -256,6 +263,7 @@
             >
               Get New Sample
             </b-button>
+            <!--  FEEDBACK BUTTON   -->
             <b-button v-b-modal.feedbackModal variant="info">
               Provide Feedback
             </b-button>
@@ -263,6 +271,8 @@
         </b-form-row>
       </b-container>
     </b-form>
+
+    <!--  FEEDBACK MODAL   -->
     <b-modal
       id="feedbackModal"
       title="Any comments, criticism or thoughts?"
@@ -271,6 +281,38 @@
       <FeedbackForm :worker-id="workerId" :es-id="esId" :hit-id="hitId" />
     </b-modal>
 
+    <!--  NO RELEVANT IMAGES MODAL   -->
+    <b-modal id="noRelevantImagesModal" title="Anti-Spam check">
+      <p>
+        Please type:
+        <span class="text-danger">{{ noRelevantCheckText }}</span>
+      </p>
+      <b-form>
+        <b-form-input
+          v-model="noRelevantInput"
+          :state="noRelevantInput === noRelevantCheckText"
+          type="text"
+          trim
+        ></b-form-input>
+      </b-form>
+      <template #modal-footer="{ ok }">
+        <b-button
+          :disabled="noRelevantInput !== noRelevantCheckText"
+          type="submit"
+          class="d-block w-100 mt-1"
+          size="sm"
+          variant="primary"
+          @click="
+            onSubmit()
+            ok()
+          "
+        >
+          Submit
+        </b-button>
+      </template>
+    </b-modal>
+
+    <!--  HIDDEN MTURK FORM   -->
     <form id="hiddenMTurkForm" method="post" :action="mturkExternalSubmitUrl">
       <input
         id="assignmentId"
@@ -331,7 +373,9 @@ export default {
       img_size: 7.5,
       erId: '',
       tooltipStates: {},
-      sample_cooldown: 0, // waiting time until next sample
+      sample_cooldown: 0, // waiting time until next sample,
+      noRelevantCheckText: 'there are no relevant images',
+      noRelevantInput: '',
     }
   },
   computed: {
@@ -419,8 +463,8 @@ export default {
       this.rankedImages = []
       this.irrelevantImages = []
     },
-    async onSubmit(event) {
-      event.preventDefault()
+    async onSubmit(event = null) {
+      if (event !== null) event.preventDefault()
       this.loading = true
       this.submitError = false
       this.submitSuccess = false
@@ -466,6 +510,8 @@ export default {
       this.loadError = false
       this.loadSuccess = false
       this.loading = false
+      // reset no relevant input and modal
+      this.noRelevantInput = ''
 
       this.$nuxt.$emit('study-progress-changed')
     },
