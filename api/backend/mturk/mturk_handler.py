@@ -38,7 +38,7 @@ class MTurkHandler(object):
 
             cls.__hit_type_id = None
 
-            cls.__client = None
+            cls.__get_default_client(cls.__singleton)
 
             cls.__rh = RedisHandler()
 
