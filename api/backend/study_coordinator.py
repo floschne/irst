@@ -258,13 +258,13 @@ class StudyCoordinator(object):
         logger.info(f"Successfully reset all results from previous Study runs!")
 
     def __set_run_count(self, run_cnt: int = 1):
-        with self.__sync_lock:
-            self.__progress.set(Keys.RUN_CNT, run_cnt)
+        self.__progress.set(Keys.RUN_CNT, run_cnt)
 
     def __current_run_results_key(self) -> str:
         return self.__run_results_key(self.__current_run())
 
-    def __run_results_key(self, run_cnt: int) -> str:
+    @staticmethod
+    def __run_results_key(run_cnt: int) -> str:
         return f"{Keys.RUN_RESULTS}{run_cnt}"
 
     def __num_todo(self) -> int:
