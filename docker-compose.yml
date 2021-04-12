@@ -45,7 +45,7 @@ services:
     volumes:
       - ./api/logs:/app/logs
       - ./api/config:/app/config
-      - ${DATA_ROOT}:/app/data
+      - ./data:/app/data
 
   app:
     depends_on:
