@@ -26,7 +26,7 @@ class ImageServer(object):
 
             cls.__img_root = conf.img_root
             if not os.path.lexists(cls.__img_root):
-                msg = f"Cannot find images root at {cls.__img_root}"
+                msg = f"Cannot find images root at {cls.__img_root}. Current Working Directory: {os.getcwd()}"
                 logger.error(msg)
                 raise RuntimeError(msg)
 
