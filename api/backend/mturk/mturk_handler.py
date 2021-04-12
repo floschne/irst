@@ -70,6 +70,36 @@ class MTurkHandler(object):
     def __create_or_get_hit_type(self) -> Optional[str]:
         logger.debug(f"Creating HIT Type...")
         try:
+            # TODO hardcoded - do we want this in the config.yml?
+            # https://docs.aws.amazon.com/de_de/AWSMechTurk/latest/AWSMturkAPI/ApiReference_QualificationRequirementDataStructureArticle.html
+            qualificationRequirements = [
+                {
+                    'QualificationTypeId': '00000000000000000040',
+                    'Comparator': 'GreaterThanOrEqualTo',
+                    'IntegerValues': [
+                        self.__conf.worker_quali_req_min_hits_approved,
+                    ],
+                    'ActionsGuarded': 'Accept'
+                },
+                {
+                    'QualificationTypeId': '000000000000000000L0',
+                    'Comparator': 'GreaterThanOrEqualTo',
+                    'IntegerValues': [
+                        self.__conf.worker_quali_req_min_percent_approved,
+                    ],
+                    'ActionsGuarded': 'Accept'
+                },
+            ]
+
+            # add custom qualifications from config
+            if self.__conf.hit_custom_qualifications is not None:
+                for qualificationId in self.__conf.hit_custom_qualifications:
+                    qualificationRequirements.append({
+                        'QualificationTypeId': qualificationId,
+                        'Comparator': 'Exists',
+                        'ActionsGuarded': 'Accept'
+                    })
+
             resp = self.__client.create_hit_type(
                 AutoApprovalDelayInSeconds=self.__conf.hit_auto_approval_delay_in_seconds,
                 AssignmentDurationInSeconds=self.__conf.hit_assignment_duration_in_seconds,
@@ -77,26 +107,7 @@ class MTurkHandler(object):
                 Title=self.__conf.hit_title,
                 Keywords=self.__conf.hit_keywords,
                 Description=self.__conf.hit_description,
-                # TODO hardcoded - do we want this in the config.yml?
-                # https://docs.aws.amazon.com/de_de/AWSMechTurk/latest/AWSMturkAPI/ApiReference_QualificationRequirementDataStructureArticle.html
-                QualificationRequirements=[
-                    {
-                        'QualificationTypeId': '00000000000000000040',
-                        'Comparator': 'GreaterThanOrEqualTo',
-                        'IntegerValues': [
-                            self.__conf.worker_quali_req_min_hits_approved,
-                        ],
-                        'ActionsGuarded': 'Accept'
-                    },
-                    {
-                        'QualificationTypeId': '000000000000000000L0',
-                        'Comparator': 'GreaterThanOrEqualTo',
-                        'IntegerValues': [
-                            self.__conf.worker_quali_req_min_percent_approved,
-                        ],
-                        'ActionsGuarded': 'Accept'
-                    },
-                ]
+                QualificationRequirements=qualificationRequirements
             )
             hit_type_id = resp['HITTypeId']
             logger.info(f"Created HIT Type {hit_type_id}")
