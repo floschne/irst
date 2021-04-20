@@ -25,7 +25,11 @@ const proxyConfig = () => {
 
   // ------------------ proxy config for MTurk ----------------------
   let mturkProxyTarget = ''
-  if (process.env.MTURK_SANDBOX === 'True')
+  if (
+    process.env.MTURK_SANDBOX === 'True' ||
+    process.env.MTURK_SANDBOX === 'true' ||
+    process.env.MTURK_SANDBOX === '1'
+  )
     mturkProxyTarget = 'https://workersandbox.mturk.com'
   else mturkProxyTarget = 'https://mturk.com'
 
@@ -147,6 +151,6 @@ export default {
   publicRuntimeConfig: {
     minNumRanks: process.env.APP_MIN_NUM_RANKS || 3,
     ctxPath: process.env.APP_CTX_PTH || '',
-    mturkSandbox: process.env.MTURK_SANDBOX || true,
+    mturkSandbox: process.env.MTURK_SANDBOX,
   },
 }

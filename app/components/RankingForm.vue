@@ -389,7 +389,15 @@ export default {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
     },
     mturkExternalSubmitUrl() {
-      const sub = this.$config.mturkSandbox ? 'workersandbox' : 'www'
+      let sub = ''
+      if (
+        this.$config.mturkSandbox === 'True' ||
+        this.$config.mturkSandbox === 'true' ||
+        this.$config.mturkSandbox === '1'
+      ) {
+        sub = 'workersandbox'
+      } else sub = 'www'
+
       return `https://${sub}.mturk.com/mturk/externalSubmit`
     },
   },
