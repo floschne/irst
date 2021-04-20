@@ -25,7 +25,7 @@ const proxyConfig = () => {
 
   // ------------------ proxy config for MTurk ----------------------
   let mturkProxyTarget = ''
-  if (process.env.MTURK_SANDBOX !== 'False')
+  if (process.env.MTURK_SANDBOX === 'True')
     mturkProxyTarget = 'https://workersandbox.mturk.com'
   else mturkProxyTarget = 'https://mturk.com'
 
