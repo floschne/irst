@@ -236,3 +236,122 @@ class MTurkHandler(object):
         reviewable_hits = self.list_reviewable_hits()
         # since we only have a little num of max assignments (3) per HIT we don't need to paginate through them
         return {r_hit['HITId']: self.list_assignments_for_hit(r_hit['HITId']) for r_hit in reviewable_hits}
+
+    def approve_assignment(self, assignment_id: str, feedback: str) -> bool:
+        if len(feedback) > 1024:
+            logger.error("Feedback cannot be longer than 1024 characters!")
+            return False
+        if feedback is None:
+            feedback = "Thank you for your work!"
+
+        try:
+            resp = self.__client.approve_assignment(
+                AssignmentId=assignment_id,
+                RequesterFeedback=feedback,
+            )
+        except Exception as e:
+            logger.error(f"Error while approving Assignment with ID {assignment_id}")
+            logger.error(e)
+            return False
+        logger.debug(f"Successfully approved Assignment with ID {assignment_id}")
+        return True
+
+    def approve_assignments(self, assignment_ids: List[str], feedback) -> int:
+        res = sum([self.approve_assignment(assignment_id=aid, feedback=feedback) for aid in tqdm(assignment_ids)])
+        if res != len(assignment_ids):
+            logger.error("Error during approving Assignments!")
+        return res
+
+    def associate_qualification_with_worker(self,
+                                            worker_id: str,
+                                            qualification_type_id: str,
+                                            integer_value: int = 1312) -> bool:
+        if integer_value is None:
+            integer_value = 1312
+        try:
+            resp = self.__client.associate_qualification_with_worker(
+                QualificationTypeId=qualification_type_id,
+                WorkerId=worker_id,
+                IntegerValue=integer_value
+            )
+        except Exception as e:
+            logger.error(f"Error while associating Qualification for Worker with ID {worker_id}\n"
+                         f"QualificationTypeId: {qualification_type_id}\n"
+                         f"IntegerValue: {integer_value}")
+            logger.error(e)
+            return False
+        logger.debug(f"Successfully associated Qualification {qualification_type_id} for Worker with ID {worker_id}")
+        return True
+
+    def associate_qualification_with_workers(self,
+                                             worker_ids: List[str],
+                                             qualification_type_id: str,
+                                             integer_value: int = 1312) -> int:
+        res = sum([self.associate_qualification_with_worker(worker_id=wid,
+                                                            qualification_type_id=qualification_type_id,
+                                                            integer_value=integer_value) for wid in tqdm(worker_ids)])
+        if res != len(worker_ids):
+            logger.error("Error during associating Qualifications!")
+        return res
+
+    def disassociate_qualification_with_worker(self,
+                                               worker_id: str,
+                                               qualification_type_id: str,
+                                               reason: str = "") -> bool:
+        if len(reason) > 1024:
+            logger.error("Reason cannot be longer than 1024 characters!")
+            return False
+        try:
+            resp = self.__client.disassociate_qualification_from_worker(
+                QualificationTypeId=qualification_type_id,
+                WorkerId=worker_id,
+                Reason=reason
+            )
+        except Exception as e:
+            logger.error(f"Error while disassociating Qualification for Worker with ID {worker_id}\n"
+                         f"QualificationTypeId: {qualification_type_id}\n"
+                         f"Reason: {reason}")
+            logger.error(e)
+            return False
+        logger.debug(f"Successfully associated Qualification {qualification_type_id} for Worker with ID {worker_id}")
+        return True
+
+    def disassociate_qualification_with_workers(self,
+                                                worker_ids: List[str],
+                                                qualification_type_id: str,
+                                                reason: str = "") -> int:
+        res = sum([self.disassociate_qualification_with_worker(worker_id=wid,
+                                                               qualification_type_id=qualification_type_id,
+                                                               reason=reason) for wid in tqdm(worker_ids)])
+        if res != len(worker_ids):
+            logger.error("Error during disassociating Qualifications!")
+        return res
+
+    def notify_workers(self, subject: str, message_text: str, worker_ids: List[str]) -> bool:
+        def chunks(lst: List, n: int):
+            for i in range(0, len(lst), n):
+                yield lst[i:i + n]
+
+        if len(subject) > 200:
+            logger.error("Subject cannot be longer than 200 characters!")
+            return False
+        if len(message_text) > 4096:
+            logger.error("MessageText cannot be longer than 4096 characters!")
+            return False
+        try:
+            for worker_chunk in chunks(worker_ids, 100):
+                resp = self.__client.notify_workers(
+                    Subject=subject,
+                    MessageText=message_text,
+                    WorkerIds=worker_chunk
+                )
+                if len(resp) != 0:
+                    logger.error(f"Error while notifying Workers!\n"
+                                 f"NotifyWorkersFailureStatuses: {resp}")
+
+        except Exception as e:
+            logger.error(f"Error while notifying Workers!")
+            logger.error(e)
+            return False
+
+        return True

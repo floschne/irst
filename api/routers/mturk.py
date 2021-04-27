@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends
 from loguru import logger
@@ -47,7 +47,7 @@ async def create_hits(creds: Optional[AWSCreds], sandbox: Optional[bool] = True)
 @router.delete("/hit/delete", tags=TAG,
                description="Deletes the HIT with the given ID",
                dependencies=[Depends(JWTBearer())])
-async def delete_hit(hit_id: str,creds: Optional[AWSCreds],  sandbox: Optional[bool] = True):
+async def delete_hit(hit_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"DELETE request on {PREFIX}/hit/delete")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
@@ -67,8 +67,8 @@ async def delete_all_hit(creds: Optional[AWSCreds], sandbox: Optional[bool] = Tr
 
 @logger.catch(reraise=True)
 @router.post("/hits/ids", tags=TAG,
-            description="Returns all HIT IDs",
-            dependencies=[Depends(JWTBearer())])
+             description="Returns all HIT IDs",
+             dependencies=[Depends(JWTBearer())])
 async def list_hit_ids(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/hits/ids")
     if creds is not None:
@@ -78,8 +78,8 @@ async def list_hit_ids(creds: Optional[AWSCreds], sandbox: Optional[bool] = True
 
 @logger.catch(reraise=True)
 @router.post("/hits/list", tags=TAG,
-            description="Returns all HITs",
-            dependencies=[Depends(JWTBearer())])
+             description="Returns all HITs",
+             dependencies=[Depends(JWTBearer())])
 async def list_hit(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/hits/list")
     if creds is not None:
@@ -110,8 +110,8 @@ async def hit_info(es_id: str):
 
 @logger.catch(reraise=True)
 @router.post("/assignments/reviewable", tags=TAG,
-            description="Returns the all reviewable Assignments associated with this Study",
-            dependencies=[Depends(JWTBearer())])
+             description="Returns the all reviewable Assignments associated with this Study",
+             dependencies=[Depends(JWTBearer())])
 async def list_reviewable_assignments(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/assignments/reviewable")
     if creds is not None:
@@ -120,11 +120,124 @@ async def list_reviewable_assignments(creds: Optional[AWSCreds], sandbox: Option
 
 
 @logger.catch(reraise=True)
+@router.post("/assignments/approve/", tags=TAG,
+             description="Approves the Assignments with the given IDs",
+             dependencies=[Depends(JWTBearer())])
+async def approve_assignments(assignment_ids: List[str],
+                              feedback: Optional[str] = "",
+                              creds: Optional[AWSCreds] = None,
+                              sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/assignments/approve/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.approve_assignments(assignment_ids=assignment_ids, feedback=feedback)
+
+
+@logger.catch(reraise=True)
+@router.post("/assignments/approve/{ass_id}", tags=TAG,
+             description="Approves the Assignment with the given ID",
+             dependencies=[Depends(JWTBearer())])
+async def approve_assignment(assignment_id: str,
+                             feedback: Optional[str] = "",
+                             creds: Optional[AWSCreds] = None,
+                             sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/assignments/approve/{assignment_id}")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.approve_assignment(assignment_id=assignment_id, feedback=feedback)
+
+
+@logger.catch(reraise=True)
 @router.post("/assignments/{hit_id}", tags=TAG,
-            description="Returns all Assignments of the HIT with the given ID",
-            dependencies=[Depends(JWTBearer())])
+             description="Returns all Assignments of the HIT with the given ID",
+             dependencies=[Depends(JWTBearer())])
 async def list_assignments_for_hit(hit_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/assignments/{hit_id}")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
     return mturk.list_assignments_for_hit(hit_id)
+
+
+@logger.catch(reraise=True)
+@router.post("/qualification/associate_worker", tags=TAG,
+             description="Associates the Qualification with the given ID with the specified Worker",
+             dependencies=[Depends(JWTBearer())])
+async def associate_qualification_with_worker(worker_id: str,
+                                              qualification_type_id: str,
+                                              integer_value: Optional[int] = 1312,
+                                              creds: Optional[AWSCreds] = None,
+                                              sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/qualification/associate_worker/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.associate_qualification_with_worker(worker_id=worker_id,
+                                                     qualification_type_id=qualification_type_id,
+                                                     integer_value=integer_value)
+
+
+@logger.catch(reraise=True)
+@router.post("/qualification/associate_workers", tags=TAG,
+             description="Associates the Qualification with the given ID with the specified Worker",
+             dependencies=[Depends(JWTBearer())])
+async def associate_qualification_with_workers(worker_ids: List[str],
+                                               qualification_type_id: str,
+                                               integer_value: Optional[int] = 1312,
+                                               creds: Optional[AWSCreds] = None,
+                                               sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/qualification/associate_workers/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.associate_qualification_with_workers(worker_ids=worker_ids,
+                                                      qualification_type_id=qualification_type_id,
+                                                      integer_value=integer_value)
+
+
+@logger.catch(reraise=True)
+@router.post("/qualification/disassociate_worker", tags=TAG,
+             description="Disassociates the Qualification with the given ID with the specified Worker",
+             dependencies=[Depends(JWTBearer())])
+async def disassociate_qualification_with_worker(worker_id: str,
+                                                 qualification_type_id: str,
+                                                 reason: Optional[str] = "No Reason",
+                                                 creds: Optional[AWSCreds] = None,
+                                                 sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/qualification/disassociate_worker/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.disassociate_qualification_with_worker(worker_id=worker_id,
+                                                        qualification_type_id=qualification_type_id,
+                                                        reason=reason)
+
+
+@logger.catch(reraise=True)
+@router.post("/qualification/disassociate_workers", tags=TAG,
+             description="Disassociates the Qualification with the given ID with the specified Worker",
+             dependencies=[Depends(JWTBearer())])
+async def disassociate_qualification_with_workers(worker_ids: List[str],
+                                                  qualification_type_id: str,
+                                                  reason: Optional[str] = "No Reason",
+                                                  creds: Optional[AWSCreds] = None,
+                                                  sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/qualification/disassociate_workers/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.disassociate_qualification_with_workers(worker_ids=worker_ids,
+                                                         qualification_type_id=qualification_type_id,
+                                                         reason=reason)
+
+
+@logger.catch(reraise=True)
+@router.post("/workers/notify", tags=TAG,
+             description="Sends an email to one or more Workers specified with the Worker IDs",
+             dependencies=[Depends(JWTBearer())])
+async def notify_workers(subject: str,
+                         message_text: str,
+                         worker_ids: List[str],
+                         creds: Optional[AWSCreds] = None,
+                         sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/workers/notify/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.notify_workers(subject=subject,
+                                message_text=message_text,
+                                worker_ids=worker_ids)
