@@ -355,3 +355,12 @@ class MTurkHandler(object):
             return False
 
         return True
+
+    def get_account_balance(self) -> Optional[Dict[str, str]]:
+        try:
+            resp = self.__client.get_account_balance()
+            return resp
+        except Exception as e:
+            logger.error(f"Error while checking account balance!")
+            logger.error(e)
+        return None

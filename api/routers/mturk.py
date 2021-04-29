@@ -241,3 +241,15 @@ async def notify_workers(subject: str,
     return mturk.notify_workers(subject=subject,
                                 message_text=message_text,
                                 worker_ids=worker_ids)
+
+
+@logger.catch(reraise=True)
+@router.post("/account/balance", tags=TAG,
+             description="Get the account balance",
+             dependencies=[Depends(JWTBearer())])
+async def get_account_balance(creds: Optional[AWSCreds] = None,
+                              sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/account/balance/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.get_account_balance()
