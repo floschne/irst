@@ -8,8 +8,8 @@ from models import MTurkParams
 import models
 
 
-class EvalSample(BaseModel):
-    id: str = Field(description='EvalSample UUID', default_factory=uuid)
+class RankingSample(BaseModel):
+    id: str = Field(description='RankingSample UUID', default_factory=uuid)
     created: datetime = Field(description="Timestamp of the result", default_factory=datetime.now)
     mr_id: str = Field(description='ModelRanking UUID')
     query: str = Field(description='Query related to the sample')

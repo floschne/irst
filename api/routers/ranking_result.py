@@ -7,10 +7,10 @@ from starlette.responses import JSONResponse
 from backend import StudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
-from models import EvalResult
+from models import RankingResult
 
-PREFIX = "/result"
-TAG = ["result"]
+PREFIX = "/ranking_result"
+TAG = ["ranking_result"]
 
 router = APIRouter()
 
@@ -20,27 +20,27 @@ sc = StudyCoordinator()
 
 @logger.catch(reraise=True)
 @router.get("/list", tags=TAG,
-            response_model=List[EvalResult],
-            description="Returns all submitted EvalResults",
+            response_model=List[RankingResult],
+            description="Returns all submitted RankingResults",
             dependencies=[Depends(JWTBearer())])
-async def list_results():
+async def list_ranking_results():
     logger.info(f"GET request on {PREFIX}/list")
-    return redis.list_eval_results()
+    return redis.list_ranking_results()
 
 
 @logger.catch(reraise=True)
-@router.get("/{result_id}", tags=TAG,
-            response_model=EvalResult,
-            description="Returns the EvalResult with the specified ID",
+@router.get("/{rr_id}", tags=TAG,
+            response_model=RankingResult,
+            description="Returns the RankingResult with the specified ID",
             dependencies=[Depends(JWTBearer())])
-async def load(result_id: str):
-    logger.info(f"GET request on {PREFIX}/{result_id}")
-    return redis.load_eval_result(result_id)
+async def load(rr_id: str):
+    logger.info(f"GET request on {PREFIX}/{rr_id}")
+    return redis.load_ranking_result(rr_id)
 
 
 @logger.catch(reraise=True)
 @router.put("/submit", tags=TAG,
-            description="Submit an EvalResult")
-async def submit(result: EvalResult):
+            description="Submit an RankingResult")
+async def submit(result: RankingResult):
     logger.info(f"GET request on {PREFIX}/submit")
     return JSONResponse(content=sc.submit(result))

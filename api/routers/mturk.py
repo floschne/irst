@@ -19,28 +19,28 @@ rh = RedisHandler()
 
 @logger.catch(reraise=True)
 @router.put("/hit/create", tags=TAG,
-            description="Creates a HIT for the EvalSample with the given ES ID",
+            description="Creates a HIT for the RankingSample with the given ES ID",
             dependencies=[Depends(JWTBearer())])
-async def create_hit(es_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def create_hit(rs_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"PUT request on {PREFIX}/hit/create")
-    es = rh.load_eval_sample(sample_id=es_id)
-    if es is not None:
+    rs = rh.load_ranking_sample(rs_id=rs_id)
+    if rs is not None:
         if creds is not None:
             mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-        return mturk.create_hit_from_es(es)
+        return mturk.create_hit_from_rs(rs)
     return False
 
 
 @logger.catch(reraise=True)
 @router.put("/hits/create", tags=TAG,
-            description="Creates a HIT for every EvalSample of the Study (current run)",
+            description="Creates a HIT for every RankingSample of the Study (current run)",
             dependencies=[Depends(JWTBearer())])
 async def create_hits(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
     logger.info(f"PUT request on {PREFIX}/hits/create")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    es = rh.list_eval_samples()
-    return mturk.create_hits_from_es(es)
+    rs = rh.list_ranking_samples()
+    return mturk.create_hits_from_rs(rs)
 
 
 @logger.catch(reraise=True)
@@ -97,14 +97,14 @@ async def hit_info(hit_id: str):
 
 
 @logger.catch(reraise=True)
-@router.get("/hit/info/es/{es_id}", tags=TAG,
-            description="Returns the HIT Info associated with the EvalSample with the given ID",
+@router.get("/hit/info/rs/{rs_id}", tags=TAG,
+            description="Returns the HIT Info associated with the RankingSample with the given ID",
             dependencies=[Depends(JWTBearer())])
-async def hit_info(es_id: str):
-    logger.info(f"GET request on {PREFIX}/hit/info/es/{es_id}")
-    es = rh.load_eval_sample(sample_id=es_id)
-    if es is not None:
-        return mturk.get_hit_info_via_es(es)
+async def hit_info(rs_id: str):
+    logger.info(f"GET request on {PREFIX}/hit/info/rs/{rs_id}")
+    rs = rh.load_ranking_sample(rs_id=rs_id)
+    if rs is not None:
+        return mturk.get_hit_info_via_rs(rs)
     return None
 
 

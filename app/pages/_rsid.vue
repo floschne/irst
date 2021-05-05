@@ -6,7 +6,7 @@
     />
     <RankingForm
       v-else
-      :es-id="esid"
+      :rs-id="rsId"
       :min-num-ranks="$config.minNumRanks"
       :assignment-id="assignmentId"
       :worker-id="workerId"
@@ -20,12 +20,12 @@ import RankingForm from '~/components/RankingForm'
 import Instructions from '~/components/Instructions'
 
 export default {
-  name: 'EsId',
+  name: 'RsId',
   components: { RankingForm, Instructions },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
-    const esid = params.esid // When calling /abc the esid will be "abc"
-    return { esid }
+    const rsid = params.rsid // When calling /abc the rsid will be "abc"
+    return { rsid }
   },
   data() {
     return {

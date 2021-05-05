@@ -11,7 +11,7 @@ export default ({ app, axios }, inject) => {
   const sampleApiClient = {
     nextSample: async () => {
       return await app.$axios
-        .get(`${app.$config.ctxPath}api/sample/next`, jsonHeaderConfig)
+        .get(`${app.$config.ctxPath}api/ranking_sample/next`, jsonHeaderConfig)
         .then((resp) => {
           if (resp.status === 200) {
             return resp.data
@@ -24,9 +24,12 @@ export default ({ app, axios }, inject) => {
           return null
         })
     },
-    load: async (esId) => {
+    load: async (rsId) => {
       return await app.$axios
-        .get(`${app.$config.ctxPath}api/sample/${esId}`, jsonHeaderConfig)
+        .get(
+          `${app.$config.ctxPath}api/ranking_sample/${rsId}`,
+          jsonHeaderConfig
+        )
         .then((resp) => {
           if (resp.status === 200) {
             return resp.data

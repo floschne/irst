@@ -7,7 +7,7 @@ from backend.auth import AuthHandler
 from backend.db import RedisHandler
 from backend.mturk import MTurkHandler
 from config import conf
-from routers import general, eval_sample, result, image, study, mranking, user, mturk, feedback
+from routers import general, ranking_sample, ranking_result, image, study, mranking, user, mturk, feedback
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -57,8 +57,8 @@ def shutdown_event():
 
 # include the routers
 app.include_router(general.router)
-app.include_router(eval_sample.router, prefix=eval_sample.PREFIX)
-app.include_router(result.router, prefix=result.PREFIX)
+app.include_router(ranking_sample.router, prefix=ranking_sample.PREFIX)
+app.include_router(ranking_result.router, prefix=ranking_result.PREFIX)
 app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)
 app.include_router(mranking.router, prefix=mranking.PREFIX)

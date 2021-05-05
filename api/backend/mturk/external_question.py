@@ -1,18 +1,18 @@
 import urllib.parse
 
 # https://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_ExternalQuestionArticle.html
-from models import EvalSample
+from models import RankingSample
 
 
 class ExternalQuestion(object):
-    def __init__(self, es: EvalSample, base_url: str, frame_height: int = 0):
+    def __init__(self, rs: RankingSample, base_url: str, frame_height: int = 0):
         self.schema_url = "http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd"
         self.external_base_url = base_url
         self.frame_height = frame_height if frame_height > 0 else 0
-        self.eval_sample = es
+        self.ranking_sample = rs
 
     def __build_external_url(self) -> str:
-        return f"{self.external_base_url}{self.eval_sample.id}"
+        return f"{self.external_base_url}{self.ranking_sample.id}"
 
     def __str__(self):
         return str(

@@ -17,7 +17,7 @@ rh = RedisHandler()
 @logger.catch(reraise=True)
 @router.get("/list", tags=TAG,
             response_model=List[ModelRanking],
-            description="Returns all EvalSamples",
+            description="Returns all RankingSamples",
             dependencies=[Depends(JWTBearer())])
 async def list_rankings(num: int = 100):
     logger.info(f"GET request on {PREFIX}/list")

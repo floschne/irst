@@ -7,7 +7,7 @@ from tqdm import tqdm
 from backend.db import RedisHandler
 from backend.mturk.external_question import ExternalQuestion
 from config import conf
-from models import EvalSample
+from models import RankingSample
 
 
 class MTurkHandler(object):
@@ -116,31 +116,31 @@ class MTurkHandler(object):
             logger.error(f"Cannot create HIT Type")
             logger.error(f"Exception: {e}")
 
-    def create_hit_from_es(self, es: EvalSample) -> Optional[Dict]:
+    def create_hit_from_rs(self, rs: RankingSample) -> Optional[Dict]:
         try:
             # create an ExternalQuestion
-            eq = ExternalQuestion(es, base_url=self.__conf.external_question_base_url)
+            eq = ExternalQuestion(rs, base_url=self.__conf.external_question_base_url)
             # create the HIT
             resp = self.__client.create_hit_with_hit_type(
                 HITTypeId=self.__hit_type_id,
                 MaxAssignments=self.__conf.hit_max_assignments,
                 LifetimeInSeconds=self.__conf.hit_lifetime,
-                UniqueRequestToken=es.id,
-                RequesterAnnotation=es.id,
+                UniqueRequestToken=rs.id,
+                RequesterAnnotation=rs.id,
                 Question=eq.get_encoded()
             )
-            logger.debug(f"Successfully created HIT {resp['HIT']['HITId']} for EvalSample {es.id}!")
+            logger.debug(f"Successfully created HIT {resp['HIT']['HITId']} for RankingSample {rs.id}!")
             # store HIT Info
-            self.__rh.store_hit_info(resp['HIT'], es)
+            self.__rh.store_hit_info(resp['HIT'], rs)
             return resp['HIT']
         except Exception as e:
-            logger.error(f"Cannot create HIT from EvalSample {es.id}. Exception: {e}")
+            logger.error(f"Cannot create HIT from RankingSample {rs.id}. Exception: {e}")
             return None
 
-    def create_hits_from_es(self, samples: List[EvalSample]):
+    def create_hits_from_rs(self, samples: List[RankingSample]):
         created = 0
-        for es in tqdm(samples):
-            created += 1 if self.create_hit_from_es(es) is not None else 0
+        for rs in tqdm(samples):
+            created += 1 if self.create_hit_from_rs(rs) is not None else 0
         return created
 
     def delete_hit(self, hit_id: str):
@@ -187,8 +187,8 @@ class MTurkHandler(object):
         except Exception as e:
             logger.error(f"Cannot ListHIT IDs! Exception: {e}")
 
-    def get_hit_info_via_es(self, es: EvalSample):
-        return self.__rh.load_hit_info(es)
+    def get_hit_info_via_rs(self, rs: RankingSample):
+        return self.__rh.load_hit_info(rs)
 
     def get_hit_info(self, hit_id: str) -> Optional[Dict]:
         try:

@@ -10,7 +10,7 @@
       header="Thanks! Your ranking was submitted successfully"
       lead="Start another ranking?"
     >
-      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample">
+      <b-button v-if="rsId === ''" variant="primary" @click="loadNextSample">
         Start!
       </b-button>
     </b-jumbotron>
@@ -25,7 +25,7 @@
       header="Sorry! A problem occurred during your submission..."
       lead="Start another ranking?"
     >
-      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample"
+      <b-button v-if="rsId === ''" variant="primary" @click="loadNextSample"
         >Start!
       </b-button>
     </b-jumbotron>
@@ -40,7 +40,7 @@
       header="Sorry! A problem occurred while loading your evaluation sample..."
       lead="Please start another ranking!"
     >
-      <b-button v-if="esId === ''" variant="primary" @click="loadNextSample"
+      <b-button v-if="rsId === ''" variant="primary" @click="loadNextSample"
         >Start!
       </b-button>
     </b-jumbotron>
@@ -256,7 +256,7 @@
             <b-button type="reset" variant="danger">Reset</b-button>
             <!--  LOAD NEXT SAMPLE BUTTON   -->
             <b-button
-              v-if="esId === ''"
+              v-if="rsId === ''"
               type="button"
               variant="warning"
               @click="loadNextSample"
@@ -278,7 +278,7 @@
       title="Any comments, criticism or thoughts?"
       hide-footer
     >
-      <FeedbackForm :worker-id="workerId" :es-id="esId" :hit-id="hitId" />
+      <FeedbackForm :worker-id="workerId" :rs-id="rsId" :hit-id="hitId" />
     </b-modal>
 
     <!--  NO RELEVANT IMAGES MODAL   -->
@@ -340,7 +340,7 @@ export default {
       type: Number,
       default: 24,
     },
-    esId: {
+    rsId: {
       type: String,
       default: '',
     },
@@ -402,7 +402,7 @@ export default {
     },
   },
   created() {
-    if (this.esId === '') this.loadNextSample()
+    if (this.rsId === '') this.loadNextSample()
     else this.loadSample()
 
     const self = this
@@ -572,7 +572,7 @@ export default {
       this.rankedImages = []
       this.irrelevantImages = []
 
-      this.sample = await this.$sampleApiClient.load(this.esId)
+      this.sample = await this.$sampleApiClient.load(this.rsId)
       this.loadSuccess = this.sample !== null
       this.loadError = !this.loadSuccess
 

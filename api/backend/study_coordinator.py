@@ -13,7 +13,7 @@ from backend import ImageServer
 from backend.db import RedisHandler
 from init_redis_data import init_study_data
 from config import conf
-from models import EvalResult, EvalSample
+from models import RankingResult, RankingSample
 
 
 @unique
@@ -39,7 +39,7 @@ def expired_handler():
     progress = rh.get_progress_client()
     while True:
         try:
-            # if a es_id is in in_progress but not in KEYS, the es_id is expired.
+            # if a rs_id is in in_progress but not in KEYS, the rs_id is expired.
             # we have to be careful here with bytes and strings! every key is handled as bytes and combining with str
             # leads to hard-to-find errors...
             in_prog_ids = set(progress.smembers(Keys.IN_PROGRESS))
@@ -148,19 +148,19 @@ class StudyCoordinator(object):
 
         self.__progress.delete(Keys.TODO)
 
-        # generate an EvalSample for each mr
-        eval_samples = [self.__generate_eval_sample(mr_id) for mr_id in mr_ids]
+        # generate an RankingSample for each mr
+        ranking_samples = [self.__generate_ranking_sample(mr_id) for mr_id in mr_ids]
         # add their reverences (IDs) to todo
-        self.__progress.sadd(Keys.TODO, *[es.id for es in eval_samples])
+        self.__progress.sadd(Keys.TODO, *[rs.id for rs in ranking_samples])
 
-        if self.__progress.scard(Keys.TODO) != len(eval_samples):
+        if self.__progress.scard(Keys.TODO) != len(ranking_samples):
             logger.error("Error while initializing ToDo List!")
             raise RuntimeError("Error while initializing ToDo List!")
 
         logger.info(f"Successfully initialized {Keys.TODO} List!")
         logger.info(f"Current Progress: {self.current_progress()}")
 
-    def __generate_eval_sample(self, mr_id: str) -> EvalSample:
+    def __generate_ranking_sample(self, mr_id: str) -> RankingSample:
         mr = self.__rh.load_model_ranking(mr_id)
         # get top-k from model ranking
         tk_imgs = mr.top_k_image_ids[0:self.__num_top_k_imgs]
@@ -179,12 +179,12 @@ class StudyCoordinator(object):
         # shuffle so users cannot observe patterns so easy
         np.random.shuffle(es_imgs)
 
-        es = EvalSample(mr_id=mr.id,
-                        query=mr.query,
-                        image_ids=es_imgs)
-        self.__rh.store_eval_sample(es)
+        rs = RankingSample(mr_id=mr.id,
+                           query=mr.query,
+                           image_ids=es_imgs)
+        self.__rh.store_ranking_sample(rs)
 
-        return es
+        return rs
 
     def __init_done(self):
         # init done set (empty set)
@@ -198,67 +198,67 @@ class StudyCoordinator(object):
             self.__progress.delete(*in_prog_ids)
         logger.info(f"Successfully initialized {Keys.IN_PROGRESS} List!")
 
-    def next(self) -> Union[EvalSample, int]:
+    def next(self) -> Union[RankingSample, int]:
         with self.__sync_lock:
             # get random ES (id) from todo list
-            es_id = self.__progress.srandmember(Keys.TODO)
-            if es_id is None:
+            rs_id = self.__progress.srandmember(Keys.TODO)
+            if rs_id is None:
                 # the todo list is empty so we return the shortest TTL of the in_progess ist
                 return self.__shortest_ttl()
 
             # move to in_progress list
-            self.__progress.smove(Keys.TODO, Keys.IN_PROGRESS, es_id)
-            logger.info(f"Moved EvalSample {es_id} from TODO to IN_PROGRESS!")
+            self.__progress.smove(Keys.TODO, Keys.IN_PROGRESS, rs_id)
+            logger.info(f"Moved RankingSample {rs_id} from TODO to IN_PROGRESS!")
             logger.info(f"Current Progress: {self.current_progress()}")
             # create shadow element with TTL
-            self.__progress.set(Keys.TTL.value + es_id, "ttl_proxy", ex=self.__in_prog_ttl)
+            self.__progress.set(Keys.TTL.value + rs_id, "ttl_proxy", ex=self.__in_prog_ttl)
             # load and return the actual ES per ID
-            return self.__rh.load_eval_sample(es_id)
+            return self.__rh.load_ranking_sample(rs_id)
 
     def __shortest_ttl(self) -> int:
-        in_prog_es_ids = self.__progress.smembers(Keys.IN_PROGRESS)
-        ttls = sorted([self.__progress.ttl(Keys.TTL.value + es_id) for es_id in in_prog_es_ids])
+        in_prog_rs_ids = self.__progress.smembers(Keys.IN_PROGRESS)
+        ttls = sorted([self.__progress.ttl(Keys.TTL.value + rs_id) for rs_id in in_prog_rs_ids])
         return ttls[-1]
 
     def expire(self, es_ids: List[str]):
         with self.__sync_lock:
             # move the from in_progress back to todo
-            for es_id in es_ids:
-                self.__progress.smove(Keys.IN_PROGRESS, Keys.TODO, es_id)
-                logger.info(f"EvalSample {es_id} expired in IN_PROGRESS and moved back to TODO!")
+            for rs_id in es_ids:
+                self.__progress.smove(Keys.IN_PROGRESS, Keys.TODO, rs_id)
+                logger.info(f"RankingSample {rs_id} expired in IN_PROGRESS and moved back to TODO!")
                 logger.info(f"Current Progress: {self.current_progress()}")
 
-    def submit(self, res: EvalResult) -> Optional[str]:
+    def submit(self, res: RankingResult) -> Optional[str]:
         with self.__sync_lock:
-            logger.info(f"EvalResult {res.id} submission received!")
-            # if the result is NOT for MTurk, check if the EvalSample is already expired in in_prog set
-            if res.mt_params is None and res.es_id.encode('utf-8') not in self.__progress.smembers(Keys.IN_PROGRESS):
-                logger.warning(f"EvalSample {res.es_id} referenced by EvalResult {res.id} already expired in "
+            logger.info(f"RankingResult {res.id} submission received!")
+            # if the result is NOT for MTurk, check if the RankingSample is already expired in in_prog set
+            if res.mt_params is None and res.rs_id.encode('utf-8') not in self.__progress.smembers(Keys.IN_PROGRESS):
+                logger.warning(f"RankingSample {res.rs_id} referenced by RankingResult {res.id} already expired in "
                                "IN_PROGRESS! Submission Rejected")
                 return None
-            # store the EvalResult
-            if self.__rh.store_eval_result(res) is None:
+            # store the RankingResult
+            if self.__rh.store_ranking_result(res) is None:
                 return None
 
             # only coordinate the study if the result is NOT for MTurk
             if res.mt_params is None:
-                # reference the EvalResult in the current run results
+                # reference the RankingResult in the current run results
                 self.__reference_in_current_run_results(res)
-                # move referenced EvalSample to DONE
-                self.__progress.smove(Keys.IN_PROGRESS, Keys.DONE, res.es_id)
-                logger.info(f"Moved EvalSample {res.es_id} from IN_PROGRESS to DONE")
+                # move referenced RankingSample to DONE
+                self.__progress.smove(Keys.IN_PROGRESS, Keys.DONE, res.rs_id)
+                logger.info(f"Moved RankingSample {res.rs_id} from IN_PROGRESS to DONE")
                 prog = self.current_progress()
                 logger.info(f"Current Progress: {prog}")
 
-                # if this was the last remaining EvalSample, we start a new study run
+                # if this was the last remaining RankingSample, we start a new study run
                 if self.__study_run_finished():
                     self.__start_new_run()
 
         return res.id
 
-    def __reference_in_current_run_results(self, res: EvalResult):
+    def __reference_in_current_run_results(self, res: RankingResult):
         self.__progress.sadd(self.__current_run_results_key(), res.id)
-        logger.info(f"Successfully referenced EvalResult {res.id} in results of current run {self.__current_run()}!")
+        logger.info(f"Successfully referenced RankingResult {res.id} in results of current run {self.__current_run()}!")
 
     def __reset_previous_results(self):
         # reset all run results
