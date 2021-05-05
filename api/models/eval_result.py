@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, validator
 from shortuuid import uuid
 
 from models import MTurkParams
+import models
 
 
 class EvalResult(BaseModel):
@@ -17,6 +18,8 @@ class EvalResult(BaseModel):
 
     @validator('es_id')
     def eval_sample_must_exist(cls, sample_id: str):
+        if models.__validation_disabled__:
+            return sample_id.strip()
         from backend.db import RedisHandler
         redis = RedisHandler()
         if not redis.eval_sample_exists(sample_id=sample_id.strip()):
