@@ -3,13 +3,14 @@ import glob
 import os
 from typing import List
 
+import numpy as np
 import pandas as pd
 
 from backend.db import RedisHandler
 from models import ModelRanking
 
 
-def generate_model_rankings(data_root: str, num_samples: int) -> List[ModelRanking]:
+def generate_model_rankings(data_root: str, num_samples: int, shuffle: bool = False) -> List[ModelRanking]:
     feathers = glob.glob(os.path.join(data_root, "*.df.feather"))
     assert len(feathers) == 1, \
         f"Found multiple datasources: {feathers}! Please make sure only one datasource exists is in {data_root}!"
@@ -25,17 +26,23 @@ def generate_model_rankings(data_root: str, num_samples: int) -> List[ModelRanki
                             query=row['caption'],
                             top_k_image_ids=row['top_k_matches'].tolist())
 
-    return df.apply(generate_model_ranking, axis=1).tolist()[:num_samples]
+    mrankings = df.apply(generate_model_ranking, axis=1).tolist()
+    if num_samples > 1:
+        mrankings = mrankings[:num_samples]
+    if shuffle:
+        np.random.shuffle(mrankings)
+
+    return mrankings
 
 
-def init_study_data(data_root: str, flush: bool, num_samples: int = -1):
+def init_study_data(data_root: str, flush: bool, num_samples: int = -1, shuffle: bool = False):
     assert os.path.lexists(data_root), f"Cannot find data root at {data_root}"
     rh = RedisHandler()
     if flush:
         rh.flush(auth=False)
 
     # generate ModelRankings
-    mrs = generate_model_rankings(data_root, num_samples)
+    mrs = generate_model_rankings(data_root, num_samples, shuffle)
     for mr in mrs:
         rh.store_model_ranking(mr)
 
@@ -44,6 +51,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_root', type=str, default=f'../data')
     parser.add_argument('--flush', default=True, action='store_true')
+    parser.add_argument('--shuffle', default=False, action='store_true')
     parser.add_argument('--num_samples', type=int, default=-1)
 
     opts = parser.parse_args()

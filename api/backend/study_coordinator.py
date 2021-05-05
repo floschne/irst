@@ -82,6 +82,7 @@ class StudyCoordinator(object):
             cls.__init_data_root = conf.study.init.data_root
             cls.__init_flush = conf.study.init.flush
             cls.__init_num_samples = conf.study.init.num_samples
+            cls.__init_shuffle = conf.study.init.shuffle
 
             # setup expired watcher
             cls.expired_watcher = ThreadPoolExecutor(max_workers=1)
@@ -119,7 +120,8 @@ class StudyCoordinator(object):
             logger.info("Initializing Study data")
             init_study_data(data_root=self.__init_data_root,
                             flush=self.__init_flush,
-                            num_samples=self.__init_num_samples)
+                            num_samples=self.__init_num_samples,
+                            shuffle=self.__init_shuffle)
 
             # init run count with 0
             self.__set_run_count(0)

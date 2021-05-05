@@ -20,6 +20,7 @@ study:
     data_root: ${env:DATA_ROOT, data}
     flush: true
     num_samples: 100 # negative number is maximum
+    shuffle: False
 
 backend:
   redis:
