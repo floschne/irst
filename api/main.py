@@ -1,12 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 from loguru import logger
-from omegaconf import OmegaConf
 
 from backend import StudyCoordinator, ImageServer
 from backend.auth import AuthHandler
 from backend.db import RedisHandler
 from backend.mturk import MTurkHandler
+from config import conf
 from routers import general, eval_sample, result, image, study, mranking, user, mturk, feedback
 
 # create the main api
@@ -19,8 +19,6 @@ app = FastAPI(title="User Study API",
 @app.on_event("startup")
 def startup_event():
     try:
-        conf = OmegaConf.load('config/config.yml')
-
         # setup logger
         logger.add('logs/{time}.log', rotation=f"{conf.logging.rotation} MB", level=conf.logging.level)
 
@@ -70,9 +68,6 @@ app.include_router(feedback.router, prefix=feedback.PREFIX)
 
 # entry point for main.py
 if __name__ == "__main__":
-    # load config
-    conf = OmegaConf.load('config/config.yml')
-
     # start the api via uvicorn
     assert conf.port is not None and isinstance(conf.port, int), "The port has to be an integer! E.g. 8081"
     uvicorn.run(app, host="0.0.0.0", port=conf.port, debug=True, lifespan="on")

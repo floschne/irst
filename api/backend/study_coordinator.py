@@ -8,11 +8,11 @@ from typing import Dict, Union, List, Optional
 import numpy as np
 import redis
 from loguru import logger
-from omegaconf import OmegaConf
 
 from backend import ImageServer
 from backend.db import RedisHandler
 from init_redis_data import init_study_data
+from config import conf
 from models import EvalResult, EvalSample
 
 
@@ -75,7 +75,6 @@ class StudyCoordinator(object):
             cls.__rh = RedisHandler()
             cls.__progress = cls.__rh.get_progress_client()
 
-            conf = OmegaConf.load('config/config.yml')
             cls.__num_top_k_imgs = conf.study.samples.num_top_k_imgs
             cls.__num_random_k_imgs = conf.study.samples.num_random_imgs
             cls.__in_prog_ttl = conf.study.samples.in_prog_ttl

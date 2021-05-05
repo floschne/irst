@@ -2,12 +2,10 @@ import json
 import multiprocessing
 import os
 
-from omegaconf import OmegaConf
-
-conf = OmegaConf.load('config/config.yml').gunicorn
+from config import conf
 
 workers_per_core_str = os.getenv("WORKERS_PER_CORE", "1")
-max_workers_str = conf.max_workers_str
+max_workers_str = conf.gunicorn.max_workers_str
 use_max_workers = None
 if max_workers_str:
     use_max_workers = int(max_workers_str)
@@ -16,7 +14,7 @@ web_concurrency_str = os.getenv("WEB_CONCURRENCY", None)
 host = os.getenv("HOST", "0.0.0.0")
 port = os.getenv("PORT", "80")
 bind_env = os.getenv("BIND", None)
-use_loglevel = conf.use_loglevel
+use_loglevel = conf.gunicorn.use_loglevel
 if bind_env:
     use_bind = bind_env
 else:
@@ -36,9 +34,9 @@ accesslog_var = os.getenv("ACCESS_LOG", "-")
 use_accesslog = accesslog_var or None
 errorlog_var = os.getenv("ERROR_LOG", "-")
 use_errorlog = errorlog_var or None
-graceful_timeout_str = conf.graceful_timeout_str
-timeout_str = conf.timeout_str
-keepalive_str = conf.keepalive_str
+graceful_timeout_str = conf.gunicorn.graceful_timeout_str
+timeout_str = conf.gunicorn.timeout_str
+keepalive_str = conf.gunicorn.keepalive_str
 
 # Gunicorn config variables
 loglevel = use_loglevel

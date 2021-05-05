@@ -5,8 +5,9 @@ from typing import List
 
 import numpy as np
 from loguru import logger
-from omegaconf import OmegaConf
+
 from init_imgs import init_images
+from config import conf
 
 
 class ImageServer(object):
@@ -17,28 +18,26 @@ class ImageServer(object):
             logger.info(f"Instantiating Image Server!")
             cls.__singleton = super(ImageServer, cls).__new__(cls)
 
-            conf = OmegaConf.load("config/config.yml").image_server
+            cls.__img_prefix = conf.image_server.img_prefix
+            cls.__img_suffix = conf.image_server.img_suffix
+            cls.__img_thumbnail_infix = conf.image_server.img_thumbnail_infix
+            cls.__use_relative_url = bool(conf.image_server.relative_url)
 
-            cls.__img_prefix = conf.img_prefix
-            cls.__img_suffix = conf.img_suffix
-            cls.__img_thumbnail_infix = conf.img_thumbnail_infix
-            cls.__use_relative_url = bool(conf.relative_url)
-
-            cls.__img_root = conf.img_root
+            cls.__img_root = conf.image_server.img_root
             if not os.path.lexists(cls.__img_root):
                 msg = f"Cannot find images root at {cls.__img_root}. Current Working Directory: {os.getcwd()}"
                 logger.error(msg)
                 raise RuntimeError(msg)
 
             # setup base url
-            base_url = "https://" if conf.https else "http://"
-            base_url += conf.host
-            base_url += ":" + str(conf.port)
-            base_url += conf.context_path
+            base_url = "https://" if conf.image_server.https else "http://"
+            base_url += conf.image_server.host
+            base_url += ":" + str(conf.image_server.port)
+            base_url += conf.image_server.context_path
             cls.__base_url = base_url
 
             # setup relative url
-            cls.__relative_url = conf.context_path
+            cls.__relative_url = conf.image_server.context_path
             if cls.__relative_url[-1] != '/':
                 cls.__relative_url += '/'
             if cls.__relative_url[0] != '/':

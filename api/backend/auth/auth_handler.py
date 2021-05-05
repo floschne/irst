@@ -10,9 +10,9 @@ from typing import Dict, Optional
 import jwt
 import numpy as np
 from loguru import logger
-from omegaconf import OmegaConf
 
 from backend.db import RedisHandler
+from config import conf
 from models.user import User
 
 
@@ -26,18 +26,16 @@ class AuthHandler(object):
 
             cls.__auth = RedisHandler().get_auth_client()
 
-            conf = OmegaConf.load("config/config.yml").backend.auth
+            cls.__admin_pwd = conf.backend.auth.admin_pwd
+            cls.__admin_id = conf.backend.auth.admin_id
+            cls.__jwt_algo = conf.backend.auth.jwt_algo
+            cls.__jwt_ttl = conf.backend.auth.jwt_ttl
 
-            cls.__admin_pwd = conf.admin_pwd
-            cls.__admin_id = conf.admin_id
-            cls.__jwt_algo = conf.jwt_algo
-            cls.__jwt_ttl = conf.jwt_ttl
-
-            if conf.jwt_secret == '':
+            if conf.backend.auth.jwt_secret == '':
                 logger.warning('JWT Secret not provided! Generating 32 bit secret')
                 cls.__jwt_secret = binascii.hexlify(os.urandom(32))
             else:
-                cls.__jwt_secret = conf.jwt_secret
+                cls.__jwt_secret = conf.backend.auth.jwt_secret
 
         return cls.__singleton
 

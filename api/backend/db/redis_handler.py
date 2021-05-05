@@ -5,8 +5,8 @@ from typing import Optional, List, Dict
 
 import redis
 from loguru import logger
-from omegaconf import OmegaConf
 
+from config import conf
 from models import EvalSample, EvalResult, ModelRanking
 from models.feedback import Feedback
 
@@ -24,7 +24,6 @@ class RedisHandler(object):
             cls.__sync_lock = threading.Lock()
 
             # setup redis
-            conf = OmegaConf.load('config/config.yml')
             r_host = conf.backend.redis.host
             r_port = conf.backend.redis.port
 

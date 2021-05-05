@@ -2,11 +2,11 @@ from typing import List, Optional, Dict
 
 import boto3
 from loguru import logger
-from omegaconf import OmegaConf
 from tqdm import tqdm
 
 from backend.db import RedisHandler
 from backend.mturk.external_question import ExternalQuestion
+from config import conf
 from models import EvalSample
 
 
@@ -18,7 +18,7 @@ class MTurkHandler(object):
             logger.info(f"Instantiating MTurk Handler!")
             cls.__singleton = super(MTurkHandler, cls).__new__(cls)
 
-            cls.__conf = OmegaConf.load("config/config.yml").backend.mturk
+            cls.__conf = conf.backend.mturk
             cls.sandbox = cls.__conf.sandbox
 
             cls.__mturk_env = {
@@ -345,7 +345,7 @@ class MTurkHandler(object):
                     MessageText=message_text,
                     WorkerIds=worker_chunk
                 )
-                if len(resp) != 0:
+                if len(resp) != 0:  # FIXME
                     logger.error(f"Error while notifying Workers!\n"
                                  f"NotifyWorkersFailureStatuses: {resp}")
 
