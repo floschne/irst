@@ -161,16 +161,26 @@ class StudyCoordinator(object):
 
     def __generate_eval_sample(self, mr_id: str) -> EvalSample:
         mr = self.__rh.load_model_ranking(mr_id)
-        tk_imgs = set(list(mr.top_k_image_ids)[0:self.__num_top_k_imgs])
+        # get top-k from model ranking
+        tk_imgs = mr.top_k_image_ids[0:self.__num_top_k_imgs]
+        # get  random images
         random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
 
-        # make sure intersection set has 0 elements!
-        while len(tk_imgs.intersection(random_imgs)) != 0 or len(mr.top_k_image_ids.intersection(random_imgs)) != 0:
+        # make sure intersection of the top-k and the random images is an empty set!
+        mr_top_k_imgs = set(mr.top_k_image_ids)  # order doesnt matter for checking
+        while len(mr_top_k_imgs.intersection(random_imgs)) != 0:
+            # sample new random images if there was an overlap
             random_imgs = set(self.__rh.get_random_image_ids(self.__num_random_k_imgs))
+
+        # combine random images and top-k images
+        es_imgs = tk_imgs + list(random_imgs)
+
+        # shuffle so users cannot observe patterns so easy
+        np.random.shuffle(es_imgs)
 
         es = EvalSample(mr_id=mr.id,
                         query=mr.query,
-                        image_ids=list(tk_imgs.union(random_imgs)))
+                        image_ids=es_imgs)
         self.__rh.store_eval_sample(es)
 
         return es
