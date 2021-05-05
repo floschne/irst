@@ -9,6 +9,8 @@ from loguru import logger
 from config import conf
 from models import RankingSample, RankingResult, ModelRanking
 from models.feedback import Feedback
+from models.likert_result import LikertResult
+from models.likert_sample import LikertSample
 
 
 class RedisHandler(object):
@@ -189,6 +191,73 @@ class RedisHandler(object):
         logger.debug(f"Retrieved {len(res)} RankingResults!")
         return res
 
+    ################# LikertSample #################
+
+    @logger.catch(reraise=True)
+    def store_likert_sample(self, sample: LikertSample) -> str:
+        if self.__clients['likert_sample'].set(sample.id, sample.json()) != 1:
+            logger.error(f"Cannot store LikertSample {sample.json()}")
+        logger.debug(f"Successfully stored LikertSample {sample.id}")
+        return sample.id
+
+    @logger.catch(reraise=True)
+    def load_likert_sample(self, ls_id: str, verbose: bool = True) -> Optional[LikertSample]:
+        s = self.__clients['likert_sample'].get(ls_id)
+        if s is None:
+            logger.error(f"Cannot load LikertSample {ls_id}")
+            return None
+        else:
+            sample = LikertSample.parse_raw(s)
+            if verbose:
+                logger.debug(f"Successfully loaded LikertSample {sample.id}")
+            return sample
+
+    @logger.catch(reraise=True)
+    def likert_sample_exists(self, rs_id: str) -> bool:
+        return bool(self.__clients['likert_sample'].exists(rs_id))
+
+    @logger.catch(reraise=True)
+    def list_likert_samples(self, num: int = 100) -> List[LikertSample]:
+        ls = [self.load_likert_sample(rs_id=rs_id, verbose=False) for rs_id in
+              self.__clients['likert_sample'].keys()[:num]]
+        logger.debug(f"Retrieved {len(ls)} LikertSamples!")
+        return ls
+
+    ################# LikertResult #################
+
+    @logger.catch(reraise=True)
+    def store_likert_result(self, result: LikertResult) -> Optional[str]:
+        if not self.likert_sample_exists(result.ls_id):
+            logger.error(
+                f"LikertSample {result.ls_id} referenced in LikertResult {result.id} does not exist! Discarding!")
+            return None
+
+        if self.__clients['likert_result'].set(result.id, result.json()) != 1:
+            logger.error(f"Cannot store LikertResult {result.json()}")
+            return None
+        else:
+            logger.debug(f"Successfully stored LikertResult {result.id}")
+            return result.id
+
+    @logger.catch(reraise=True)
+    def load_likert_result(self, lr_id: str, verbose: bool = False) -> Optional[LikertResult]:
+        s = self.__clients['likert_result'].get(lr_id)
+        if s is None:
+            logger.error(f"Cannot load LikertResult {lr_id}")
+            return None
+        else:
+            result = LikertResult.parse_raw(s)
+            if verbose:
+                logger.debug(f"Successfully loaded LikertResult {result.id}")
+            return result
+
+    @logger.catch(reraise=True)
+    def list_likert_results(self) -> List[LikertResult]:
+        res = [self.load_likert_result(lr_id=res_id, verbose=False) for res_id in
+               self.__clients['likert_result'].keys()]
+        logger.debug(f"Retrieved {len(res)} LikertResults!")
+        return res
+
     ############### MTURK ##############################
 
     @logger.catch(reraise=True)
@@ -224,18 +293,18 @@ class RedisHandler(object):
         # store
         key = str('feedback_' + feedback.id)
         if self.__clients['mturk'].set(key.encode('utf-8'), feedback.json()) != 1:
-            logger.error(f"Cannot store Feedback {feedback.id} for RankingSample {feedback.rs_id}")
+            logger.error(f"Cannot store Feedback {feedback.id} for RankingSample {feedback.sample_id}")
             return None
 
-        # reference in rs set
-        set_key = str(feedback.rs_id + '_feedback')
+        # reference in sample set
+        set_key = str(feedback.sample_id + '_feedback')
         if self.__clients['mturk'].sadd(set_key.encode('utf-8'), feedback.id) != 1:
-            logger.error(f"Cannot reference Feedback {feedback.id} with RankingSample {feedback.rs_id}")
+            logger.error(f"Cannot reference Feedback {feedback.id} with Sample {feedback.sample_id}")
             return None
         else:
-            logger.debug(f"Successfully referenced Feedback {feedback.id} with RankingSample {feedback.rs_id}")
+            logger.debug(f"Successfully referenced Feedback {feedback.id} with Sample {feedback.sample_id}")
 
-        logger.debug(f"Successfully stored Feedback {feedback.rs_id} for RankingSample {feedback.rs_id}")
+        logger.debug(f"Successfully stored Feedback {feedback.sample_id} for Sample {feedback.sample_id}")
         return feedback.id
 
     @logger.catch(reraise=True)
@@ -250,8 +319,8 @@ class RedisHandler(object):
             return Feedback.parse_raw(fb)
 
     @logger.catch(reraise=True)
-    def list_feedbacks_of_ranking_sample(self, rs_id: str) -> List[Feedback]:
-        key = str(rs_id + '_feedback')
+    def list_feedbacks_of_sample(self, sample_id: str) -> List[Feedback]:
+        key = str(sample_id + '_feedback')
         return [self.load_feedback(str(fb_id, 'utf-8')) for fb_id in
                 self.__clients['mturk'].smembers(key.encode('utf-8'))]
 

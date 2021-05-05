@@ -39,7 +39,7 @@ async def load_feedback(fb_id: str):
             response_model=List[Feedback])
 async def list_feedbacks_for_ranking_sample(rs_id: str):
     logger.info(f"GET request on {PREFIX}/list/rs/{rs_id}")
-    return rh.list_feedbacks_of_ranking_sample(rs_id=rs_id)
+    return rh.list_feedbacks_of_sample(sample_id=rs_id)
 
 
 @logger.catch(reraise=True)
