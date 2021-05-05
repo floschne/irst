@@ -127,14 +127,15 @@ class RedisHandler(object):
         return mr.id
 
     @logger.catch(reraise=True)
-    def load_model_ranking(self, mr_id: str) -> Optional[ModelRanking]:
+    def load_model_ranking(self, mr_id: str, verbose=False) -> Optional[ModelRanking]:
         s = self.__m_rankings.get(mr_id)
         if s is None:
             logger.error(f"Cannot load ModelRanking {mr_id}")
             return None
         else:
             sample = ModelRanking.parse_raw(s)
-            logger.debug(f"Successfully loaded ModelRanking {sample.id}")
+            if verbose:
+                logger.debug(f"Successfully loaded ModelRanking {sample.id}")
             return sample
 
     @logger.catch(reraise=True)
@@ -144,6 +145,12 @@ class RedisHandler(object):
     @logger.catch(reraise=True)
     def get_all_mr_ids(self) -> List[str]:
         return self.__m_rankings.keys()
+
+    @logger.catch(reraise=True)
+    def list_model_rankings(self, num: int = 100) -> List[ModelRanking]:
+        mrs = [self.load_model_ranking(mr_id=mr_id, verbose=False) for mr_id in self.get_all_mr_ids()[:num]]
+        logger.debug(f"Retrieved {len(mrs)} ModelRankings!")
+        return mrs
 
     ################# EvalSample #################
 
