@@ -26,12 +26,15 @@ backend:
   redis:
     host: ${env:REDIS_HOST, localhost}
     port: ${env:REDIS_PORT, 6379}
-    eval_sample_db_idx: ${env:REDIS_EVAL_SAMPLE_DB_IDX, 3}
-    m_rank_db_idx: ${env:REDIS_MRANK_DB_IDX, 4}
-    result_db_idx: ${env:REDIS_RESULT_DB_IDX, 5}
-    progress_db_idx: ${env:REDIS_STATE_DB_IDX, 6}
-    auth_db_idx: ${env:REDIS_AUTH_DB_IDX, 7}
-    mturk_db_idx: ${env:REDIS_MTURK_DB_IDX, 8}
+    clients:
+      model_ranking: ${env:REDIS_MODEL_RANKING_DB_IDX, 3}
+      ranking_sample: ${env:REDIS_RANKING_SAMPLE_DB_IDX, 4}
+      ranking_result: ${env:REDIS_RANKING_RESULT_DB_IDX, 5}
+      progress: ${env:REDIS_STATE_DB_IDX, 6}
+      auth: ${env:REDIS_AUTH_DB_IDX, 7}
+      mturk: ${env:REDIS_MTURK_DB_IDX, 8}
+      likert_sample: ${env:REDIS_LIKERT_SAMPLE_DB_IDX, 9}
+      likert_result: ${env:REDIS_LIKERT_RESULT_DB_IDX, 10}
   mturk:
     sandbox: ${env:MTURK_SANDBOX, true}
     aws_access_key: ${env:AWS_ACCESS_KEY}
