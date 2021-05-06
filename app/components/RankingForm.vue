@@ -278,7 +278,7 @@
       title="Any comments, criticism or thoughts?"
       hide-footer
     >
-      <FeedbackForm :worker-id="workerId" :rs-id="rsId" :hit-id="hitId" />
+      <FeedbackForm :worker-id="workerId" :sample-id="rsId" :hit-id="hitId" />
     </b-modal>
 
     <!--  NO RELEVANT IMAGES MODAL   -->
@@ -320,7 +320,7 @@
         name="assignmentId"
         :value="assignmentId"
       />
-      <input id="erId" type="hidden" name="erId" :value="erId" />
+      <input id="rrId" type="hidden" name="rrId" :value="rrId" />
     </form>
   </b-container>
 </template>
@@ -371,7 +371,7 @@ export default {
       loadSuccess: false,
       loadError: false,
       img_size: 7.5,
-      erId: '',
+      rrId: '',
       tooltipStates: {},
       sample_cooldown: 0, // waiting time until next sample,
       noRelevantCheckText: 'there are no relevant images',
@@ -486,7 +486,7 @@ export default {
       const rankedIds = await this.getImageIds(this.rankedImages)
       const irrelevantIds = await this.getImageIds(this.irrelevantImages)
       // submit to own API
-      this.erId = await this.$resultApiClient.submitResult(
+      this.rrId = await this.$resultApiClient.submitResult(
         this.sample.id,
         rankedIds,
         irrelevantIds,
@@ -495,7 +495,7 @@ export default {
         this.hitId
       )
       this.submitSuccess =
-        this.erId !== '' && this.erId !== undefined && this.erId !== ''
+        this.rrId !== '' && this.rrId !== undefined && this.rrId !== ''
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
@@ -507,7 +507,7 @@ export default {
         //   this.submitSuccess = await this.$mturkSubmitService.submitAssignment(
         //     ids,
         //     this.assignmentId,
-        //     this.erId
+        //     this.rrId
         //   )
         //   this.submitError = !this.submitSuccess
         // via cgi html form
@@ -533,7 +533,7 @@ export default {
       this.rankedImages = []
       this.irrelevantImages = []
 
-      const resp = await this.$sampleApiClient.nextSample()
+      const resp = await this.$sampleApiClient.nextRankingSample()
       // check if it's a sample or an int that expresses the waiting time in seconds until the next sample is available
       if (Number.isInteger(resp)) {
         this.sample_cooldown = resp
@@ -572,7 +572,7 @@ export default {
       this.rankedImages = []
       this.irrelevantImages = []
 
-      this.sample = await this.$sampleApiClient.load(this.rsId)
+      this.sample = await this.$sampleApiClient.loadRankingSample(this.rsId)
       this.loadSuccess = this.sample !== null
       this.loadError = !this.loadSuccess
 

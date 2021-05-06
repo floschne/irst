@@ -82,7 +82,7 @@ export default {
       type: String,
       default: '',
     },
-    rsId: {
+    sampleId: {
       type: String,
       default: '',
     },
@@ -109,7 +109,7 @@ export default {
     async onSubmit(evt) {
       evt.preventDefault()
       const resp = await this.$feedbackApiClient.submitFeedback(
-        this.rsId,
+        this.sampleId,
         this.message,
         this.submitWorkerId,
         this.hitId

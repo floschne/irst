@@ -9,9 +9,9 @@ export default ({ app, axios }, inject) => {
 
   // define the methods
   const feedbackApiClient = {
-    submitFeedback: async (rsId, msg, workerId = '', hitId = '') => {
+    submitFeedback: async (sampleId, msg, workerId = '', hitId = '') => {
       const feedback = {
-        rs_id: rsId,
+        sample_id: sampleId,
         message: msg,
         worker_id: workerId,
         hit_id: hitId,

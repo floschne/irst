@@ -9,7 +9,7 @@ export default ({ app, axios }, inject) => {
 
   // define the methods
   const resultApiClient = {
-    submitResult: async (
+    submitRankingResult: async (
       rsId,
       rankedImages,
       irrelevantImages,
@@ -34,6 +34,46 @@ export default ({ app, axios }, inject) => {
       return await app.$axios
         .put(
           `${app.$config.ctxPath}api/ranking_result/submit`,
+          result,
+          jsonHeaderConfig
+        )
+        .then((resp) => {
+          if (resp.status === 200) {
+            return resp.data
+          } else {
+            logger('e', resp)
+            return null
+          }
+        })
+        .catch((error) => {
+          logger('e', error)
+          return null
+        })
+    },
+
+    submitLikertResult: async (
+      lsId,
+      chosenAnswer,
+      workerId = '',
+      assignmentId = '',
+      hitId = ''
+    ) => {
+      let mtParams = null
+      if (workerId !== '' && assignmentId !== '' && hitId !== '') {
+        mtParams = {
+          worker_id: workerId,
+          assignment_id: assignmentId,
+          hit_id: hitId,
+        }
+      }
+      const result = {
+        ls_id: lsId,
+        chosen_answer: chosenAnswer,
+        mt_params: mtParams,
+      }
+      return await app.$axios
+        .put(
+          `${app.$config.ctxPath}api/likert_result/submit`,
           result,
           jsonHeaderConfig
         )
