@@ -6,8 +6,7 @@ from loguru import logger
 from backend import LikertStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
-from models import RankingSample, MTurkParams
-from models.likert_sample import LikertSample
+from models import RankingSample, MTurkParams, LikertSample
 
 PREFIX = "/likert_sample"
 TAG = ["likert_sample"]

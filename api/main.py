@@ -44,7 +44,7 @@ def startup_event():
 
         # init mturk
         mt = MTurkHandler()
-        mt.init()
+        mt.init_hit_types()
 
     except Exception as e:
         msg = f"Error while starting the API! Exception: {str(e)}"

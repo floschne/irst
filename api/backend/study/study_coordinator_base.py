@@ -18,10 +18,7 @@ from loguru import logger
 from backend import ImageServer
 from backend.db import RedisHandler
 from config import conf
-from models import RankingResult, RankingSample, ModelRanking
-from models.likert_result import LikertResult
-from models.likert_sample import LikertSample
-
+from models import RankingResult, RankingSample, ModelRanking, LikertResult, LikertSample
 
 @unique
 class InitState(int, Enum):

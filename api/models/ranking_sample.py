@@ -4,8 +4,8 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 from shortuuid import uuid
 
-from models import MTurkParams
 import models
+from models import MTurkParams
 
 
 class RankingSample(BaseModel):
@@ -29,3 +29,7 @@ class RankingSample(BaseModel):
 
     def add_mt_params(self, mt: MTurkParams):
         self.mt_params = mt
+
+    @staticmethod
+    def get_type() -> str:
+        return 'ranking'

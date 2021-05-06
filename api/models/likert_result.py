@@ -11,7 +11,7 @@ from models import MTurkParams
 class LikertResult(BaseModel):
     id: str = Field(description="LikertResult UUID", default_factory=uuid)
     ls_id: str = Field(description="UUID of the related LikertSample")
-    chosen_answers: str = Field(description="Chosen answer")
+    chosen_answer: str = Field(description="Chosen answer")
     created: datetime = Field(description="Timestamp of the result", default_factory=datetime.now)
     mt_params: Optional[MTurkParams] = Field(description="Optional MTurk Parameters", default=None)
 

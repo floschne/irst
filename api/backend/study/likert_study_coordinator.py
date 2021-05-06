@@ -4,7 +4,7 @@ from backend.db import RedisHandler
 from backend.study import StudyCoordinatorBase
 from config import conf
 from models import ModelRanking
-from models.likert_sample import LikertSample
+from models import LikertSample
 
 
 class LikertStudyCoordinator(StudyCoordinatorBase):

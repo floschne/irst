@@ -7,10 +7,7 @@ import redis
 from loguru import logger
 
 from config import conf
-from models import RankingSample, RankingResult, ModelRanking
-from models.feedback import Feedback
-from models.likert_result import LikertResult
-from models.likert_sample import LikertSample
+from models import RankingSample, RankingResult, ModelRanking, Feedback, LikertSample, LikertResult
 
 
 class RedisHandler(object):
@@ -213,12 +210,12 @@ class RedisHandler(object):
             return sample
 
     @logger.catch(reraise=True)
-    def likert_sample_exists(self, rs_id: str) -> bool:
-        return bool(self.__clients['likert_sample'].exists(rs_id))
+    def likert_sample_exists(self, ls_id: str) -> bool:
+        return bool(self.__clients['likert_sample'].exists(ls_id))
 
     @logger.catch(reraise=True)
     def list_likert_samples(self, num: int = 100) -> List[LikertSample]:
-        ls = [self.load_likert_sample(rs_id=rs_id, verbose=False) for rs_id in
+        ls = [self.load_likert_sample(ls_id=ls_id, verbose=False) for ls_id in
               self.__clients['likert_sample'].keys()[:num]]
         logger.debug(f"Retrieved {len(ls)} LikertSamples!")
         return ls
@@ -261,24 +258,24 @@ class RedisHandler(object):
     ############### MTURK ##############################
 
     @logger.catch(reraise=True)
-    def store_hit_info(self, hit_info: Dict, rs: RankingSample) -> Optional[str]:
+    def store_hit_info(self, hit_info: Dict, sample: Union[RankingSample, LikertSample]) -> Optional[str]:
         # we cannot use json.dumps(hit_info) because it throws an error since datetime objects are not json serializable
-        if self.__clients['mturk'].set(str(rs.id + '_hit_info').encode('utf-8'),
+        if self.__clients['mturk'].set(str(sample.id + '_hit_info').encode('utf-8'),
                                        pprint.pformat(hit_info).encode('utf-8')) != 1:
-            logger.error(f"Cannot store Info of HIT {hit_info['HITId']} for RankingSample {rs.id}")
+            logger.error(f"Cannot store Info of HIT {hit_info['HITId']} for {sample.get_type().capitalize()}Sample {sample.id}")
             return None
 
-        logger.debug(f"Successfully stored HIT Info {hit_info['HITId']} for RankingSample {rs.id}")
-        return rs.id
+        logger.debug(f"Successfully stored HIT Info {hit_info['HITId']} for {sample.get_type().capitalize()}Sample {sample.id}")
+        return sample.id
 
     @logger.catch(reraise=True)
-    def load_hit_info(self, rs: RankingSample) -> Optional[Dict]:
-        s = self.__clients['mturk'].get(str(rs.id + '_hit_info').encode('utf-8'))
+    def load_hit_info(self, sample: Union[RankingSample, LikertSample]) -> Optional[Dict]:
+        s = self.__clients['mturk'].get(str(sample.id + '_hit_info').encode('utf-8'))
         if s is None:
-            logger.error(f"Cannot retrieve HIT Info for RankingSample {rs.id}")
+            logger.error(f"Cannot retrieve HIT Info for {sample.get_type().capitalize()}Sample {sample.id}")
             return None
         else:
-            logger.debug(f"Successfully loaded HIT Info for RankingSample {rs.id}")
+            logger.debug(f"Successfully loaded HIT Info for {sample.get_type().capitalize()}Sample {sample.id}")
             return json.loads(s)
 
     @logger.catch(reraise=True)

@@ -43,3 +43,7 @@ class LikertSample(BaseModel):
         if len(image_ids) == 0:
             raise ValueError(f"The images ids must not be empty!")
         return image_ids
+
+    @staticmethod
+    def get_type() -> str:
+        return 'likert'

@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends
@@ -17,17 +18,23 @@ mturk = MTurkHandler()
 rh = RedisHandler()
 
 
+# TODO move this to a central place like in StudyCoordinatorBase and use this also in MTurkHandler etc.
+class StudyType(str, Enum):
+    ranking = "ranking"
+    likert = "likert"
+
+
 @logger.catch(reraise=True)
 @router.put("/hit/create", tags=TAG,
-            description="Creates a HIT for the RankingSample with the given ES ID",
+            description="Creates a HIT for the Sample with the given ID",
             dependencies=[Depends(JWTBearer())])
-async def create_hit(rs_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def create_hit(sample_id: str, creds: Optional [AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"PUT request on {PREFIX}/hit/create")
-    rs = rh.load_ranking_sample(rs_id=rs_id)
-    if rs is not None:
+    sample = rh.load_sample(rs_id=sample_id)
+    if sample is not None:
         if creds is not None:
             mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-        return mturk.create_hit_from_rs(rs)
+        return mturk.create_hit_from_sample(sample)
     return False
 
 
@@ -35,19 +42,24 @@ async def create_hit(rs_id: str, creds: Optional[AWSCreds], sandbox: Optional[bo
 @router.put("/hits/create", tags=TAG,
             description="Creates a HIT for every RankingSample of the Study (current run)",
             dependencies=[Depends(JWTBearer())])
-async def create_hits(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def create_hits(study_type: StudyType, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"PUT request on {PREFIX}/hits/create")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    rs = rh.list_ranking_samples()
-    return mturk.create_hits_from_rs(rs)
+    if study_type == StudyType.ranking:
+        samples = rh.list_ranking_samples()
+    elif study_type == StudyType.likert:
+        samples = rh.list_likert_samples()
+    else:
+        raise ValueError("StudyType unknown! Only 'likert' and 'ranking' are supported!")
+    return mturk.create_hits_from_samples(samples)
 
 
 @logger.catch(reraise=True)
 @router.delete("/hit/delete", tags=TAG,
                description="Deletes the HIT with the given ID",
                dependencies=[Depends(JWTBearer())])
-async def delete_hit(hit_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def delete_hit(hit_id: str, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"DELETE request on {PREFIX}/hit/delete")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
@@ -58,33 +70,33 @@ async def delete_hit(hit_id: str, creds: Optional[AWSCreds], sandbox: Optional[b
 @router.delete("/hits/delete", tags=TAG,
                description="Deletes all HITs associated with this Study",
                dependencies=[Depends(JWTBearer())])
-async def delete_all_hit(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def delete_all_hit(study_type: StudyType, creds: Optional [AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"DELETE request on {PREFIX}/hits/delete")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    return mturk.delete_all_hits()
+    return mturk.delete_all_hits(study_type.value)
 
 
 @logger.catch(reraise=True)
 @router.post("/hits/ids", tags=TAG,
              description="Returns all HIT IDs",
              dependencies=[Depends(JWTBearer())])
-async def list_hit_ids(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def list_hit_ids(study_type: StudyType, creds: Optional [AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/hits/ids")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    return mturk.list_hit_ids()
+    return mturk.list_hit_ids(study_type.value)
 
 
 @logger.catch(reraise=True)
 @router.post("/hits/list", tags=TAG,
              description="Returns all HITs",
              dependencies=[Depends(JWTBearer())])
-async def list_hit(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def list_hit(study_type: StudyType, creds: Optional [AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/hits/list")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    return mturk.list_hits()
+    return mturk.list_hits(study_type)
 
 
 @logger.catch(reraise=True)
@@ -97,14 +109,14 @@ async def hit_info(hit_id: str):
 
 
 @logger.catch(reraise=True)
-@router.get("/hit/info/rs/{rs_id}", tags=TAG,
-            description="Returns the HIT Info associated with the RankingSample with the given ID",
+@router.get("/hit/info/sample/{sample_id}", tags=TAG,
+            description="Returns the HIT Info associated with the Sample with the given ID",
             dependencies=[Depends(JWTBearer())])
-async def hit_info(rs_id: str):
-    logger.info(f"GET request on {PREFIX}/hit/info/rs/{rs_id}")
-    rs = rh.load_ranking_sample(rs_id=rs_id)
-    if rs is not None:
-        return mturk.get_hit_info_via_rs(rs)
+async def hit_info(sample_id: str):
+    logger.info(f"GET request on {PREFIX}/hit/info/sample/{sample_id}")
+    sample = rh.load_sample(sample_id=sample_id)
+    if sample is not None:
+        return mturk.get_hit_info_via_sample(sample)
     return None
 
 
@@ -112,11 +124,11 @@ async def hit_info(rs_id: str):
 @router.post("/assignments/reviewable", tags=TAG,
              description="Returns the all reviewable Assignments associated with this Study",
              dependencies=[Depends(JWTBearer())])
-async def list_reviewable_assignments(creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def list_reviewable_assignments(study_type: StudyType, creds: Optional [AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/assignments/reviewable")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    return mturk.list_reviewable_assignments()
+    return mturk.list_reviewable_assignments(study_type.value)
 
 
 @logger.catch(reraise=True)
@@ -151,7 +163,7 @@ async def approve_assignment(assignment_id: str,
 @router.post("/assignments/{hit_id}", tags=TAG,
              description="Returns all Assignments of the HIT with the given ID",
              dependencies=[Depends(JWTBearer())])
-async def list_assignments_for_hit(hit_id: str, creds: Optional[AWSCreds], sandbox: Optional[bool] = True):
+async def list_assignments_for_hit(hit_id: str, creds: Optional [AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/assignments/{hit_id}")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
