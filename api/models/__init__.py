@@ -2,6 +2,8 @@ __validation_disabled__ = False
 
 from .study_type import StudyType
 from .mturk_params import MTurkParams
+from .base_sample import BaseSample
+from .base_result import BaseResult
 from .ranking_sample import RankingSample
 from .ranking_result import RankingResult
 from .likert_sample import LikertSample

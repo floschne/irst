@@ -12,4 +12,4 @@ class RankingSample(BaseSample):
 
     @staticmethod
     def get_type() -> StudyType:
-        return 'ranking'
+        return StudyType.RANKING

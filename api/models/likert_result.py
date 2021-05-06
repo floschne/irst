@@ -26,4 +26,4 @@ class LikertResult(BaseResult):
 
     @staticmethod
     def get_type() -> StudyType:
-        return 'likert'
+        return StudyType.LIKERT
