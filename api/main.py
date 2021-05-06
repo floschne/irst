@@ -64,15 +64,15 @@ def shutdown_event():
 
 # include the routers
 app.include_router(general.router)
+app.include_router(user.router, prefix=user.PREFIX)
+app.include_router(mranking.router, prefix=mranking.PREFIX)
 app.include_router(ranking_sample.router, prefix=ranking_sample.PREFIX)
 app.include_router(ranking_result.router, prefix=ranking_result.PREFIX)
 app.include_router(likert_sample.router, prefix=likert_sample.PREFIX)
 app.include_router(likert_result.router, prefix=likert_result.PREFIX)
+app.include_router(mturk.router, prefix=mturk.PREFIX)
 app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)
-app.include_router(mranking.router, prefix=mranking.PREFIX)
-app.include_router(user.router, prefix=user.PREFIX)
-app.include_router(mturk.router, prefix=mturk.PREFIX)
 app.include_router(feedback.router, prefix=feedback.PREFIX)
 
 # entry point for main.py
