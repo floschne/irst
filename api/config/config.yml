@@ -11,15 +11,24 @@ gunicorn:
   use_loglevel: "debug"
   max_workers_str: "4"
 
-study:
-  samples:
+study_initialization:
+  flush: False # THIS FLUSHES EVERYTHING! also samples, results, feedback, mturk etc
+  ranking_samples:
     num_top_k_imgs: 5
-    num_random_imgs: 7
     in_prog_ttl: 300 # in seconds
-  init:
-    data_root: ${env:DATA_ROOT, data/pilot}
-    flush: true
     num_samples: 100 # negative number is maximum
+    num_random_imgs: 7
+
+  likert_samples:
+    num_top_k_imgs: 5
+    in_prog_ttl: 300 # in seconds
+    num_samples: 100 # negative number is maximum
+    question: "The shown images are relevant to the provided caption."
+    answers: ['strongly agree', 'agree', 'neutral', 'disagree', 'strongly disagree']
+    answer_weights: [2, 1, 0, -1, -2]
+
+  model_rankings:
+    data_root: ${env:DATA_ROOT, data/pilot}
     shuffle: False
 
 backend:
@@ -30,11 +39,14 @@ backend:
       model_ranking: ${env:REDIS_MODEL_RANKING_DB_IDX, 3}
       ranking_sample: ${env:REDIS_RANKING_SAMPLE_DB_IDX, 4}
       ranking_result: ${env:REDIS_RANKING_RESULT_DB_IDX, 5}
-      progress: ${env:REDIS_STATE_DB_IDX, 6}
+      ranking_progress: ${env:REDIS_RANKING_PROGRESS_DB_IDX, 6}
       auth: ${env:REDIS_AUTH_DB_IDX, 7}
       mturk: ${env:REDIS_MTURK_DB_IDX, 8}
       likert_sample: ${env:REDIS_LIKERT_SAMPLE_DB_IDX, 9}
       likert_result: ${env:REDIS_LIKERT_RESULT_DB_IDX, 10}
+      likert_progress: ${env:REDIS_LIKERT_PROGRESS_DB_IDX, 11}
+      images: ${env:REDIS_IMAGES_DB_IDX, 12}
+
   mturk:
     sandbox: ${env:MTURK_SANDBOX, true}
     aws_access_key: ${env:AWS_ACCESS_KEY}
@@ -55,6 +67,7 @@ backend:
     worker_quali_req_min_percent_approved: 90
     external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/}
     main_study_qualification_type_id:
+
   auth:
     jwt_secret: ${env:JWT_SECRET, }
     jwt_algo: ${env:JWT_ALGO, HS256}

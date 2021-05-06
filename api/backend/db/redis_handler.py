@@ -1,7 +1,7 @@
 import json
 import pprint
 import threading
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 
 import redis
 from loguru import logger
@@ -32,15 +32,15 @@ class RedisHandler(object):
             # setup clients
             cls.__clients = {}
             for client, db_idx in conf.backend.redis.clients.items():
-                cls.__clients[client] = redis.Redis(host=r_host, port=r_port, db=db_idx)
+                cls.__clients[client.lower()] = redis.Redis(host=r_host, port=r_port, db=db_idx)
                 assert cls.__clients[client].ping(), \
                     f"Couldn't connect to Redis {str(client).upper()} DB #{db_idx} at {r_host}:{r_port}!"
                 logger.info(f"Successfully connected to Redis {str(client).upper()} DB #{db_idx}")
 
         return cls.__singleton
 
-    def get_progress_client(self):
-        return self.__clients['progress']
+    def get_progress_client(self, typ: str):
+        return self.__clients[f'{typ.lower()}_progress']
 
     def get_auth_client(self):
         return self.__clients['auth']
@@ -78,12 +78,12 @@ class RedisHandler(object):
     @logger.catch(reraise=True)
     def store_image_ids(self, mr: ModelRanking):
         # store in progress DB because in __m_rankings we need KEYS to get all MRs...
-        self.__clients['progress'].sadd('m_rankings', *mr.top_k_image_ids)
+        self.__clients['images'].sadd('m_rankings', *mr.top_k_image_ids)
 
     @logger.catch(reraise=True)
     def get_random_image_ids(self, num: int = 1) -> List[str]:
         # store in progress DB because in __m_rankings we need KEYS to get all MRs...
-        return [str(i, encoding='utf-8') for i in self.__clients['progress'].srandmember('m_rankings', num)]
+        return [str(i, encoding='utf-8') for i in self.__clients['images'].srandmember('m_rankings', num)]
 
     ################# ModelRanking #################
 
@@ -115,12 +115,12 @@ class RedisHandler(object):
         return bool(self.__clients['model_ranking'].exists(mr_id))
 
     @logger.catch(reraise=True)
-    def get_all_mr_ids(self) -> List[str]:
+    def list_all_model_ranking_ids(self) -> List[str]:
         return self.__clients['model_ranking'].keys()
 
     @logger.catch(reraise=True)
-    def list_model_rankings(self, num: int = 100) -> List[ModelRanking]:
-        mrs = [self.load_model_ranking(mr_id=mr_id, verbose=False) for mr_id in self.get_all_mr_ids()[:num]]
+    def list_model_rankings(self, num: int = None) -> List[ModelRanking]:
+        mrs = [self.load_model_ranking(mr_id=mr_id, verbose=False) for mr_id in self.list_all_model_ranking_ids()[:num]]
         logger.debug(f"Retrieved {len(mrs)} ModelRankings!")
         return mrs
 
@@ -331,3 +331,25 @@ class RedisHandler(object):
             fb_ids.extend(self.__clients['mturk'].smembers(key))
 
         return [self.load_feedback(str(fb_id, 'utf-8')) for fb_id in fb_ids]
+
+    ############### LIKERT_SAMPLE AND RANKING_SAMPLE ##############################
+
+    @logger.catch(reraise=True)
+    def load_sample(self, sample_id: str) -> Union[RankingSample, LikertSample, None]:
+        if self.ranking_sample_exists(sample_id):
+            return self.load_ranking_sample(rs_id=sample_id)
+        elif self.likert_sample_exists(sample_id):
+            return self.load_likert_sample(ls_id=sample_id)
+        else:
+            logger.error(f"Neither a RankingSample nor a LikertSample with ID '{sample_id}' exists!")
+            return None
+
+    @logger.catch(reraise=True)
+    def store_result(self, res: Union[RankingResult, LikertResult]) -> Optional[str]:
+        if isinstance(res, RankingResult):
+            return self.store_ranking_result(res)
+        elif isinstance(res, LikertResult):
+            return self.store_likert_result(res)
+        else:
+            logger.error("Only RankingResult and LikertResult are supported!")
+            raise NotImplementedError("Only RankingResult and LikertResult are supported!")

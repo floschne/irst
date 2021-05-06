@@ -2,12 +2,12 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from backend import StudyCoordinator, ImageServer
+from backend import RankingStudyCoordinator, LikertStudyCoordinator, ImageServer
 from backend.auth import AuthHandler
 from backend.db import RedisHandler
 from backend.mturk import MTurkHandler
 from config import conf
-from routers import general, ranking_sample, ranking_result, image, study, mranking, user, mturk, feedback
+from routers import general, ranking_sample, ranking_result, likert_sample, likert_result, image, study, mranking, user, mturk, feedback
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -23,7 +23,10 @@ def startup_event():
         logger.add('logs/{time}.log', rotation=f"{conf.logging.rotation} MB", level=conf.logging.level)
 
         # init redis
-        RedisHandler()
+        rh = RedisHandler()
+        # flush all redis dbs if set
+        if conf.study_initialization.flush:
+            rh.flush()
 
         # init auth handler
         auth = AuthHandler()
@@ -33,9 +36,11 @@ def startup_event():
         img_srv = ImageServer()
         img_srv.init_image_data()
 
-        # init study
-        coord = StudyCoordinator()
-        coord.init_study()
+        # init study coordinators
+        ranking_coord = RankingStudyCoordinator()
+        ranking_coord.init_study()
+        likert_coord = LikertStudyCoordinator()
+        likert_coord.init_study()
 
         # init mturk
         mt = MTurkHandler()
@@ -51,7 +56,8 @@ def startup_event():
 @app.on_event("shutdown")
 def shutdown_event():
     RedisHandler().shutdown()
-    StudyCoordinator().shutdown()
+    RankingStudyCoordinator().shutdown()
+    LikertStudyCoordinator().shutdown()
     AuthHandler().shutdown()
 
 
@@ -59,6 +65,8 @@ def shutdown_event():
 app.include_router(general.router)
 app.include_router(ranking_sample.router, prefix=ranking_sample.PREFIX)
 app.include_router(ranking_result.router, prefix=ranking_result.PREFIX)
+app.include_router(likert_sample.router, prefix=likert_sample.PREFIX)
+app.include_router(likert_result.router, prefix=likert_result.PREFIX)
 app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)
 app.include_router(mranking.router, prefix=mranking.PREFIX)
