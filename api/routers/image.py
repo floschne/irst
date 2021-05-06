@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter
 from loguru import logger
 
-from backend import ImageServer
+from backend.image_server import ImageServer
 
 PREFIX = "/image"
 TAG = ["image"]

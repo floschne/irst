@@ -15,7 +15,7 @@ import pandas as pd
 import redis
 from loguru import logger
 
-from backend import ImageServer
+from backend.image_server import ImageServer
 from backend.db import RedisHandler
 from config import conf
 from models import RankingResult, RankingSample, ModelRanking, LikertResult, LikertSample

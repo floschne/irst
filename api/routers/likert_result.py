@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from loguru import logger
 from starlette.responses import JSONResponse
 
-from backend import LikertStudyCoordinator
+from backend.study import LikertStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
 from models.likert_result import LikertResult

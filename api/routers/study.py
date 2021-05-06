@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from backend import LikertStudyCoordinator, RankingStudyCoordinator
+from backend.study import LikertStudyCoordinator, RankingStudyCoordinator
 from backend.auth import JWTBearer
 
 PREFIX = "/study"

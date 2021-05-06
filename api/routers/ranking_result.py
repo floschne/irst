@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from loguru import logger
 from starlette.responses import JSONResponse
 
-from backend import RankingStudyCoordinator
+from backend.study import RankingStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
 from models import RankingResult

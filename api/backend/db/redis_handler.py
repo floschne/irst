@@ -262,10 +262,12 @@ class RedisHandler(object):
         # we cannot use json.dumps(hit_info) because it throws an error since datetime objects are not json serializable
         if self.__clients['mturk'].set(str(sample.id + '_hit_info').encode('utf-8'),
                                        pprint.pformat(hit_info).encode('utf-8')) != 1:
-            logger.error(f"Cannot store Info of HIT {hit_info['HITId']} for {sample.get_type().capitalize()}Sample {sample.id}")
+            logger.error(
+                f"Cannot store Info of HIT {hit_info['HITId']} for {sample.get_type().capitalize()}Sample {sample.id}")
             return None
 
-        logger.debug(f"Successfully stored HIT Info {hit_info['HITId']} for {sample.get_type().capitalize()}Sample {sample.id}")
+        logger.debug(
+            f"Successfully stored HIT Info {hit_info['HITId']} for {sample.get_type().capitalize()}Sample {sample.id}")
         return sample.id
 
     @logger.catch(reraise=True)

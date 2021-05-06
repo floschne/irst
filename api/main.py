@@ -2,7 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from backend import RankingStudyCoordinator, LikertStudyCoordinator, ImageServer
+from backend.study import RankingStudyCoordinator, LikertStudyCoordinator
+from backend.image_server import ImageServer
 from backend.auth import AuthHandler
 from backend.db import RedisHandler
 from backend.mturk import MTurkHandler

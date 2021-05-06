@@ -3,7 +3,7 @@ from typing import Union, Optional, List
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from backend import RankingStudyCoordinator
+from backend.study import RankingStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
 from models import RankingSample, MTurkParams

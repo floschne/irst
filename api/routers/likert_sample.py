@@ -3,7 +3,7 @@ from typing import Union, Optional, List
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from backend import LikertStudyCoordinator
+from backend.study import LikertStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
 from models import RankingSample, MTurkParams, LikertSample
