@@ -1,15 +1,15 @@
 <template>
   <div class="w-100">
-    <LikertScaleForm />
+    <LikertForm />
   </div>
 </template>
 
 <script>
-import LikertScaleForm from '../../components/LikertScaleForm'
+import LikertForm from '../../components/LikertForm'
 
 export default {
   name: 'Index',
-  components: { LikertScaleForm },
+  components: { LikertForm },
   data() {
     return {
       showInstructions: true,

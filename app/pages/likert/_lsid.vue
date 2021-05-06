@@ -1,6 +1,6 @@
 <template>
   <div>
-    <LikertScaleForm
+    <LikertForm
       :ls-id="lsId"
       :assignment-id="assignmentId"
       :worker-id="workerId"
@@ -10,11 +10,11 @@
 </template>
 
 <script>
-import LikertScaleForm from '../../components/LikertScaleForm'
+import LikertForm from '../../components/LikertForm'
 
 export default {
   name: 'LsId',
-  components: { LikertScaleForm },
+  components: { LikertForm },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
     const lsid = params.lsid // When calling /abc the lsid will be "abc"

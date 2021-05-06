@@ -228,7 +228,7 @@
 import FeedbackForm from '~/components/FeedbackForm'
 
 export default {
-  name: 'LikertScaleForm',
+  name: 'LikertForm',
   components: { FeedbackForm },
   props: {
     lsId: {

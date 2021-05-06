@@ -3,7 +3,7 @@ import { logger } from './logger'
 export default ({ app, axios }, inject) => {
   // define the methods
   const studyApiClient = {
-    getProgress: async (jwt) => {
+    getProgress: async (jwt, type) => {
       const authJsonHeaderConfig = {
         headers: {
           Accept: 'application/json',
@@ -11,7 +11,10 @@ export default ({ app, axios }, inject) => {
         },
       }
       return await app.$axios
-        .get(`${app.$config.ctxPath}api/study/progress`, authJsonHeaderConfig)
+        .get(
+          `${app.$config.ctxPath}api/study/progress?study=${type}`,
+          authJsonHeaderConfig
+        )
         .then((resp) => {
           if (resp.status === 200) {
             return resp.data
