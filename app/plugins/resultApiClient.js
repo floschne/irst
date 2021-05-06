@@ -7,6 +7,27 @@ export default ({ app, axios }, inject) => {
     },
   }
 
+  async function submitResult(type, result) {
+    return await app.$axios
+      .put(
+        `${app.$config.ctxPath}api/${type}_result/submit`,
+        result,
+        jsonHeaderConfig
+      )
+      .then((resp) => {
+        if (resp.status === 200) {
+          return resp.data
+        } else {
+          logger('e', resp)
+          return null
+        }
+      })
+      .catch((error) => {
+        logger('e', error)
+        return null
+      })
+  }
+
   // define the methods
   const resultApiClient = {
     submitRankingResult: async (
@@ -31,26 +52,8 @@ export default ({ app, axios }, inject) => {
         irrelevant: irrelevantImages,
         mt_params: mtParams,
       }
-      return await app.$axios
-        .put(
-          `${app.$config.ctxPath}api/ranking_result/submit`,
-          result,
-          jsonHeaderConfig
-        )
-        .then((resp) => {
-          if (resp.status === 200) {
-            return resp.data
-          } else {
-            logger('e', resp)
-            return null
-          }
-        })
-        .catch((error) => {
-          logger('e', error)
-          return null
-        })
+      return await submitResult('ranking', result)
     },
-
     submitLikertResult: async (
       lsId,
       chosenAnswer,
@@ -71,24 +74,29 @@ export default ({ app, axios }, inject) => {
         chosen_answer: chosenAnswer,
         mt_params: mtParams,
       }
-      return await app.$axios
-        .put(
-          `${app.$config.ctxPath}api/likert_result/submit`,
-          result,
-          jsonHeaderConfig
-        )
-        .then((resp) => {
-          if (resp.status === 200) {
-            return resp.data
-          } else {
-            logger('e', resp)
-            return null
-          }
-        })
-        .catch((error) => {
-          logger('e', error)
-          return null
-        })
+      return await submitResult('ranking', result)
+    },
+    submitRatingResult: async (
+      rsId,
+      imageRatings,
+      workerId = '',
+      assignmentId = '',
+      hitId = ''
+    ) => {
+      let mtParams = null
+      if (workerId !== '' && assignmentId !== '' && hitId !== '') {
+        mtParams = {
+          worker_id: workerId,
+          assignment_id: assignmentId,
+          hit_id: hitId,
+        }
+      }
+      const result = {
+        rs_id: rsId,
+        ratings: imageRatings,
+        mt_params: mtParams,
+      }
+      return await submitResult('ranking', result)
     },
   }
 

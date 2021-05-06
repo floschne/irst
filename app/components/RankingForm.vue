@@ -486,7 +486,7 @@ export default {
       const rankedIds = await this.getImageIds(this.rankedImages)
       const irrelevantIds = await this.getImageIds(this.irrelevantImages)
       // submit to own API
-      this.rrId = await this.$resultApiClient.submitResult(
+      this.rrId = await this.$resultApiClient.submitRankingResult(
         this.sample.id,
         rankedIds,
         irrelevantIds,
