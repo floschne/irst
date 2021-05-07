@@ -68,12 +68,16 @@ def init_images(image_dir: str = '../data/images/',
 
     if not lock_file_exists(image_dir):
         create_lock_file(image_dir)
-        imgs = glob.glob(f"{image_dir}/*.png")
-        logger.info(f"Found {len(imgs)} images!")
+        png_imgs = glob.glob(f"{image_dir}/*.png")
+        if len(png_imgs) == 0:
+            logger.info(f"All images are already initialized!")
+            return
+
+        logger.info(f"Found {len(png_imgs)} images to convert!")
         with ThreadPoolExecutor(max_workers=n_workers) as executor:
-            with tqdm(total=len(imgs)) as progress:
+            with tqdm(total=len(png_imgs)) as progress:
                 futures = []
-                for pth in imgs:
+                for pth in png_imgs:
                     future = executor.submit(task, pth, webp, webp_quality, remove_original, thumbnails, thumbnail_size)
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
