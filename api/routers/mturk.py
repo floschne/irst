@@ -39,12 +39,14 @@ async def create_hits(study_type: StudyType, creds: Optional[AWSCreds] = None, s
     logger.info(f"PUT request on {PREFIX}/hits/create")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    if study_type == StudyType.ranking:
+    if study_type == StudyType.RANKING:
         samples = rh.list_ranking_samples()
-    elif study_type == StudyType.likert:
+    elif study_type == StudyType.LIKERT:
         samples = rh.list_likert_samples()
+    elif study_type == StudyType.RATING:
+        samples = rh.list_rating_samples()
     else:
-        raise ValueError("StudyType unknown! Only 'likert' and 'ranking' are supported!")
+        raise ValueError("StudyType unknown! Only 'likert', 'rating', and 'ranking' are supported!")
     return mturk.create_hits_from_samples(samples)
 
 
