@@ -13,25 +13,32 @@ from models import ModelRanking
 def init_model_rankings():
     if len(RedisHandler().list_model_rankings(1)) != 1:
         data_root = conf.study_initialization.model_rankings.data_root
-        if not os.path.lexists(data_root) or not os.path.isdir(data_root):
-            logger.error(f"Cannot read data root {data_root}")
-            raise FileNotFoundError(f"Cannot find data root at {data_root}")
+        if not os.path.lexists(data_root):
+            logger.error(f"Cannot read Dataframe {data_root}")
+            raise FileNotFoundError(f"Cannot find Dataframe at {data_root}")
 
-        # find the feather serialized Dataframe in the data root
-        feathers = glob.glob(os.path.join(data_root, "*.df.feather"))
-        if len(feathers) != 1:
-            logger.error(
-                f"Found multiple Dataframes! Please make sure only one Dataframe like '*.df.feather'"
-                f"exists is in {data_root}!"
-            )
-            raise FileExistsError(
-                f"Found multiple Dataframes! Please make sure only one Dataframe like '*.df.feather'"
-                f"exists is in {data_root}!"
-            )
+        if os.path.isdir(data_root):
+            # find the feather serialized Dataframe in the data root
+            feathers = glob.glob(os.path.join(data_root, "*.df.feather"))
+            if len(feathers) != 1:
+                logger.error(
+                    f"Found multiple Dataframes! Please make sure only one Dataframe like '*.df.feather'"
+                    f"exists is in {data_root}!"
+                )
+                raise FileExistsError(
+                    f"Found multiple Dataframes! Please make sure only one Dataframe like '*.df.feather'"
+                    f"exists is in {data_root}!"
+                )
+            dataframe = feathers[0]
+        elif os.path.isfile(data_root):
+            dataframe = data_root
+        else:
+            logger.error(f"Cannot read Dataframe {data_root}")
+            raise FileNotFoundError(f"Cannot find Dataframe at {data_root}")
 
-        logger.info(f"Initializing ModelRankings from Dataframe {feathers[0]}")
+        logger.info(f"Initializing ModelRankings from Dataframe {dataframe}")
         # load the Dataframe
-        df = pd.read_feather(feathers[0])
+        df = pd.read_feather(dataframe)
 
         # make sure the mandatory columns exist
         for k in ['sample_id', 'caption', 'top_k_matches']:
@@ -47,9 +54,11 @@ def init_model_rankings():
 
         # generate ModelRankings from DataFrame
         rankings = df.apply(generate_model_ranking, axis=1).tolist()
+        logger.info(f"Instantiated {len(rankings)} ModelRankings from Dataframe {dataframe}")
 
         # shuffle and slice
         if conf.study_initialization.model_rankings.shuffle:
+            logger.debug("Shuffling ModelRankings")
             np.random.shuffle(rankings)
 
         # store the ModelRankings
