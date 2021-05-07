@@ -320,7 +320,20 @@
         name="assignmentId"
         :value="assignmentId"
       />
+      <!-- CUSTOM ANSWER FIELDS -->
       <input id="rrId" type="hidden" name="rrId" :value="rrId" />
+      <input
+        id="rankedImages"
+        type="hidden"
+        name="rankedImages"
+        :value="rankedImagesString"
+      />
+      <input
+        id="irrelevantImages"
+        type="hidden"
+        name="rankedImages"
+        :value="irrelevantImagesString"
+      />
     </form>
   </b-container>
 </template>
@@ -387,6 +400,12 @@ export default {
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
+    },
+    rankedImagesString() {
+      return JSON.stringify(this.rankedImages)
+    },
+    irrelevantImagesString() {
+      return JSON.stringify(this.irrelevantImages)
     },
     mturkExternalSubmitUrl() {
       let sub = ''
