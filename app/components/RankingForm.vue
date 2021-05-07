@@ -495,7 +495,7 @@ export default {
         this.hitId
       )
       this.submitSuccess =
-        this.rrId !== '' && this.rrId !== undefined && this.rrId !== ''
+        this.rrId !== '' && this.rrId !== undefined && this.rrId !== null
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode

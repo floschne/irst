@@ -7,7 +7,8 @@ import redis
 from loguru import logger
 
 from config import conf
-from models import RankingSample, RankingResult, ModelRanking, Feedback, LikertSample, LikertResult
+from models import RankingSample, RankingResult, ModelRanking, Feedback, LikertSample, LikertResult, StudyType, \
+    BaseSample, BaseResult, RatingResult, RatingSample
 
 
 class RedisHandler(object):
@@ -157,9 +158,9 @@ class RedisHandler(object):
 
     @logger.catch(reraise=True)
     def store_ranking_result(self, result: RankingResult) -> Optional[str]:
-        if not self.ranking_sample_exists(result.rs_id):
+        if not self.ranking_sample_exists(result.sample_id):
             logger.error(
-                f"RankingSample {result.rs_id} referenced in RankingResult {result.id} does not exist! Discarding!")
+                f"RankingSample {result.sample_id} referenced in RankingResult {result.id} does not exist! Discarding!")
             return None
 
         if self.__clients['ranking_result'].set(result.id, result.json()) != 1:
@@ -224,9 +225,9 @@ class RedisHandler(object):
 
     @logger.catch(reraise=True)
     def store_likert_result(self, result: LikertResult) -> Optional[str]:
-        if not self.likert_sample_exists(result.ls_id):
+        if not self.likert_sample_exists(result.sample_id):
             logger.error(
-                f"LikertSample {result.ls_id} referenced in LikertResult {result.id} does not exist! Discarding!")
+                f"LikertSample {result.sample_id} referenced in LikertResult {result.id} does not exist! Discarding!")
             return None
 
         if self.__clients['likert_result'].set(result.id, result.json()) != 1:
@@ -255,10 +256,77 @@ class RedisHandler(object):
         logger.debug(f"Retrieved {len(res)} LikertResults!")
         return res
 
+    ################# RatingSample #################
+
+    @logger.catch(reraise=True)
+    def store_rating_sample(self, sample: RatingSample) -> str:
+        if self.__clients['rating_sample'].set(sample.id, sample.json()) != 1:
+            logger.error(f"Cannot store RatingSample {sample.json()}")
+        logger.debug(f"Successfully stored RatingSample {sample.id}")
+        return sample.id
+
+    @logger.catch(reraise=True)
+    def load_rating_sample(self, rs_id: str, verbose: bool = True) -> Optional[RatingSample]:
+        s = self.__clients['rating_sample'].get(rs_id)
+        if s is None:
+            logger.error(f"Cannot load RatingSample {rs_id}")
+            return None
+        else:
+            sample = RatingSample.parse_raw(s)
+            if verbose:
+                logger.debug(f"Successfully loaded RatingSample {sample.id}")
+            return sample
+
+    @logger.catch(reraise=True)
+    def rating_sample_exists(self, rs_id: str) -> bool:
+        return bool(self.__clients['rating_sample'].exists(rs_id))
+
+    @logger.catch(reraise=True)
+    def list_rating_samples(self, num: int = 100) -> List[RatingSample]:
+        ls = [self.load_rating_sample(rs_id=rs_id, verbose=False) for rs_id in
+              self.__clients['rating_sample'].keys()[:num]]
+        logger.debug(f"Retrieved {len(ls)} RatingSamples!")
+        return ls
+
+    ################# RatingResult #################
+
+    @logger.catch(reraise=True)
+    def store_rating_result(self, result: RatingResult) -> Optional[str]:
+        if not self.rating_sample_exists(result.sample_id):
+            logger.error(
+                f"LikertSample {result.sample_id} referenced in RatingResult {result.id} does not exist! Discarding!")
+            return None
+
+        if self.__clients['rating_result'].set(result.id, result.json()) != 1:
+            logger.error(f"Cannot store RatingResult {result.json()}")
+            return None
+        else:
+            logger.debug(f"Successfully stored RatingResult {result.id}")
+            return result.id
+
+    @logger.catch(reraise=True)
+    def load_rating_result(self, rr_id: str, verbose: bool = False) -> Optional[RatingResult]:
+        s = self.__clients['rating_result'].get(rr_id)
+        if s is None:
+            logger.error(f"Cannot load RatingResult {rr_id}")
+            return None
+        else:
+            result = RatingResult.parse_raw(s)
+            if verbose:
+                logger.debug(f"Successfully loaded RatingResult {result.id}")
+            return result
+
+    @logger.catch(reraise=True)
+    def list_rating_results(self) -> List[RatingResult]:
+        res = [self.load_rating_result(rr_id=res_id, verbose=False) for res_id in
+               self.__clients['rating_result'].keys()]
+        logger.debug(f"Retrieved {len(res)} RatingResults!")
+        return res
+
     ############### MTURK ##############################
 
     @logger.catch(reraise=True)
-    def store_hit_info(self, hit_info: Dict, sample: Union[RankingSample, LikertSample]) -> Optional[str]:
+    def store_hit_info(self, hit_info: Dict, sample: BaseSample) -> Optional[str]:
         # we cannot use json.dumps(hit_info) because it throws an error since datetime objects are not json serializable
         if self.__clients['mturk'].set(str(sample.id + '_hit_info').encode('utf-8'),
                                        pprint.pformat(hit_info).encode('utf-8')) != 1:
@@ -271,7 +339,7 @@ class RedisHandler(object):
         return sample.id
 
     @logger.catch(reraise=True)
-    def load_hit_info(self, sample: Union[RankingSample, LikertSample]) -> Optional[Dict]:
+    def load_hit_info(self, sample: BaseSample) -> Optional[Dict]:
         s = self.__clients['mturk'].get(str(sample.id + '_hit_info').encode('utf-8'))
         if s is None:
             logger.error(f"Cannot retrieve HIT Info for {sample.get_type().capitalize()}Sample {sample.id}")
@@ -334,21 +402,43 @@ class RedisHandler(object):
     ############### LIKERT_SAMPLE AND RANKING_SAMPLE ##############################
 
     @logger.catch(reraise=True)
-    def load_sample(self, sample_id: str) -> Union[RankingSample, LikertSample, None]:
+    def sample_exists(self, sample_id: str, return_type=False) -> Union[bool, StudyType]:
+        if self.ranking_sample_exists(sample_id):
+            if return_type:
+                return StudyType.RANKING
+            return True
+        elif self.likert_sample_exists(sample_id):
+            if return_type:
+                return StudyType.LIKERT
+            return True
+        elif self.rating_sample_exists(sample_id):
+            if return_type:
+                return StudyType.RATING
+            return True
+        else:
+            logger.error(f"Neither a RankingSample nor a LikertSample with ID '{sample_id}' exists!")
+            return False
+
+    @logger.catch(reraise=True)
+    def load_sample(self, sample_id: str) -> Optional[BaseSample]:
         if self.ranking_sample_exists(sample_id):
             return self.load_ranking_sample(rs_id=sample_id)
         elif self.likert_sample_exists(sample_id):
             return self.load_likert_sample(ls_id=sample_id)
+        elif self.rating_sample_exists(sample_id):
+            return self.load_rating_sample(rs_id=sample_id)
         else:
-            logger.error(f"Neither a RankingSample nor a LikertSample with ID '{sample_id}' exists!")
+            logger.error(f"Neither a RankingSample, a RatingSample nor a LikertSample with ID '{sample_id}' exists!")
             return None
 
     @logger.catch(reraise=True)
-    def store_result(self, res: Union[RankingResult, LikertResult]) -> Optional[str]:
+    def store_result(self, res: BaseResult) -> Optional[str]:
         if isinstance(res, RankingResult):
             return self.store_ranking_result(res)
         elif isinstance(res, LikertResult):
             return self.store_likert_result(res)
+        elif isinstance(res, RatingResult):
+            return self.store_rating_result(res)
         else:
-            logger.error("Only RankingResult and LikertResult are supported!")
-            raise NotImplementedError("Only RankingResult and LikertResult are supported!")
+            logger.error("Only RankingResult, LikertResult, and RatingResult are supported!")
+            raise NotImplementedError("Only RankingResult, LikertResult, and RatingResult are supported!")

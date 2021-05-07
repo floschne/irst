@@ -17,8 +17,8 @@ export default {
   components: { LikertForm },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
-    const lsid = params.lsid // When calling /abc the lsid will be "abc"
-    return { lsid }
+    const lsId = params.lsid // When calling /abc the lsid will be "abc"
+    return { lsId }
   },
   data() {
     return {

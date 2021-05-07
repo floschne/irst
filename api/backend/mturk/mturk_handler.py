@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict
 
 import boto3
 from loguru import logger
@@ -7,7 +7,7 @@ from tqdm import tqdm
 from backend.db import RedisHandler
 from backend.mturk.external_question import ExternalQuestion
 from config import conf
-from models import RankingSample, LikertSample
+from models import BaseSample, StudyType
 
 
 class MTurkHandler(object):
@@ -21,11 +21,9 @@ class MTurkHandler(object):
             cls.__conf = conf.backend.mturk
             cls.sandbox = cls.__conf.sandbox
 
-            cls.__study_types = ['likert', 'ranking']
+            cls.__hit_config = {st: cls.__conf[st] for st in StudyType}
 
-            cls.__hit_config = {st: cls.__conf[st] for st in cls.__study_types}
-
-            cls.__hit_type_id = {st: None for st in cls.__study_types}
+            cls.__hit_type_id = {st: None for st in StudyType}
 
             cls.__mturk_env = {
                 "live": {
@@ -47,7 +45,7 @@ class MTurkHandler(object):
         return cls.__singleton
 
     def init_hit_types(self):
-        for st in self.__study_types:
+        for st in StudyType:
             self.__hit_type_id[st] = self.__create_or_get_hit_type(st)
 
     def __get_default_client(self):
@@ -119,7 +117,7 @@ class MTurkHandler(object):
             logger.error(f"Cannot create HIT Type")
             logger.error(f"Exception: {e}")
 
-    def create_hit_from_sample(self, sample: Union[RankingSample, LikertSample]) -> Optional[Dict]:
+    def create_hit_from_sample(self, sample: BaseSample) -> Optional[Dict]:
         try:
             # create an ExternalQuestion
             eq = ExternalQuestion(sample, base_url=self.__hit_config[sample.get_type()].external_question_base_url)
@@ -141,7 +139,7 @@ class MTurkHandler(object):
             logger.error(f"Cannot create HIT from {sample.get_type().capitalize()}Sample {sample.id}. Exception: {e}")
             return None
 
-    def create_hits_from_samples(self, samples: List[Union[RankingSample, LikertSample]]):
+    def create_hits_from_samples(self, samples: List[BaseSample]):
         created = 0
         for sample in tqdm(samples):
             created += 1 if self.create_hit_from_sample(sample) is not None else 0
@@ -191,7 +189,7 @@ class MTurkHandler(object):
         except Exception as e:
             logger.error(f"Cannot list HIT IDs! Exception: {e}")
 
-    def get_hit_info_via_sample(self, sample: Union[RankingSample, LikertSample]):
+    def get_hit_info_via_sample(self, sample: BaseSample):
         return self.__rh.load_hit_info(sample)
 
     def get_hit_info(self, hit_id: str) -> Optional[Dict]:

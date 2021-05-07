@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import concurrent
-import glob
-import os
 import threading
 import time
 from abc import abstractmethod
@@ -11,14 +9,14 @@ from enum import Enum, unique
 from typing import Dict, Union, List, Optional
 
 import numpy as np
-import pandas as pd
 import redis
 from loguru import logger
 
-from backend.image_server import ImageServer
 from backend.db import RedisHandler
+from backend.image_server import ImageServer
 from config import conf
-from models import RankingResult, RankingSample, ModelRanking, LikertResult, LikertSample
+from models import BaseResult, BaseSample, ModelRanking
+
 
 @unique
 class InitState(int, Enum):
@@ -92,7 +90,7 @@ class StudyCoordinatorBase(object):
         self.__progress.set(Keys.INIT_STATE, InitState.TODO.value, nx=True)
 
     @abstractmethod
-    def _generate_sample(self, mr: ModelRanking) -> Union[RankingSample, LikertSample]:
+    def _generate_sample(self, mr: ModelRanking) -> BaseSample:
         pass
 
     def init_study(self):
@@ -105,10 +103,6 @@ class StudyCoordinatorBase(object):
             # set init state to in_progress
             self.__progress.set(Keys.INIT_STATE, InitState.IN_PROGRESS.value)
 
-            # initialize model rankings (only if not done before)
-            if len(self.__rh.list_all_model_ranking_ids()) == 0:
-                self.__init_model_rankings()
-
             # init run count with 0
             self.__set_run_count(0)
             # set init state to done
@@ -117,53 +111,6 @@ class StudyCoordinatorBase(object):
 
             self.__start_new_run()
         logger.info(f"{self.typ.upper()} Study already started! Current Progress: {self.current_progress()}")
-
-    def __init_model_rankings(self):
-        data_root = conf.study_initialization.model_rankings.data_root
-        if not os.path.lexists(data_root) or not os.path.isdir(data_root):
-            logger.error(f"Cannot read data root {data_root}")
-            raise FileNotFoundError(f"Cannot find data root at {data_root}")
-
-        # find the feather serialized Dataframe in the data root
-        feathers = glob.glob(os.path.join(data_root, "*.df.feather"))
-        if len(feathers) != 1:
-            logger.error(
-                f"Found multiple Dataframes! Please make sure only one Dataframe like '*.df.feather'"
-                f"exists is in {data_root}!"
-            )
-            raise FileExistsError(
-                f"Found multiple Dataframes! Please make sure only one Dataframe like '*.df.feather'"
-                f"exists is in {data_root}!"
-            )
-
-        logger.info(f"Initializing ModelRankings from Dataframe {feathers[0]}")
-        # load the Dataframe
-        df = pd.read_feather(feathers[0])
-
-        # make sure the mandatory columns exist
-        for k in ['sample_id', 'caption', 'top_k_matches']:
-            if k not in df.columns:
-                logger.error(f"Cannot find {k} in the columns of the DataFrame!")
-                raise IndexError(f"Cannot find {k} in the columns of the DataFrame!")
-
-        # we don't use lambda for cleaner code
-        def generate_model_ranking(row) -> ModelRanking:
-            return ModelRanking(ds_id=row['sample_id'],
-                                query=row['caption'],
-                                top_k_image_ids=row['top_k_matches'].tolist())
-
-        # generate ModelRankings from DataFrame
-        rankings = df.apply(generate_model_ranking, axis=1).tolist()
-
-        # shuffle and slice
-        if conf.study_initialization.model_rankings.shuffle:
-            np.random.shuffle(rankings)
-        if self.num_samples > 1:
-            rankings = rankings[:self.num_samples]
-
-        # store the ModelRankings
-        for mr in rankings:
-            self.__rh.store_model_ranking(mr)
 
     def __start_new_run(self):
         self.__init_todo()
@@ -221,7 +168,7 @@ class StudyCoordinatorBase(object):
         init_state = self.__progress.get(Keys.INIT_STATE)
         return init_state is not None and int(init_state) == InitState.DONE.value
 
-    def next(self) -> Union[RankingSample, LikertSample, int]:
+    def next(self) -> Union[BaseSample, int]:
         with self.__sync_lock:
             # get random sample (id) from to do list
             sample_id = self.__progress.srandmember(Keys.TODO)
@@ -251,26 +198,17 @@ class StudyCoordinatorBase(object):
                 logger.info(f"Sample {sample_id} expired in IN_PROGRESS and moved back to TODO!")
                 logger.info(f"Current Progress: {self.current_progress()}")
 
-    def submit(self, res: Union[RankingResult, LikertResult]) -> Optional[str]:
-        # TODO this is not the real OOP way to do this... --> make super class for RankingResult and LikertResult
+    def submit(self, res: BaseResult) -> Optional[str]:
         with self.__sync_lock:
             # TODO do we want to accept this or raise an exception?!
-            if self.typ == 'ranking' and isinstance(res, LikertResult):
-                logger.warning(f"Submitting LikertResult to {self.typ.capitalize()}StudyCoordinator")
-            if self.typ == 'likert' and isinstance(res, RankingResult):
-                logger.warning(f"Submitting RankingResult to {self.typ.capitalize()}StudyCoordinator")
-            else:
-                logger.error("Only RankingResult and LikertResult are supported!")
-                raise NotImplementedError("Only RankingResult and LikertResult are supported!")
+            if self.typ != res.get_type():
+                logger.warning(
+                    f"Submitting {res.get_type().capitalize()}Result to {self.typ.capitalize()}StudyCoordinator")
 
             logger.info(f"{self.typ.capitalize()}Result {res.id} submission received!")
 
             # if the Result is NOT for MTurk, check if the Sample is already expired in in_prog set
-            if isinstance(res, RankingResult):
-                sample_id = res.rs_id.encode('utf-8')
-            else:  # isinstance(res, LikertResult)
-                sample_id = res.ls_id.encode('utf-8')
-
+            sample_id = res.sample_id.encode('utf-8')
             if res.mt_params is None and sample_id not in self.__progress.smembers(Keys.IN_PROGRESS):
                 logger.warning(
                     f"{self.typ.capitalize()}Sample '{sample_id}' referenced by {self.typ.capitalize()}Result"
@@ -298,7 +236,7 @@ class StudyCoordinatorBase(object):
 
         return res.id
 
-    def __reference_in_current_run_results(self, res: Union[RankingResult, LikertResult]):
+    def __reference_in_current_run_results(self, res: BaseSample):
         self.__progress.sadd(self.__current_run_results_key(), res.id)
         logger.info(f"Successfully referenced RankingResult {res.id} in results of current run {self.__current_run()}!")
 

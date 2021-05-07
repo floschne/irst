@@ -97,6 +97,7 @@ export default {
     { src: '@/plugins/mturkSubmitService.js' },
     { src: '@/plugins/vuedraggable.js' },
     { src: '@/plugins/vuechart.js' },
+    { src: '@/plugins/vuestarrating.js', mode: 'client' },
     { src: '@/plugins/logger.js' },
     { src: '@/plugins/axisLoggingInterceptor.js' },
   ],

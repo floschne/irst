@@ -13,22 +13,30 @@ gunicorn:
 
 study_initialization:
   flush: False # THIS FLUSHES EVERYTHING! also samples, results, feedback, mturk etc
-  ranking_samples:
+  ranking:
     num_top_k_imgs: 5
     in_prog_ttl: 300 # in seconds
     num_samples: 100 # negative number is maximum
     num_random_imgs: 7
 
-  likert_samples:
+  likert:
     num_top_k_imgs: 5
     in_prog_ttl: 300 # in seconds
     num_samples: 100 # negative number is maximum
     question: "The shown images are relevant to the provided caption."
-    answers: ['strongly agree', 'agree', 'neutral', 'disagree', 'strongly disagree']
-    answer_weights: [2, 1, 0, -1, -2]
+    answers: [ 'strongly agree', 'agree', 'neutral', 'disagree', 'strongly disagree' ]
+    answer_weights: [ 2, 1, 0, -1, -2 ]
+
+  rating:
+    num_top_k_imgs: 5
+    in_prog_ttl: 300 # in seconds
+    num_samples: 100 # negative number is maximum
+    min_rating: 0.0
+    max_rating: 5.0
+    rating_step: 0.5
 
   model_rankings:
-    data_root: ${env:DATA_ROOT, data/pilot}
+    data_root: ${env:DATA_ROOT, data}
     shuffle: False
 
 backend:
@@ -40,12 +48,15 @@ backend:
       ranking_sample: ${env:REDIS_RANKING_SAMPLE_DB_IDX, 4}
       ranking_result: ${env:REDIS_RANKING_RESULT_DB_IDX, 5}
       ranking_progress: ${env:REDIS_RANKING_PROGRESS_DB_IDX, 6}
-      auth: ${env:REDIS_AUTH_DB_IDX, 7}
-      mturk: ${env:REDIS_MTURK_DB_IDX, 8}
-      likert_sample: ${env:REDIS_LIKERT_SAMPLE_DB_IDX, 9}
-      likert_result: ${env:REDIS_LIKERT_RESULT_DB_IDX, 10}
-      likert_progress: ${env:REDIS_LIKERT_PROGRESS_DB_IDX, 11}
-      images: ${env:REDIS_IMAGES_DB_IDX, 12}
+      likert_sample: ${env:REDIS_LIKERT_SAMPLE_DB_IDX, 7}
+      likert_result: ${env:REDIS_LIKERT_RESULT_DB_IDX, 8}
+      likert_progress: ${env:REDIS_LIKERT_PROGRESS_DB_IDX, 9}
+      rating_sample: ${env:REDIS_RATING_SAMPLE_DB_IDX, 10}
+      rating_result: ${env:REDIS_RATING_RESULT_DB_IDX, 11}
+      rating_progress: ${env:REDIS_RATING_PROGRESS_DB_IDX, 12}
+      auth: ${env:REDIS_AUTH_DB_IDX, 13}
+      mturk: ${env:REDIS_MTURK_DB_IDX, 14}
+      images: ${env:REDIS_IMAGES_DB_IDX, 15}
 
   mturk:
     sandbox: ${env:MTURK_SANDBOX, true}
@@ -59,7 +70,7 @@ backend:
       hit_reward: 0.15
       hit_title: Image ranking according to a caption
       hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you re-rank images according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
-      hit_keywords: image, ranking, AI, visual
+      hit_keywords: image, ranking, AI, visual, rerank
       hit_max_assignments: 3
       hit_lifetime: 604800 # 604800 = 1 week's seconds
       hit_custom_qualifications:
@@ -70,11 +81,11 @@ backend:
 
     likert:
       hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
-      hit_assignment_duration_in_seconds: 120 # 2 min
+      hit_assignment_duration_in_seconds: 300 # 5 min
       hit_reward: 0.15
       hit_title: Asses how relevant images are to a given caption
       hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you asses how good the images match a given caption. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
-      hit_keywords: image, ranking, AI, visual
+      hit_keywords: image, ranking, AI, visual, likert
       hit_max_assignments: 3
       hit_lifetime: 604800 # 604800 = 1 week's seconds
       hit_custom_qualifications: #- 3UYIJTD339RC0EE6AIS2CTWWZLOI3G
@@ -82,6 +93,19 @@ backend:
       worker_quali_req_min_percent_approved: 90
       external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/likert/}
 
+    rating:
+      hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
+      hit_assignment_duration_in_seconds: 300 # 5 min
+      hit_reward: 0.15
+      hit_title: Rate relevance of images accoring to caption
+      hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you rate how relevant images are according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
+      hit_keywords: image, ranking, AI, visual, rating
+      hit_max_assignments: 3
+      hit_lifetime: 604800 # 604800 = 1 week's seconds
+      hit_custom_qualifications: #- 3UYIJTD339RC0EE6AIS2CTWWZLOI3G
+      worker_quali_req_min_hits_approved: 100
+      worker_quali_req_min_percent_approved: 90
+      external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/rating/}
 
   auth:
     jwt_secret: ${env:JWT_SECRET, }

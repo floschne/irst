@@ -10,7 +10,7 @@
       header="Thanks! Your ranking was submitted successfully"
       lead="Start another ranking?"
     >
-      <b-button v-if="lsId === ''" variant="primary" @click="loadNextSample">
+      <b-button v-if="rsId === ''" variant="primary" @click="loadNextSample">
         Start!
       </b-button>
     </b-jumbotron>
@@ -25,7 +25,7 @@
       header="Sorry! A problem occurred during your submission..."
       lead="Start another ranking?"
     >
-      <b-button v-if="lsId === ''" variant="primary" @click="loadNextSample"
+      <b-button v-if="rsId === ''" variant="primary" @click="loadNextSample"
         >Start!
       </b-button>
     </b-jumbotron>
@@ -40,7 +40,7 @@
       header="Sorry! A problem occurred while loading your evaluation sample..."
       lead="Please start another ranking!"
     >
-      <b-button v-if="lsId === ''" variant="primary" @click="loadNextSample">
+      <b-button v-if="rsId === ''" variant="primary" @click="loadNextSample">
         Start!
       </b-button>
     </b-jumbotron>
@@ -70,7 +70,7 @@
       seconds...
     </div>
 
-    <!--  LIKERT FORM   -->
+    <!--  RATING FORM   -->
     <b-form
       v-else-if="!loading && loadSuccess && !loadError"
       @submit="onSubmit"
@@ -88,7 +88,7 @@
           <b-col
             v-for="(tnUrl, idx) in thumbnailUrls"
             :key="`tn-col-${idx}`"
-            class="mt-1 d-flex justify-content-center"
+            class="mt-1 d-flex flex-column align-items-center"
             lg="1"
             md="2"
             sm="3"
@@ -112,6 +112,17 @@
                 Click to enlarge
               </b-tooltip>
             </b-link>
+            <star-rating
+              v-model="ratings[idx]"
+              class="d-flex"
+              :increment="sample.rating_step"
+              :show-rating="false"
+              :star-size="starSize"
+              :border-width="1"
+              border-color="#000"
+              active-color="#FFC107"
+              inactive-color="#FFF"
+            ></star-rating>
 
             <!-- ENLARGE MODAL -->
             <b-modal
@@ -148,25 +159,6 @@
       </h5>
 
       <b-container id="imageRankingFooter" fluid class="p-1 fixed-bottom">
-        <b-container
-          fluid
-          class="d-flex flex-row justify-content-center align-items-center mt-1 bg-light border border-dark h-100 rounded"
-          :style="`min-height: ${img_size}rem;
-           max-height: ${img_size + 1}rem; max-width: 100vw`"
-        >
-          <b-form-group :label="sample.question" label-size="lg">
-            <b-form-radio-group
-              id="answerSelection"
-              v-model="chosenAnswer"
-              :options="sampleAnswers"
-              name="answerSelection"
-              size="large"
-              buttons
-              button-variant="outline-primary"
-            ></b-form-radio-group>
-          </b-form-group>
-        </b-container>
-
         <!-- FORM BUTTONS -->
         <b-form-row class="m-0 text-center">
           <h3 v-if="hitPreview" class="text-warning bg-dark w-100">
@@ -186,7 +178,7 @@
             </b-button>
             <!--  LOAD NEXT SAMPLE BUTTON   -->
             <b-button
-              v-if="lsId === ''"
+              v-if="rsId === ''"
               type="button"
               variant="warning"
               @click="loadNextSample"
@@ -208,7 +200,7 @@
       title="Any comments, criticism or thoughts?"
       hide-footer
     >
-      <FeedbackForm :worker-id="workerId" :sample-id="lsId" :hit-id="hitId" />
+      <FeedbackForm :worker-id="workerId" :sample-id="rsId" :hit-id="hitId" />
     </b-modal>
 
     <!--  HIDDEN MTURK FORM   -->
@@ -219,7 +211,7 @@
         name="assignmentId"
         :value="assignmentId"
       />
-      <input id="lrId" type="hidden" name="lrId" :value="lrId" />
+      <input id="rrId" type="hidden" name="rrId" :value="rrId" />
     </form>
   </b-container>
 </template>
@@ -228,10 +220,10 @@
 import FeedbackForm from '~/components/FeedbackForm'
 
 export default {
-  name: 'LikertForm',
+  name: 'RatingForm',
   components: { FeedbackForm },
   props: {
-    lsId: {
+    rsId: {
       type: String,
       default: '',
     },
@@ -252,22 +244,26 @@ export default {
     return {
       imageUrls: [],
       thumbnailUrls: [],
-      chosenAnswer: '',
+      ratings: [],
       sample: null,
-      sampleAnswers: null,
       loading: true,
       submitSuccess: false,
       submitError: false,
       loadSuccess: false,
       loadError: false,
       img_size: 10,
-      lrId: '',
+      rrId: '',
       sample_cooldown: 0, // waiting time until next sample,
     }
   },
   computed: {
     submitDisabled() {
-      return this.chosenAnswer === '' || this.chosenAnswer === null
+      return (
+        this.ratings.includes(-1312) ||
+        this.ratings.length !== this.sample.image_ids.length ||
+        Math.min(this.ratings) < this.sample.min_rating ||
+        Math.max(this.ratings) > this.sample.max_rating
+      )
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
@@ -284,9 +280,13 @@ export default {
 
       return `https://${sub}.mturk.com/mturk/externalSubmit`
     },
+    starSize() {
+      // REM to PX / num_stars - offset
+      return (this.img_size * 16) / 5.25
+    },
   },
   created() {
-    if (this.lsId === '') this.loadNextSample()
+    if (this.rsId === '') this.loadNextSample()
     else this.loadSample()
 
     const self = this
@@ -312,9 +312,8 @@ export default {
       this.submitError = false
       this.submitSuccess = false
 
-      // reset answer data
-      this.chosenAnswer = ''
-      this.sampleAnswers = []
+      // reset rating data
+      this.ratings = []
     },
     async onSubmit(event = null) {
       if (event !== null) event.preventDefault()
@@ -323,15 +322,15 @@ export default {
       this.submitSuccess = false
 
       // submit to own API
-      this.lrId = await this.$resultApiClient.submitLikertResult(
+      this.rrId = await this.$resultApiClient.submitRatingResult(
         this.sample.id,
-        this.chosenAnswer,
+        this.ratings,
         this.workerId,
         this.assignmentId,
         this.hitId
       )
       this.submitSuccess =
-        this.lrId !== '' && this.lrId !== undefined && this.lrId !== null
+        this.rrId !== '' && this.rrId !== undefined && this.rrId !== null
       this.submitError = !this.submitSuccess
 
       // submit to MTurk if in MTurk mode
@@ -343,7 +342,7 @@ export default {
         //   this.submitSuccess = await this.$mturkSubmitService.submitAssignment(
         //     ids,
         //     this.assignmentId,
-        //     this.lrId
+        //     this.rrId
         //   )
         //   this.submitError = !this.submitSuccess
         // via cgi html form
@@ -368,19 +367,16 @@ export default {
         this.sample.image_ids,
         true
       )
-      // build sampleAnswers for answerSelection radio group
-      const sampleAnswers = []
-      this.sample.answers.forEach((answer) => {
-        sampleAnswers.push({ text: answer, value: answer })
-      })
-      this.sampleAnswers = sampleAnswers
+
+      this.ratings = []
+      this.sample.image_ids.forEach((i) => this.ratings.push(-1312))
 
       this.$nuxt.$emit('study-progress-changed')
     },
     async loadNextSample() {
       this.resetDataBeforeLoadingSample()
 
-      const resp = await this.$sampleApiClient.nextLikertSample()
+      const resp = await this.$sampleApiClient.nextRatingSample()
       // check if it's a sample or an int that expresses the waiting time in seconds until the next sample is available
       if (Number.isInteger(resp)) {
         this.sample_cooldown = resp
@@ -398,7 +394,7 @@ export default {
     async loadSample() {
       this.resetDataBeforeLoadingSample()
 
-      this.sample = await this.$sampleApiClient.loadLikertSample(this.lsId)
+      this.sample = await this.$sampleApiClient.loadRatingSample(this.rsId)
       this.loadSuccess = this.sample !== null
       this.loadError = !this.loadSuccess
 

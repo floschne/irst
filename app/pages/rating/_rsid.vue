@@ -1,13 +1,7 @@
 <template>
   <div>
-    <Instructions
-      v-if="showInstructions"
-      @instructions-read="showInstructions = false"
-    />
-    <RankingForm
-      v-else
+    <RatingForm
       :rs-id="rsId"
-      :min-num-ranks="$config.minNumRanks"
       :assignment-id="assignmentId"
       :worker-id="workerId"
       :hit-id="hitId"
@@ -16,12 +10,11 @@
 </template>
 
 <script>
-import RankingForm from '~/components/RankingForm'
-import Instructions from '~/components/Instructions'
+import RatingForm from '~/components/RatingForm'
 
 export default {
   name: 'RsId',
-  components: { RankingForm, Instructions },
+  components: { RatingForm },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
     const rsId = params.rsid // When calling /abc the rsId will be "abc"

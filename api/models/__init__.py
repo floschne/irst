@@ -8,6 +8,8 @@ from .ranking_sample import RankingSample
 from .ranking_result import RankingResult
 from .likert_sample import LikertSample
 from .likert_result import LikertResult
+from .rating_sample import RatingSample
+from .rating_result import RatingResult
 from .model_ranking import ModelRanking
 from .aws_credentials import AWSCreds
 from .feedback import Feedback

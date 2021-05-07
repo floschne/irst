@@ -47,7 +47,7 @@ export default ({ app, axios }, inject) => {
         }
       }
       const result = {
-        rs_id: rsId,
+        sample_id: rsId,
         ranking: rankedImages,
         irrelevant: irrelevantImages,
         mt_params: mtParams,
@@ -70,11 +70,11 @@ export default ({ app, axios }, inject) => {
         }
       }
       const result = {
-        ls_id: lsId,
+        sample_id: lsId,
         chosen_answer: chosenAnswer,
         mt_params: mtParams,
       }
-      return await submitResult('ranking', result)
+      return await submitResult('likert', result)
     },
     submitRatingResult: async (
       rsId,
@@ -92,11 +92,11 @@ export default ({ app, axios }, inject) => {
         }
       }
       const result = {
-        rs_id: rsId,
+        sample_id: rsId,
         ratings: imageRatings,
         mt_params: mtParams,
       }
-      return await submitResult('ranking', result)
+      return await submitResult('rating', result)
     },
   }
 

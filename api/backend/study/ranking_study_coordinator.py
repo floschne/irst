@@ -3,7 +3,7 @@ import numpy as np
 from backend.db import RedisHandler
 from backend.study import StudyCoordinatorBase
 from config import conf
-from models import RankingSample, ModelRanking
+from models import RankingSample, ModelRanking, StudyType
 
 
 class RankingStudyCoordinator(StudyCoordinatorBase):
@@ -17,8 +17,8 @@ class RankingStudyCoordinator(StudyCoordinatorBase):
     def __init__(self):
         # hack to only init the StudyCoordinatorBase if not already done (since THIS is a singleton)
         if getattr(self, 'num_top_k_imgs', None) is None:
-            sub_conf = conf.study_initialization.ranking_samples
-            super().__init__("ranking",
+            sub_conf = conf.study_initialization[StudyType.RANKING]
+            super().__init__(StudyType.RANKING,
                              sub_conf.num_top_k_imgs,
                              sub_conf.num_samples,
                              sub_conf.in_prog_ttl)
