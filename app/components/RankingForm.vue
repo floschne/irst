@@ -410,6 +410,7 @@ export default {
     mturkExternalSubmitUrl() {
       let sub = ''
       if (
+        this.$config.mturkSandbox === true ||
         this.$config.mturkSandbox === 'True' ||
         this.$config.mturkSandbox === 'true' ||
         this.$config.mturkSandbox === '1'
