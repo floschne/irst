@@ -219,7 +219,13 @@
         name="assignmentId"
         :value="assignmentId"
       />
-      <input id="lrId" type="hidden" name="lrId" :value="lrId" />
+      <input id="lrId" type="hidden" name="lrId" :value="lrIdString" />
+      <input
+        id="chosenAnswer"
+        type="hidden"
+        name="chosenAnswer"
+        :value="chosenAnswerString"
+      />
     </form>
   </b-container>
 </template>
@@ -271,6 +277,12 @@ export default {
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
+    },
+    chosenAnswerString() {
+      return JSON.stringify(this.chosenAnswer)
+    },
+    lrIdString() {
+      return JSON.stringify(this.lrId)
     },
     mturkExternalSubmitUrl() {
       let sub = ''

@@ -211,7 +211,8 @@
         name="assignmentId"
         :value="assignmentId"
       />
-      <input id="rrId" type="hidden" name="rrId" :value="rrId" />
+      <input id="rrId" type="hidden" name="rrId" :value="rrIdString" />
+      <input id="ratings" type="hidden" name="ratings" :value="ratingsString" />
     </form>
   </b-container>
 </template>
@@ -267,6 +268,12 @@ export default {
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
+    },
+    rrIdString() {
+      return JSON.stringify(this.rrId)
+    },
+    ratingsString() {
+      return JSON.stringify(this.ratings)
     },
     mturkExternalSubmitUrl() {
       let sub = ''

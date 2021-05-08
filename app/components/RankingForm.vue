@@ -321,7 +321,7 @@
         :value="assignmentId"
       />
       <!-- CUSTOM ANSWER FIELDS -->
-      <input id="rrId" type="hidden" name="rrId" :value="rrId" />
+      <input id="rrId" type="hidden" name="rrId" :value="rrIdString" />
       <input
         id="rankedImages"
         type="hidden"
@@ -331,7 +331,7 @@
       <input
         id="irrelevantImages"
         type="hidden"
-        name="rankedImages"
+        name="irrelevantImages"
         :value="irrelevantImagesString"
       />
     </form>
@@ -406,6 +406,9 @@ export default {
     },
     irrelevantImagesString() {
       return JSON.stringify(this.irrelevantImages)
+    },
+    rrIdString() {
+      return JSON.stringify(this.rrId)
     },
     mturkExternalSubmitUrl() {
       let sub = ''
