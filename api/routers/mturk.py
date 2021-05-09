@@ -63,7 +63,7 @@ async def delete_hit(hit_id: str, creds: Optional[AWSCreds] = None, sandbox: Opt
 
 @logger.catch(reraise=True)
 @router.delete("/hits/delete", tags=TAG,
-               description="Deletes all HITs associated with this Study",
+               description="Deletes all HITs associated with the selected study",
                dependencies=[Depends(JWTBearer())])
 async def delete_all_hit(study_type: StudyType, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"DELETE request on {PREFIX}/hits/delete")
@@ -116,15 +116,17 @@ async def hit_info(sample_id: str):
 
 
 @logger.catch(reraise=True)
-@router.post("/assignments/reviewable", tags=TAG,
-             description="Returns the all reviewable Assignments associated with this Study",
+@router.post("/assignments/submitted", tags=TAG,
+             description="Returns the all submitted Assignments associated with the selected study",
              dependencies=[Depends(JWTBearer())])
-async def list_reviewable_assignments(study_type: StudyType, creds: Optional[AWSCreds] = None,
-                                      sandbox: Optional[bool] = True):
-    logger.info(f"GET request on {PREFIX}/assignments/reviewable")
+async def list_submitted_assignments(study_type: StudyType,
+                                     return_only_ids: Optional[bool] = True,
+                                     creds: Optional[AWSCreds] = None,
+                                     sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/assignments/submitted")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
-    return mturk.list_reviewable_assignments(study_type.value)
+    return mturk.list_submitted_assignments(study_type.value, return_only_ids)
 
 
 @logger.catch(reraise=True)
@@ -139,6 +141,20 @@ async def approve_assignments(assignment_ids: List[str],
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
     return mturk.approve_assignments(assignment_ids=assignment_ids, feedback=feedback)
+
+
+@logger.catch(reraise=True)
+@router.post("/assignments/approve_submitted/", tags=TAG,
+             description="Approves all submitted Assignments of the selected study",
+             dependencies=[Depends(JWTBearer())])
+async def approve_submitted_assignments(study_type: StudyType,
+                                        feedback: Optional[str] = "",
+                                        creds: Optional[AWSCreds] = None,
+                                        sandbox: Optional[bool] = True):
+    logger.info(f"GET request on {PREFIX}/assignments/approve_submitted/")
+    if creds is not None:
+        mturk.create_new_client(sandbox, creds.access_key, creds.secret)
+    return mturk.approve_submitted_assignments(study_type, feedback)
 
 
 @logger.catch(reraise=True)

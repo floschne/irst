@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
 import boto3
 from loguru import logger
@@ -203,9 +203,22 @@ class MTurkHandler(object):
 
     def list_assignments_for_hit(self, hit_id: str) -> Optional[List[Dict]]:
         try:
+            asses = []
+            next_token = None
             resp = self.__client.list_assignments_for_hit(HITId=hit_id)
-            logger.debug(f"Found {resp['NumResults']} assignments for HIT {hit_id}")
-            return resp['Assignments']
+            if resp['NumResults'] > 0:
+                asses.extend(resp['Assignments'])
+                next_token = resp['NextToken']
+            while next_token is not None:
+                resp = self.__client.list_assignments_for_hit(HITId=hit_id)
+                if resp['NumResults'] > 0:
+                    asses.extend(resp['Assignments'])
+                    next_token = resp['NextToken']
+                else:
+                    next_token = None
+
+            logger.debug(f"Found {len(asses)} assignments for HIT {hit_id}")
+            return asses
         except Exception as e:
             logger.error(f"Cannot list Assignments for HIT {hit_id}! Exception: {e}")
             return None
@@ -234,10 +247,26 @@ class MTurkHandler(object):
             logger.error(f"Cannot list reviewable HITs! Exception: {e}")
             return None
 
-    def list_reviewable_assignments(self, study_type: str) -> Optional[Dict]:
-        reviewable_hits = self.list_reviewable_hits(study_type)
-        # since we only have a little num of max assignments (3) per HIT we don't need to paginate through them
-        return {r_hit['HITId']: self.list_assignments_for_hit(r_hit['HITId']) for r_hit in reviewable_hits}
+    def list_submitted_assignments(self, study_type: str, return_only_ids: bool) -> List[Union[Dict, str]]:
+        # get all hits of the study
+        all_hits = self.list_hit_ids(study_type)
+
+        # get all assignments of all hits
+        asses = []
+        for hit in all_hits:
+            asses.extend(self.list_assignments_for_hit(hit_id=hit))
+
+        # filter only submitted
+        asses = [ass for ass in asses if ass is not None and ass['AssignmentStatus'] == 'Submitted']
+
+        if return_only_ids:
+            return [ass['AssignmentId'] for ass in asses if ass is not None]
+
+        return asses
+
+    def approve_submitted_assignments(self, study_type: str, feedback: str) -> int:
+        asses = self.list_submitted_assignments(study_type, return_only_ids=True)
+        return self.approve_assignments(asses, feedback)
 
     def approve_assignment(self, assignment_id: str, feedback: str) -> bool:
         if len(feedback) > 1024:
@@ -258,7 +287,7 @@ class MTurkHandler(object):
         logger.debug(f"Successfully approved Assignment with ID {assignment_id}")
         return True
 
-    def approve_assignments(self, assignment_ids: List[str], feedback) -> int:
+    def approve_assignments(self, assignment_ids: List[str], feedback: str) -> int:
         res = sum([self.approve_assignment(assignment_id=aid, feedback=feedback) for aid in tqdm(assignment_ids)])
         if res != len(assignment_ids):
             logger.error("Error during approving Assignments!")
