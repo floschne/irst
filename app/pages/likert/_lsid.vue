@@ -31,7 +31,7 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
-      localStorage.setItem('instructionsRead', 'false')
+      localStorage.setItem('rankingInstructionsRead', 'false')
     })
     // check if mturk params available
     if ('hitId' in this.$route.query) {

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <Instructions
+    <RankingInstructions
       v-if="showInstructions"
-      @instructions-read="showInstructions = false"
+      @ranking-instructions-read="showInstructions = false"
     />
     <RankingForm
       v-else
@@ -17,11 +17,11 @@
 
 <script>
 import RankingForm from '~/components/RankingForm'
-import Instructions from '~/components/Instructions'
+import RankingInstructions from '~/components/RankingInstructions'
 
 export default {
   name: 'RsId',
-  components: { RankingForm, Instructions },
+  components: { RankingForm, RankingInstructions },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
     const rsId = params.rsid // When calling /abc the rsId will be "abc"
@@ -38,7 +38,7 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
-      localStorage.setItem('instructionsRead', 'false')
+      localStorage.setItem('rankingInstructionsRead', 'false')
     })
     // check if mturk params available
     if ('hitId' in this.$route.query) {

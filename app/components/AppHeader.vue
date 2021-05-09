@@ -19,9 +19,8 @@
       <b-nav-text
         class="w-100 text-center p-0 m-0 text-warning"
         style="font-size: 2vw"
+        v-html="headerText"
       >
-        Which images are <strong>related</strong> to the caption? Please rank
-        your top {{ $config.minNumRanks }}!
       </b-nav-text>
 
       <b-collapse id="nav-collapse" is-nav>
@@ -40,6 +39,16 @@ export default {
   name: 'AppHeader',
   components: { HeartbeatCheckButton },
   emits: ['help-requested'],
+  data() {
+    return {
+      headerText: 'Welcome!',
+    }
+  },
+  created() {
+    this.$nuxt.$on('set-app-header-text', (headerText) => {
+      this.headerText = headerText
+    })
+  },
   methods: {
     helpRequested() {
       this.$nuxt.$emit('help-requested')

@@ -425,6 +425,10 @@ export default {
     },
   },
   created() {
+    // set the app header text
+    const headerText = `Which images are <strong>related</strong> to the caption? Please rank your top ${this.$config.minNumRanks}!`
+    this.$nuxt.$emit('set-app-header-text', headerText)
+
     if (this.rsId === '') this.loadNextSample()
     else this.loadSample()
 

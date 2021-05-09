@@ -1,15 +1,20 @@
 <template>
   <div class="w-100">
-    <RatingForm />
+    <RatingInstructions
+      v-if="showInstructions"
+      @rating-instructions-read="showInstructions = false"
+    />
+    <RatingForm v-else />
   </div>
 </template>
 
 <script>
 import RatingForm from '~/components/RatingForm'
+import RatingInstructions from '~/components/RatingInstructions'
 
 export default {
   name: 'Index',
-  components: { RatingForm },
+  components: { RatingForm, RatingInstructions },
   data() {
     return {
       showInstructions: true,
@@ -18,7 +23,7 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
-      localStorage.setItem('instructionsRead', 'false')
+      localStorage.setItem('ratingInstructionsRead', 'false')
     })
   },
 }

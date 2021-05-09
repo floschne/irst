@@ -12,7 +12,7 @@
     </b-alert>
     <b-container fluid class="text-center">
       <b-form-checkbox
-        v-model="instructionsRead"
+        v-model="rankingInstructionsRead"
         name="show-next-time-checkbox"
         class="text-left"
         switch
@@ -246,7 +246,7 @@
           Ok, I got it! Let's start!
         </b-button>
         <b-form-checkbox
-          v-model="instructionsRead"
+          v-model="rankingInstructionsRead"
           name="show-next-time-checkbox"
           switch
         >
@@ -259,35 +259,40 @@
 
 <script>
 export default {
-  name: 'Instructions',
-  emits: ['instructions-read'],
+  name: 'RankingInstructions',
+  emits: ['ranking-instructions-read'],
   data() {
     return {
-      instructionsRead: false,
+      rankingInstructionsRead: false,
     }
   },
   watch: {
-    instructionsRead(read) {
-      localStorage.setItem('instructionsRead', read)
-      this.instructionsRead = read
+    rankingInstructionsRead(read) {
+      localStorage.setItem('rankingInstructionsRead', read)
+      this.rankingInstructionsRead = read
     },
   },
   mounted() {
-    this.instructionsRead = JSON.parse(localStorage.getItem('instructionsRead'))
-    if (this.instructionsRead === true) {
+    this.rankingInstructionsRead = JSON.parse(
+      localStorage.getItem('rankingInstructionsRead')
+    )
+    if (this.rankingInstructionsRead === true) {
       this.$nextTick(() => {
-        this.$emit('instructions-read')
+        this.$emit('ranking-instructions-read')
       })
     }
   },
   created() {
-    if (process.browser && localStorage.getItem('instructionsRead') === null)
-      localStorage.setItem('instructionsRead', 'false')
+    if (
+      process.browser &&
+      localStorage.getItem('rankingInstructionsRead') === null
+    )
+      localStorage.setItem('rankingInstructionsRead', 'false')
   },
   methods: {
     onSubmit(event) {
       event.preventDefault()
-      this.$emit('instructions-read')
+      this.$emit('ranking-instructions-read')
     },
   },
 }

@@ -122,7 +122,18 @@
               border-color="#000"
               active-color="#FFC107"
               inactive-color="#FFF"
+              @rating-selected="setRating($event, idx)"
             ></star-rating>
+            <div class="d-flex">
+              <label for="`notRelevantCheckBox_${idx}`">
+                Not relevant at all&nbsp;
+              </label>
+              <b-form-checkbox
+                :id="`notRelevantCheckBox_${idx}`"
+                v-model="notRelevant[idx]"
+                @input="setNotRelevant($event, idx)"
+              ></b-form-checkbox>
+            </div>
 
             <!-- ENLARGE MODAL -->
             <b-modal
@@ -172,7 +183,7 @@
               :disabled="submitDisabled"
             >
               <div v-if="submitDisabled" class="w-100">
-                Please choose your answer!
+                Please rate every image!
               </div>
               <span v-else>Submit Answer</span>
             </b-button>
@@ -246,6 +257,8 @@ export default {
       imageUrls: [],
       thumbnailUrls: [],
       ratings: [],
+      notRelevant: [],
+      initRatingValue: -1312,
       sample: null,
       loading: true,
       submitSuccess: false,
@@ -259,12 +272,7 @@ export default {
   },
   computed: {
     submitDisabled() {
-      return (
-        this.ratings.includes(-1312) ||
-        this.ratings.length !== this.sample.image_ids.length ||
-        Math.min(this.ratings) < this.sample.min_rating ||
-        Math.max(this.ratings) > this.sample.max_rating
-      )
+      return this.ratings.includes(-1312)
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
@@ -294,11 +302,16 @@ export default {
     },
   },
   created() {
+    // set the app header text
+    const headerText = `How <strong>related</strong> are the images to the caption? Please rate each image!`
+    this.$nuxt.$emit('set-app-header-text', headerText)
+
+    // load the sample
     if (this.rsId === '') this.loadNextSample()
     else this.loadSample()
 
-    const self = this
     // cooldown function if we have to wait for the next sample
+    const self = this
     setInterval(function () {
       if (self.sample_cooldown > 0) {
         self.sample_cooldown--
@@ -322,6 +335,22 @@ export default {
 
       // reset rating data
       this.ratings = []
+    },
+    setNotRelevant(notRel, idx) {
+      if (typeof notRel === 'boolean') {
+        // we have to use $set here because single array item assignments are not reactive
+        if (notRel) {
+          this.$set(this.ratings, idx, 0.0)
+        } else {
+          this.$set(this.ratings, idx, this.initRatingValue)
+        }
+        this.$set(this.notRelevant, idx, notRel)
+      }
+    },
+    setRating(rating, idx) {
+      // we have to use $set here because single array item assignments are not reactive
+      this.$set(this.notRelevant, idx, false)
+      this.$set(this.ratings, idx, rating)
     },
     async onSubmit(event = null) {
       if (event !== null) event.preventDefault()
@@ -377,7 +406,11 @@ export default {
       )
 
       this.ratings = []
-      this.sample.image_ids.forEach((i) => this.ratings.push(-1312))
+      this.sample.image_ids.forEach((i) =>
+        this.ratings.push(this.initRatingValue)
+      )
+      this.notRelevant = []
+      this.sample.image_ids.forEach((i) => this.notRelevant.push(false))
 
       this.$nuxt.$emit('study-progress-changed')
     },

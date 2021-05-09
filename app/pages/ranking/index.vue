@@ -1,8 +1,8 @@
 <template>
   <div class="w-100">
-    <Instructions
+    <RankingInstructions
       v-if="showInstructions"
-      @instructions-read="showInstructions = false"
+      @ranking-instructions-read="showInstructions = false"
     />
     <RankingForm v-else :min-num-ranks="$config.minNumRanks" />
   </div>
@@ -10,11 +10,11 @@
 
 <script>
 import RankingForm from '~/components/RankingForm'
-import Instructions from '~/components/Instructions'
+import RankingInstructions from '~/components/RankingInstructions'
 
 export default {
   name: 'Index',
-  components: { RankingForm, Instructions },
+  components: { RankingForm, RankingInstructions },
   data() {
     return {
       showInstructions: true,
@@ -23,7 +23,7 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
-      localStorage.setItem('instructionsRead', 'false')
+      localStorage.setItem('rankingInstructionsRead', 'false')
     })
   },
 }
