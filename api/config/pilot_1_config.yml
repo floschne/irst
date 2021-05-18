@@ -73,7 +73,12 @@ backend:
       hit_keywords: image, ranking, AI, visual, rerank
       hit_max_assignments: 3
       hit_lifetime: 604800 # 604800 = 1 week's seconds
-      hit_custom_qualifications: 
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'NotEqualTo'
+#          integerValues: [ 99 ]
+#          actionsGuarded: 'Accept'
       worker_quali_req_min_hits_approved: 100
       worker_quali_req_min_percent_approved: 90
       external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/ranking/}
@@ -87,7 +92,12 @@ backend:
       hit_keywords: image, ranking, AI, visual, likert
       hit_max_assignments: 3
       hit_lifetime: 604800 # 604800 = 1 week's seconds
-      hit_custom_qualifications: #- 3UYIJTD339RC0EE6AIS2CTWWZLOI3G
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'NotEqualTo'
+#          integerValues: [ 99 ]
+#          actionsGuarded: 'Accept'
       worker_quali_req_min_hits_approved: 100
       worker_quali_req_min_percent_approved: 90
       external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/likert/}
@@ -101,7 +111,12 @@ backend:
       hit_keywords: image, ranking, AI, visual, rating
       hit_max_assignments: 3
       hit_lifetime: 604800 # 604800 = 1 week's seconds
-      hit_custom_qualifications: #- 3UYIJTD339RC0EE6AIS2CTWWZLOI3G
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'NotEqualTo'
+#          integerValues: [ 99 ]
+#          actionsGuarded: 'Accept'
       worker_quali_req_min_hits_approved: 100
       worker_quali_req_min_percent_approved: 90
       external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/rating/}

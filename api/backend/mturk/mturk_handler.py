@@ -68,10 +68,52 @@ class MTurkHandler(object):
         )
         self.init_hit_types()
 
+    @staticmethod
+    def __parse_custom_hit_qualification_config(qualification_id: str,
+                                                customHitConfig: Dict[str, Union[str, List[int]]]):
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+        comp_types = ['LessThan',
+                      'LessThanOrEqualTo',
+                      'GreaterThan',
+                      'GreaterThanOrEqualTo',
+                      'EqualTo',
+                      'NotEqualTo',
+                      'Exists',
+                      'DoesNotExist',
+                      'In',
+                      'NotIn']
+
+        actions = ['Accept', 'PreviewAndAccept', 'DiscoverPreviewAndAccept']
+
+        try:
+            # check comparator type
+            if customHitConfig['comparator'] not in comp_types:
+                raise ValueError(f'Comparator {customHitConfig["comparator"]} is not supported by MTurk!')
+
+            # check actions guarded
+            if customHitConfig['actionsGuarded'] not in actions:
+                raise ValueError(f'Action Guard {customHitConfig["actionsGuarded"]} is not supported by MTurk!')
+
+            # check int values
+            for intVal in customHitConfig['integerValues']:
+                if not type(intVal) == int:
+                    raise ValueError(f'IntegerValue {intVal} is not an Integer!')
+
+            qualificationRequirement = {
+                'QualificationTypeId': qualification_id,
+                'Comparator': customHitConfig['comparator'],
+                'IntegerValues': list(customHitConfig['integerValues']),
+                'ActionsGuarded': customHitConfig['actionsGuarded']
+            }
+
+            return qualificationRequirement
+
+        except ValueError as e:
+            logger.error(f"Cannot create custom HIT qualification with ID {qualification_id}! {e}")
+
     def __create_or_get_hit_type(self, study_type: str) -> Optional[str]:
         logger.debug(f"Creating {study_type} HIT Type...")
         try:
-            # TODO hardcoded - do we want this in the config.yml?
             # https://docs.aws.amazon.com/de_de/AWSMechTurk/latest/AWSMturkAPI/ApiReference_QualificationRequirementDataStructureArticle.html
             qualificationRequirements = [
                 {
@@ -94,20 +136,9 @@ class MTurkHandler(object):
 
             # add custom qualifications from config
             if self.__hit_config[study_type].hit_custom_qualifications is not None:
-                # TODO make this more flexible, i.e., allow to set comparator and everything in the config.
-                for qualificationId, intValue in self.__hit_config[study_type].hit_custom_qualifications.items():
-                    try:
-                        intValue = int(intValue)
-                        qualificationRequirements.append({
-                            'QualificationTypeId': qualificationId,
-                            'Comparator': 'EqualTo',
-                            'IntegerValues': [
-                                int(intValue),
-                            ],
-                            'ActionsGuarded': 'Accept'
-                        })
-                    except ValueError as e:
-                        logger.error(f"Cannot create custom HIT qualification with ID {qualificationId}! {e}")
+                for qualification_id, quali_config in self.__hit_config[study_type].hit_custom_qualifications.items():
+                    qualificationRequirements.append(self.__parse_custom_hit_qualification_config(qualification_id,
+                                                                                                  quali_config))
 
             resp = self.__client.create_hit_type(
                 AutoApprovalDelayInSeconds=self.__hit_config[study_type].hit_auto_approval_delay_in_seconds,
@@ -118,6 +149,7 @@ class MTurkHandler(object):
                 Description=self.__hit_config[study_type].hit_description,
                 QualificationRequirements=qualificationRequirements
             )
+
             hit_type_id = resp['HITTypeId']
             logger.info(f"Created HIT Type {hit_type_id}")
             return hit_type_id
