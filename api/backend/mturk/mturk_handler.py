@@ -94,12 +94,20 @@ class MTurkHandler(object):
 
             # add custom qualifications from config
             if self.__hit_config[study_type].hit_custom_qualifications is not None:
-                for qualificationId in self.__hit_config[study_type].hit_custom_qualifications:
-                    qualificationRequirements.append({
-                        'QualificationTypeId': qualificationId,
-                        'Comparator': 'Exists',
-                        'ActionsGuarded': 'Accept'
-                    })
+                # TODO make this more flexible, i.e., allow to set comparator and everything in the config.
+                for qualificationId, intValue in self.__hit_config[study_type].hit_custom_qualifications.items():
+                    try:
+                        intValue = int(intValue)
+                        qualificationRequirements.append({
+                            'QualificationTypeId': qualificationId,
+                            'Comparator': 'EqualTo',
+                            'IntegerValues': [
+                                int(intValue),
+                            ],
+                            'ActionsGuarded': 'Accept'
+                        })
+                    except ValueError as e:
+                        logger.error(f"Cannot create custom HIT qualification with ID {qualificationId}! {e}")
 
             resp = self.__client.create_hit_type(
                 AutoApprovalDelayInSeconds=self.__hit_config[study_type].hit_auto_approval_delay_in_seconds,
