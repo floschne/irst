@@ -119,7 +119,7 @@ class RedisHandler(object):
     @logger.catch(reraise=True)
     def list_model_rankings(self, num: int = None) -> List[ModelRanking]:
         mrs = [self.load_model_ranking(mr_id=mr_id, verbose=False) for mr_id in self.list_all_model_ranking_ids()[:num]]
-        logger.debug(f"Retrieved {len(mrs)} ModelRankings!")
+        logger.debug(f"Found {len(mrs)} ModelRankings!")
         return mrs
 
     ################# RankingSample #################
@@ -151,7 +151,7 @@ class RedisHandler(object):
     def list_ranking_samples(self, num: int = 100) -> List[RankingSample]:
         rs = [self.load_ranking_sample(rs_id=rs_id, verbose=False) for rs_id in
               self.__clients['ranking_sample'].keys()[:num]]
-        logger.debug(f"Retrieved {len(rs)} RankingSamples!")
+        logger.debug(f"Found {len(rs)} RankingSamples!")
         return rs
 
     ################# RankingResult #################
@@ -186,7 +186,7 @@ class RedisHandler(object):
     def list_ranking_results(self) -> List[RankingResult]:
         res = [self.load_ranking_result(rr_id=res_id, verbose=False) for res_id in
                self.__clients['ranking_result'].keys()]
-        logger.debug(f"Retrieved {len(res)} RankingResults!")
+        logger.debug(f"Found {len(res)} RankingResults!")
         return res
 
     ################# LikertSample #################
@@ -218,7 +218,7 @@ class RedisHandler(object):
     def list_likert_samples(self, num: int = 100) -> List[LikertSample]:
         ls = [self.load_likert_sample(ls_id=ls_id, verbose=False) for ls_id in
               self.__clients['likert_sample'].keys()[:num]]
-        logger.debug(f"Retrieved {len(ls)} LikertSamples!")
+        logger.debug(f"Found {len(ls)} LikertSamples!")
         return ls
 
     ################# LikertResult #################
@@ -253,7 +253,7 @@ class RedisHandler(object):
     def list_likert_results(self) -> List[LikertResult]:
         res = [self.load_likert_result(lr_id=res_id, verbose=False) for res_id in
                self.__clients['likert_result'].keys()]
-        logger.debug(f"Retrieved {len(res)} LikertResults!")
+        logger.debug(f"Found {len(res)} LikertResults!")
         return res
 
     ################# RatingSample #################
@@ -285,7 +285,7 @@ class RedisHandler(object):
     def list_rating_samples(self, num: int = 100) -> List[RatingSample]:
         ls = [self.load_rating_sample(rs_id=rs_id, verbose=False) for rs_id in
               self.__clients['rating_sample'].keys()[:num]]
-        logger.debug(f"Retrieved {len(ls)} RatingSamples!")
+        logger.debug(f"Found {len(ls)} RatingSamples!")
         return ls
 
     ################# RatingResult #################
@@ -320,7 +320,7 @@ class RedisHandler(object):
     def list_rating_results(self) -> List[RatingResult]:
         res = [self.load_rating_result(rr_id=res_id, verbose=False) for res_id in
                self.__clients['rating_result'].keys()]
-        logger.debug(f"Retrieved {len(res)} RatingResults!")
+        logger.debug(f"Found {len(res)} RatingResults!")
         return res
 
     ############### MTURK ##############################
