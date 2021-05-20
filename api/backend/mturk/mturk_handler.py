@@ -87,24 +87,36 @@ class MTurkHandler(object):
 
         try:
             # check comparator type
-            if customHitConfig['comparator'] not in comp_types:
+            comp_type = customHitConfig['comparator']
+            if comp_type not in comp_types:
                 raise ValueError(f'Comparator {customHitConfig["comparator"]} is not supported by MTurk!')
+            is_existing_comp_type = 'Exist' in comp_type
 
             # check actions guarded
             if customHitConfig['actionsGuarded'] not in actions:
                 raise ValueError(f'Action Guard {customHitConfig["actionsGuarded"]} is not supported by MTurk!')
 
-            # check int values
-            for intVal in customHitConfig['integerValues']:
-                if not type(intVal) == int:
-                    raise ValueError(f'IntegerValue {intVal} is not an Integer!')
+            if not is_existing_comp_type:
+                # we only need to check and provide IntegerValues for all comparators except Exist and DoesNotExist
+                # check int values
+                for intVal in customHitConfig['integerValues']:
+                    if not type(intVal) == int:
+                        raise ValueError(f'IntegerValue {intVal} is not an Integer!')
+                int_values = list(customHitConfig['integerValues'])
 
-            qualificationRequirement = {
-                'QualificationTypeId': qualification_id,
-                'Comparator': customHitConfig['comparator'],
-                'IntegerValues': list(customHitConfig['integerValues']),
-                'ActionsGuarded': customHitConfig['actionsGuarded']
-            }
+                qualificationRequirement = {
+                    'QualificationTypeId': qualification_id,
+                    'Comparator': comp_type,
+                    'IntegerValues': int_values,
+                    'ActionsGuarded': customHitConfig['actionsGuarded']
+                }
+
+            else:
+                qualificationRequirement = {
+                    'QualificationTypeId': qualification_id,
+                    'Comparator': comp_type,
+                    'ActionsGuarded': customHitConfig['actionsGuarded']
+                }
 
             return qualificationRequirement
 
