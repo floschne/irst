@@ -11,28 +11,20 @@ from tqdm import tqdm
 LOCK_FILE = '__lock_file__'
 
 
-def convert_to_webp(im, f, webp_quality):
-    im.save(f + ".webp", "WEBP", quality=webp_quality, lossless=True, method=6)
-
-
-def create_thumbnail(im, f, size):
-    im.thumbnail((size, size))
-    im.save(f + "_thumbnail.webp", "WEBP", quality=85, lossless=True, method=6)
-
-
-def task(pth: str,
-         webp: bool = True,
-         webp_quality: int = 50,
-         remove_original: bool = True,
-         thumbnails: bool = True,
-         thumbnail_size: int = 120):
+def convert_to_webp(pth: str,
+                    webp: bool = True,
+                    webp_quality: int = 50,
+                    remove_original: bool = True,
+                    thumbnails: bool = True,
+                    thumbnail_size: int = 120):
     f, _ = os.path.splitext(pth)
     assert os.path.lexists(pth), f"Cannot find image at {pth}"
     with Image.open(pth) as im:
         if webp:
-            convert_to_webp(im, f, webp_quality)
+            im.save(f + ".webp", "WEBP", quality=webp_quality, lossless=True, method=6)
         if thumbnails:
-            create_thumbnail(im, f, thumbnail_size)
+            im.thumbnail((thumbnail_size, thumbnail_size))
+            im.save(f + "_thumbnail.webp", "WEBP", quality=85, lossless=True, method=6)
     if remove_original:
         os.remove(pth)
 
@@ -68,17 +60,27 @@ def init_images(image_dir: str = '../data/images/',
 
     if not lock_file_exists(image_dir):
         create_lock_file(image_dir)
-        png_imgs = glob.glob(f"{image_dir}/*.png")
-        if len(png_imgs) == 0:
+        imgs = []
+        for ext in ['png', 'jpg', 'jpeg']:
+            imgs += glob.glob(f"{image_dir}/*.{ext}")
+            imgs += glob.glob(f"{image_dir}/*.{ext.upper()}")
+        if len(imgs) == 0:
             logger.info(f"All images are already initialized!")
+            remove_lock_file(image_dir)
             return
 
-        logger.info(f"Found {len(png_imgs)} images to convert!")
+        logger.info(f"Found {len(imgs)} images to convert!")
         with ThreadPoolExecutor(max_workers=n_workers) as executor:
-            with tqdm(total=len(png_imgs)) as progress:
+            with tqdm(total=len(imgs)) as progress:
                 futures = []
-                for pth in png_imgs:
-                    future = executor.submit(task, pth, webp, webp_quality, remove_original, thumbnails, thumbnail_size)
+                for pth in imgs:
+                    future = executor.submit(convert_to_webp,
+                                             pth,
+                                             webp,
+                                             webp_quality,
+                                             remove_original,
+                                             thumbnails,
+                                             thumbnail_size)
                     future.add_done_callback(lambda p: progress.update())
                     futures.append(future)
 
