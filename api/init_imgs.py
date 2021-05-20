@@ -1,9 +1,11 @@
 import argparse
 import glob
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
+import numpy as np
 from PIL import Image
 from loguru import logger
 from tqdm import tqdm
@@ -58,19 +60,27 @@ def init_images(image_dir: str = '../data/images/',
                 thumbnail_size: int = 120):
     assert os.path.lexists(image_dir), f"Cannot find {image_dir}!"
 
+    # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
+    # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
+    # times
+    time.sleep(np.random.uniform(low=0.3, high=1.0))
+
     if not lock_file_exists(image_dir):
         create_lock_file(image_dir)
+        logger.info(f"Initializing images in {image_dir}")
         imgs = []
         for ext in ['png', 'jpg', 'jpeg']:
             imgs += glob.glob(f"{image_dir}/*.{ext}")
             imgs += glob.glob(f"{image_dir}/*.{ext.upper()}")
+
         if len(imgs) == 0:
             logger.info(f"All images are already initialized!")
             remove_lock_file(image_dir)
             return
 
-        logger.info(f"Found {len(imgs)} images to convert!")
+        logger.info(f"Found {len(imgs)} total images to convert!")
         with ThreadPoolExecutor(max_workers=n_workers) as executor:
+            logger.info(f"Starting conversion with {n_workers} workers!")
             with tqdm(total=len(imgs)) as progress:
                 futures = []
                 for pth in imgs:
