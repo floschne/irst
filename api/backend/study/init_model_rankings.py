@@ -15,7 +15,7 @@ def init_model_rankings():
     # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
     # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
     # times
-    time.sleep(np.random.uniform(low=0.3, high=1.0))
+    time.sleep(np.random.uniform(low=0.5, high=3.0))
     if len(RedisHandler().list_model_rankings(1)) != 1:
         data_root = conf.study_initialization.model_rankings.data_root
         if not os.path.lexists(data_root):
