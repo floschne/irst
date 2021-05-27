@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 from shortuuid import uuid
@@ -9,3 +9,6 @@ class ModelRanking(BaseModel):
     ds_id: str = Field(description='ID of the sample in the original dataset')
     query: str = Field(description='Query related to the sample')
     top_k_image_ids: List[str] = Field(description='Sorted list of the top-k ranked image IDs')
+
+    #  optional additional kwargs
+    opts: Optional[Dict[str, Any]] = None

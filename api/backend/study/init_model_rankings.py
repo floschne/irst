@@ -53,9 +53,17 @@ def init_model_rankings():
 
         # we don't use lambda for cleaner code
         def generate_model_ranking(row) -> ModelRanking:
+            opts = None
+            # add optional kwargs from non mandatory columns
+            for c in row.index:
+                if c not in ['sample_id', 'caption', 'top_k_matches']:
+                    if opts is None:
+                        opts = dict()
+                    opts[c] = row[c]
             return ModelRanking(ds_id=row['sample_id'],
                                 query=row['caption'],
-                                top_k_image_ids=row['top_k_matches'].tolist())
+                                top_k_image_ids=row['top_k_matches'].tolist(),
+                                opts=opts)
 
         # generate ModelRankings from DataFrame
         rankings = df.apply(generate_model_ranking, axis=1).tolist()
