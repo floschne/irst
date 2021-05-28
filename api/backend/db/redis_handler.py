@@ -148,7 +148,7 @@ class RedisHandler(object):
         return bool(self.__clients['ranking_sample'].exists(rs_id))
 
     @logger.catch(reraise=True)
-    def list_ranking_samples(self, num: int = 100) -> List[RankingSample]:
+    def list_ranking_samples(self, num: Optional[int] = None) -> List[RankingSample]:
         rs = [self.load_ranking_sample(rs_id=rs_id, verbose=False) for rs_id in
               self.__clients['ranking_sample'].keys()[:num]]
         logger.debug(f"Found {len(rs)} RankingSamples!")
@@ -215,7 +215,7 @@ class RedisHandler(object):
         return bool(self.__clients['likert_sample'].exists(ls_id))
 
     @logger.catch(reraise=True)
-    def list_likert_samples(self, num: int = 100) -> List[LikertSample]:
+    def list_likert_samples(self, num: Optional[int] = None) -> List[LikertSample]:
         ls = [self.load_likert_sample(ls_id=ls_id, verbose=False) for ls_id in
               self.__clients['likert_sample'].keys()[:num]]
         logger.debug(f"Found {len(ls)} LikertSamples!")
@@ -282,7 +282,7 @@ class RedisHandler(object):
         return bool(self.__clients['rating_sample'].exists(rs_id))
 
     @logger.catch(reraise=True)
-    def list_rating_samples(self, num: int = 100) -> List[RatingSample]:
+    def list_rating_samples(self, num: Optional[int] = None) -> List[RatingSample]:
         ls = [self.load_rating_sample(rs_id=rs_id, verbose=False) for rs_id in
               self.__clients['rating_sample'].keys()[:num]]
         logger.debug(f"Found {len(ls)} RatingSamples!")
