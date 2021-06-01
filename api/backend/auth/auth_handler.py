@@ -9,6 +9,7 @@ from typing import Dict, Optional
 
 import jwt
 import numpy as np
+from fastapi import HTTPException
 from loguru import logger
 
 from backend.db import RedisHandler
@@ -44,7 +45,12 @@ class AuthHandler(object):
         # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
         # times
         time.sleep(np.random.uniform(low=0.3, high=1.0))
-        self.register(User(id=self.__admin_id, password=self.__admin_pwd))
+        try:
+            u = User(id=self.__admin_id, password=self.__admin_pwd)
+            self.register(u)
+            self.__add_admin_user(u)
+        except Exception as e:
+            pass
 
     def __get_jwt(self, user: User) -> Dict[str, str]:
         # try to load from cache
@@ -62,14 +68,18 @@ class AuthHandler(object):
     def decode_jwt(self, token: str) -> Optional[Dict]:
         try:
             decoded = jwt.decode(token, self.__jwt_secret, algorithms=self.__jwt_algo)
-            if decoded['ttl'] <= time.time():
-                logger.warning(f"JWT Expired at {datetime.fromtimestamp(decoded['ttl'])}!")
-                return None
-            else:
-                return decoded
+            return decoded
         except Exception as e:
             logger.error(f"Cannot decode JWT! Exception: {e}")
             return None
+
+    def __add_admin_user(self, user: User):
+        logger.debug(f"Add User {user.id} to administrators!")
+        self.__auth.rpush('admin_users'.encode('utf-8'), user.id.encode('utf-8'))
+
+    def is_admin(self, user_id: str) -> bool:
+        admin_users = self.__auth.lrange('admin_users'.encode('utf-8'), 0, -1)
+        return user_id.encode('utf-8') in admin_users
 
     def __store_salt(self, user: User) -> bytes:
         logger.debug(f"Generating 32 Bit PBKDF2 Salt for User {user.id}")
@@ -113,15 +123,17 @@ class AuthHandler(object):
     def user_exists(self, user: User):
         return self.__auth.get(user.id) is not None
 
-    def register(self, user: User):
+    def register(self, user: User) -> bool:
         if self.user_exists(user):
             logger.warning(f"User {user.id} already exists!")
-            return
+            raise HTTPException(status_code=400, detail=f"User {user.id} already exists!")
+
         salt = self.__store_salt(user)
         logger.debug('Hashing password with PBKDF2')
         key = self.__hash_password(user.password, salt)
         self.__auth.set(user.id, key, nx=True)
         logger.info(f'User {user.id} registered successfully')
+        return True
 
     def authenticate(self, user: User) -> Optional[Dict[str, str]]:
         # get user salt

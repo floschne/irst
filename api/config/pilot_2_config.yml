@@ -134,7 +134,7 @@ image_server:
   port: ${env:IMG_SRV_PORT, 8082}
   relative_url: ${env:IMG_SRV_REL_URL, 0}
   context_path: ${env:IMG_SRV_CTX_PTH, /}
-  img_root: /home/p0w3r/gitrepos/irst/data/pilot/images
+  img_root: /home/p0w3r/gitrepos/irst/data/user_study_2_pilot/images
   img_prefix: ''
   img_thumbnail_infix: _thumbnail
   img_suffix: .webp
