@@ -40,7 +40,8 @@ async def load(rr_id: str):
 
 @logger.catch(reraise=True)
 @router.put("/submit", tags=TAG,
-            description="Submit a RankingResult")
+            description="Submit a RankingResult",
+            dependencies=[Depends(JWTBearer(admin_only=False))])
 async def submit(result: RankingResult):
     logger.info(f"GET request on {PREFIX}/submit")
     return JSONResponse(content=sc.submit(result))

@@ -16,7 +16,8 @@ rh = RedisHandler()
 
 @logger.catch(reraise=True)
 @router.put("/submit", tags=TAG,
-            description="Stores a User Feedback for a given RankingSampleID")
+            description="Stores a User Feedback for a given RankingSampleID",
+            dependencies=[Depends(JWTBearer(admin_only=False))])
 async def submit_feedback(feedback: Feedback):
     logger.info(f"PUT request on {PREFIX}/submit")
     return rh.store_feedback(feedback=feedback)
@@ -24,9 +25,9 @@ async def submit_feedback(feedback: Feedback):
 
 @logger.catch(reraise=True)
 @router.get("/load/{fb_id}", tags=TAG,
+            response_model=Optional[Feedback],
             description="Loads the Feedbacks with the given ID",
-            dependencies=[Depends(JWTBearer())],
-            response_model=Optional[Feedback])
+            dependencies=[Depends(JWTBearer())])
 async def load_feedback(fb_id: str):
     logger.info(f"GET request on {PREFIX}/load/{fb_id}")
     return rh.load_feedback(fb_id=fb_id)
