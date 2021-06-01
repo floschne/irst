@@ -3,7 +3,7 @@
     <b-card
       v-if="errorMessage === ''"
       bg-variant="light"
-      header="Authenticate"
+      header="Register"
       class="shadow shadow-lg"
     >
       <b-form v-if="show" @submit="onSubmit" @reset="onReset">
@@ -45,7 +45,7 @@
       fluid
       bg-variant="danger"
       text-variant="dark"
-      header="Could not authenticate!"
+      :header="`Could not register user ${userId}!`"
       :lead="errorMessage"
     >
       <b-button variant="primary" @click="onReset">Retry?!</b-button>
@@ -55,8 +55,8 @@
 
 <script>
 export default {
-  name: 'LoginForm',
-  emits: ['auth-success'],
+  name: 'RegistrationForm',
+  emits: ['registration-success'],
   data() {
     return {
       pwd: '',
@@ -65,15 +65,10 @@ export default {
       show: true,
     }
   },
-  computed: {
-    currentUser() {
-      return this.$store.state.current_user.currentUser
-    },
-  },
   methods: {
     onSubmit(event) {
       event.preventDefault()
-      this.authenticate(this.userId, this.pwd)
+      this.register(this.userId, this.pwd)
     },
     onReset(event) {
       event.preventDefault()
@@ -86,18 +81,14 @@ export default {
         this.show = true
       })
     },
-    async authenticate(userId, pwd) {
-      const resp = await this.$userApiClient.authenticate(userId, pwd)
-      if ('jwt' in resp) {
+    async register(userId, pwd) {
+      const resp = await this.$userApiClient.register(userId, pwd)
+      if (resp) {
         this.errorMessage = ''
-        this.setCurrentUser(userId, resp.jwt)
-        this.$emit('auth-success')
+        this.$emit('registration-success')
       } else if ('detail' in resp) {
         this.errorMessage = resp.detail
       }
-    },
-    setCurrentUser(userId, jwt) {
-      this.$store.commit('current_user/setCurrentUser', { userId, jwt })
     },
   },
 }

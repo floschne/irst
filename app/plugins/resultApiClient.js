@@ -1,18 +1,20 @@
 import { logger } from './logger'
 
 export default ({ app, axios }, inject) => {
-  const jsonHeaderConfig = {
-    headers: {
-      Accept: 'application/json',
-    },
-  }
-
-  async function submitResult(type, result) {
+  async function submitResult(type, result, jwt) {
+    console.log(jwt)
+    jwt = JSON.stringify(jwt).replaceAll('"', '')
+    const authJsonHeaderConfig = {
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + jwt,
+      },
+    }
     return await app.$axios
       .put(
         `${app.$config.ctxPath}api/${type}_result/submit`,
         result,
-        jsonHeaderConfig
+        authJsonHeaderConfig
       )
       .then((resp) => {
         if (resp.status === 200) {
@@ -36,7 +38,9 @@ export default ({ app, axios }, inject) => {
       irrelevantImages,
       workerId = '',
       assignmentId = '',
-      hitId = ''
+      hitId = '',
+      userId = null,
+      jwt = null
     ) => {
       let mtParams = null
       if (workerId !== '' && assignmentId !== '' && hitId !== '') {
@@ -51,15 +55,18 @@ export default ({ app, axios }, inject) => {
         ranking: rankedImages,
         irrelevant: irrelevantImages,
         mt_params: mtParams,
+        user_id: userId,
       }
-      return await submitResult('ranking', result)
+      return await submitResult('ranking', result, jwt)
     },
     submitLikertResult: async (
       lsId,
       chosenAnswer,
       workerId = '',
       assignmentId = '',
-      hitId = ''
+      hitId = '',
+      userId = null,
+      jwt = null
     ) => {
       let mtParams = null
       if (workerId !== '' && assignmentId !== '' && hitId !== '') {
@@ -73,15 +80,18 @@ export default ({ app, axios }, inject) => {
         sample_id: lsId,
         chosen_answer: chosenAnswer,
         mt_params: mtParams,
+        user_id: userId,
       }
-      return await submitResult('likert', result)
+      return await submitResult('likert', result, jwt)
     },
     submitRatingResult: async (
       rsId,
       imageRatings,
       workerId = '',
       assignmentId = '',
-      hitId = ''
+      hitId = '',
+      userId = null,
+      jwt = null
     ) => {
       let mtParams = null
       if (workerId !== '' && assignmentId !== '' && hitId !== '') {
@@ -95,8 +105,9 @@ export default ({ app, axios }, inject) => {
         sample_id: rsId,
         ratings: imageRatings,
         mt_params: mtParams,
+        user_id: userId,
       }
-      return await submitResult('rating', result)
+      return await submitResult('rating', result, jwt)
     },
   }
 

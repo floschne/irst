@@ -393,7 +393,9 @@ export default {
   },
   computed: {
     submitDisabled() {
-      return this.rankedImages.length < this.minNumRanks
+      return (
+        this.rankedImages.length < this.minNumRanks || this.currentUser === null
+      )
     },
     showDragabbleHint() {
       return this.rankedImages.length === 0
@@ -422,6 +424,19 @@ export default {
       } else sub = 'www'
 
       return `https://${sub}.mturk.com/mturk/externalSubmit`
+    },
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    currentUserId() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.userId).replaceAll('"', '')
+    },
+    currentUserJwt() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.jwt).replaceAll('"', '')
     },
   },
   created() {
@@ -519,7 +534,9 @@ export default {
         irrelevantIds,
         this.workerId,
         this.assignmentId,
-        this.hitId
+        this.hitId,
+        this.currentUserId,
+        this.currentUserJwt
       )
       this.submitSuccess =
         this.rrId !== '' && this.rrId !== undefined && this.rrId !== null

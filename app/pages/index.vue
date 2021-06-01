@@ -1,7 +1,19 @@
 <template>
   <b-container fluid>
+    <!-- LOGIN / REGISTER USER JUMBOTRON -->
     <b-jumbotron
-      header="Welcome to the Image Ranking Study Tool"
+      v-if="currentUser === null || currentUser === undefined"
+      header="Welcome to the Image Ranking Study Tool!"
+      lead="Please login or register to start using the tool."
+    >
+      <b-button to="/login" variant="primary"> Login </b-button>
+      <b-button to="/register" variant="success"> Register </b-button>
+    </b-jumbotron>
+
+    <!-- WELCOME USER JUMBOTRON -->
+    <b-jumbotron
+      v-if="currentUser !== null && currentUser !== undefined"
+      :header="`Welcome to the Image Ranking Study Tool ${currentUserName}`"
       lead="Start a study by clicking one of the buttons"
     >
       <b-button to="/ranking" variant="primary">
@@ -20,6 +32,11 @@
 <script>
 export default {
   name: 'Index',
+  computed: {
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+  },
 }
 </script>
 

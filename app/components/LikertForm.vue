@@ -273,7 +273,11 @@ export default {
   },
   computed: {
     submitDisabled() {
-      return this.chosenAnswer === '' || this.chosenAnswer === null
+      return (
+        this.chosenAnswer === '' ||
+        this.chosenAnswer === null ||
+        this.currentUser === null
+      )
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
@@ -296,6 +300,19 @@ export default {
       } else sub = 'www'
 
       return `https://${sub}.mturk.com/mturk/externalSubmit`
+    },
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    currentUserId() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.userId).replaceAll('"', '')
+    },
+    currentUserJwt() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.jwt).replaceAll('"', '')
     },
   },
   created() {
@@ -341,7 +358,9 @@ export default {
         this.chosenAnswer,
         this.workerId,
         this.assignmentId,
-        this.hitId
+        this.hitId,
+        this.currentUserId,
+        this.currentUserJwt
       )
       this.submitSuccess =
         this.lrId !== '' && this.lrId !== undefined && this.lrId !== null

@@ -272,7 +272,7 @@ export default {
   },
   computed: {
     submitDisabled() {
-      return this.ratings.includes(-1312)
+      return this.ratings.includes(-1312) || this.currentUser === null
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
@@ -299,6 +299,19 @@ export default {
     starSize() {
       // REM to PX / num_stars - offset
       return (this.img_size * 16) / 5.25
+    },
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    currentUserId() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.userId).replaceAll('"', '')
+    },
+    currentUserJwt() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.jwt).replaceAll('"', '')
     },
   },
   created() {
@@ -364,7 +377,9 @@ export default {
         this.ratings,
         this.workerId,
         this.assignmentId,
-        this.hitId
+        this.hitId,
+        this.currentUserId,
+        this.currentUserJwt
       )
       this.submitSuccess =
         this.rrId !== '' && this.rrId !== undefined && this.rrId !== null
