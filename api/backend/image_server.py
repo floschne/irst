@@ -48,13 +48,13 @@ class ImageServer(object):
     def __get_img_filename(self, img_id: str):
         img_fn = f"{self.__img_prefix}{img_id}{self.__img_suffix}"
         if not os.path.lexists(os.path.join(self.__img_root, img_fn)):
-            logger.warning(f"Cannot find Image {img_id} at {img_fn}")
+            logger.warning(f"Cannot find Image {img_fn} at {self.__img_root}")
         return img_fn
 
     def __get_thumbnail_filename(self, img_id: str):
         thumbnail_fn = f"{self.__img_prefix}{img_id}{self.__img_thumbnail_infix}{self.__img_suffix}"
         if not os.path.lexists(os.path.join(self.__img_root, thumbnail_fn)):
-            logger.warning(f"Cannot find Image Thumbnail of {img_id} at {thumbnail_fn}")
+            logger.warning(f"Cannot find Image Thumbnail of {img_id} at {thumbnail_fn} at {self.__img_root}")
         return thumbnail_fn
 
     def get_img_url(self, img_id: str, thumbnail: bool = False) -> str:
