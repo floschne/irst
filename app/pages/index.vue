@@ -13,7 +13,7 @@
     <!-- WELCOME USER JUMBOTRON -->
     <b-jumbotron
       v-if="currentUser !== null && currentUser !== undefined"
-      :header="`Welcome to the Image Ranking Study Tool ${currentUserName}`"
+      :header="`Welcome to the Image Ranking Study Tool, ${currentUserName}!`"
       lead="Start a study by clicking one of the buttons"
     >
       <b-button to="/ranking" variant="primary">
@@ -23,7 +23,7 @@
         Image Rating User Study
       </b-button>
       <b-button to="/likert" variant="primary">
-        Image Likert Questions User Study
+        Likert Questions User Study
       </b-button>
     </b-jumbotron>
   </b-container>
@@ -35,6 +35,11 @@ export default {
   computed: {
     currentUser() {
       return this.$store.state.current_user.currentUser
+    },
+    currentUserName() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.userId).replaceAll('"', '')
     },
   },
 }

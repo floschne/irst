@@ -13,7 +13,7 @@
     <!-- LOGOUT USER JUMBOTRON -->
     <b-jumbotron
       v-if="currentUser !== null"
-      :header="`Welcome, ${currentUserName}`"
+      :header="`Welcome, ${currentUserName}!`"
       lead="Do you want to logout?"
     >
       <b-button variant="danger" @click="clearCurrentUser"> Logout </b-button>
