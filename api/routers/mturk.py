@@ -65,7 +65,7 @@ async def delete_hit(hit_id: str, creds: Optional[AWSCreds] = None, sandbox: Opt
 @router.delete("/hits/delete", tags=TAG,
                description="Deletes all HITs associated with the selected study",
                dependencies=[Depends(JWTBearer())])
-async def delete_all_hit(study_type: StudyType, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
+async def delete_all_hits(study_type: StudyType, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"DELETE request on {PREFIX}/hits/delete")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
@@ -87,7 +87,7 @@ async def list_hit_ids(study_type: StudyType, creds: Optional[AWSCreds] = None, 
 @router.post("/hits/list", tags=TAG,
              description="Returns all HITs",
              dependencies=[Depends(JWTBearer())])
-async def list_hit(study_type: StudyType, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
+async def list_all_hits(study_type: StudyType, creds: Optional[AWSCreds] = None, sandbox: Optional[bool] = True):
     logger.info(f"GET request on {PREFIX}/hits/list")
     if creds is not None:
         mturk.create_new_client(sandbox, creds.access_key, creds.secret)
@@ -98,7 +98,7 @@ async def list_hit(study_type: StudyType, creds: Optional[AWSCreds] = None, sand
 @router.get("/hit/info/{hit_id}", tags=TAG,
             description="Returns the Info of the HIT with the given ID",
             dependencies=[Depends(JWTBearer())])
-async def hit_info(hit_id: str):
+async def get_hit_info(hit_id: str):
     logger.info(f"GET request on {PREFIX}/hit/info/{hit_id}")
     return mturk.get_hit_info(hit_id)
 
@@ -107,7 +107,7 @@ async def hit_info(hit_id: str):
 @router.get("/hit/info/sample/{sample_id}", tags=TAG,
             description="Returns the HIT Info associated with the Sample with the given ID",
             dependencies=[Depends(JWTBearer())])
-async def hit_info(sample_id: str):
+async def get_hit_info_of_sample(sample_id: str):
     logger.info(f"GET request on {PREFIX}/hit/info/sample/{sample_id}")
     sample = rh.load_sample(sample_id=sample_id)
     if sample is not None:
