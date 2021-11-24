@@ -120,6 +120,11 @@ class AuthHandler(object):
         )
         return key
 
+    def renew_jwt(self, user: User):
+        cached = self.__get_cached_token(user)
+        # TODO
+        pass
+
     def user_exists(self, user: User):
         return self.__auth.get(user.id) is not None
 
