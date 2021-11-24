@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from backend.study import LikertStudyCoordinator, RankingStudyCoordinator
 from backend.auth import JWTBearer
+from backend.study import LikertStudyCoordinator, RankingStudyCoordinator, RatingStudyCoordinator
 
 PREFIX = "/study"
 TAG = ["study"]
@@ -17,5 +17,6 @@ router = APIRouter()
 async def get_progress(study_type: str):
     logger.info(f"GET request on {PREFIX}/progress")
     coords = {'likert': LikertStudyCoordinator(),
-              'ranking': RankingStudyCoordinator()}
+              'ranking': RankingStudyCoordinator(),
+              'rating': RatingStudyCoordinator()}
     return coords[study_type].current_progress()

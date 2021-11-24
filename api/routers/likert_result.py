@@ -15,7 +15,6 @@ TAG = ["likert_result"]
 router = APIRouter()
 
 redis = RedisHandler()
-sc = LikertStudyCoordinator()
 
 
 @logger.catch(reraise=True)
@@ -44,4 +43,5 @@ async def load(lr_id: str):
             dependencies=[Depends(JWTBearer(admin_only=False))])
 async def submit(result: LikertResult):
     logger.info(f"GET request on {PREFIX}/submit")
+    sc = LikertStudyCoordinator()
     return JSONResponse(content=sc.submit(result))

@@ -13,7 +13,6 @@ TAG = ["ranking_sample"]
 router = APIRouter()
 
 rh = RedisHandler()
-coord = RankingStudyCoordinator()
 
 
 @logger.catch(reraise=True)
@@ -23,6 +22,7 @@ coord = RankingStudyCoordinator()
                         "is ready.")
 async def get_next_ranking_sample():
     logger.info(f"GET request on {PREFIX}/next")
+    coord = RankingStudyCoordinator()
     return coord.next()
 
 

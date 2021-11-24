@@ -15,7 +15,6 @@ TAG = ["ranking_result"]
 router = APIRouter()
 
 redis = RedisHandler()
-sc = RankingStudyCoordinator()
 
 
 @logger.catch(reraise=True)
@@ -44,4 +43,5 @@ async def load(rr_id: str):
             dependencies=[Depends(JWTBearer(admin_only=False))])
 async def submit(result: RankingResult):
     logger.info(f"GET request on {PREFIX}/submit")
+    sc = RankingStudyCoordinator()
     return JSONResponse(content=sc.submit(result))

@@ -13,7 +13,6 @@ TAG = ["likert_sample"]
 router = APIRouter()
 
 rh = RedisHandler()
-coord = LikertStudyCoordinator()
 
 
 @logger.catch(reraise=True)
@@ -23,6 +22,7 @@ coord = LikertStudyCoordinator()
                         "is ready.")
 async def get_next_likert_sample():
     logger.info(f"GET request on {PREFIX}/next")
+    coord = LikertStudyCoordinator()
     return coord.next()
 
 

@@ -3,9 +3,9 @@ from typing import Union, Optional, List
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from backend.study import RatingStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
+from backend.study import RatingStudyCoordinator
 from models import RatingSample, MTurkParams
 
 PREFIX = "/rating_sample"
@@ -13,7 +13,6 @@ TAG = ["rating_sample"]
 router = APIRouter()
 
 rh = RedisHandler()
-coord = RatingStudyCoordinator()
 
 
 @logger.catch(reraise=True)
@@ -23,6 +22,7 @@ coord = RatingStudyCoordinator()
                         "is ready.")
 async def get_next_rating_sample():
     logger.info(f"GET request on {PREFIX}/next")
+    coord = RatingStudyCoordinator()
     return coord.next()
 
 
