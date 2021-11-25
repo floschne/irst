@@ -9,7 +9,7 @@
     >
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-      <b-navbar-nav>
+      <b-navbar-nav v-if="!mturkMode">
         <b-nav-item to="/">
           <b-icon
             v-b-tooltip.hover.bottom="'Home'"
@@ -47,7 +47,7 @@
       >
       </b-nav-text>
 
-      <b-collapse id="nav-collapse" is-nav>
+      <b-collapse v-if="!mturkMode" id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
           <HeartbeatCheckButton />
         </b-navbar-nav>
@@ -66,6 +66,7 @@ export default {
   data() {
     return {
       headerText: 'Welcome!',
+      mturkMode: false,
     }
   },
   computed: {
@@ -82,6 +83,11 @@ export default {
     this.$nuxt.$on('set-app-header-text', (headerText) => {
       this.headerText = headerText
     })
+
+    // check if mturk params available
+    if ('hitId' in this.$route.query) {
+      this.mturkMode = true
+    }
   },
   methods: {
     helpRequested() {
