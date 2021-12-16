@@ -1,14 +1,7 @@
 <template>
   <b-container fluid>
     <!-- LOGIN / REGISTER USER JUMBOTRON -->
-    <b-jumbotron
-      v-if="currentUser === null || currentUser === undefined"
-      header="Welcome to the Image Ranking Study Tool!"
-      lead="Please login or register to start using the tool."
-    >
-      <b-button to="/login" variant="primary"> Login </b-button>
-      <b-button to="/register" variant="success"> Register </b-button>
-    </b-jumbotron>
+    <NotLoggedIn v-if="currentUser === null || currentUser === undefined" />
 
     <!-- WELCOME USER JUMBOTRON -->
     <b-jumbotron
@@ -22,6 +15,9 @@
       <b-button to="/rating" variant="primary">
         Image Rating User Study
       </b-button>
+      <b-button to="/focus" variant="primary">
+        Image Rating With Focus User Study
+      </b-button>
       <b-button to="/likert" variant="primary">
         Likert Questions User Study
       </b-button>
@@ -30,8 +26,11 @@
 </template>
 
 <script>
+import NotLoggedIn from '../components/NotLoggedIn'
+
 export default {
   name: 'Index',
+  components: { NotLoggedIn },
   computed: {
     currentUser() {
       return this.$store.state.current_user.currentUser

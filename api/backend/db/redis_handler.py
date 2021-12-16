@@ -8,7 +8,7 @@ from loguru import logger
 
 from config import conf
 from models import RankingSample, RankingResult, ModelRanking, Feedback, LikertSample, LikertResult, StudyType, \
-    BaseSample, BaseResult, RatingResult, RatingSample
+    BaseSample, BaseResult, RatingResult, RatingSample, RatingWithFocusSample, RatingWithFocusResult
 
 
 class RedisHandler(object):
@@ -294,7 +294,7 @@ class RedisHandler(object):
     def store_rating_result(self, result: RatingResult) -> Optional[str]:
         if not self.rating_sample_exists(result.sample_id):
             logger.error(
-                f"LikertSample {result.sample_id} referenced in RatingResult {result.id} does not exist! Discarding!")
+                f"RatingSample {result.sample_id} referenced in RatingResult {result.id} does not exist! Discarding!")
             return None
 
         if self.__clients['rating_result'].set(result.id, result.json()) != 1:
@@ -321,6 +321,73 @@ class RedisHandler(object):
         res = [self.load_rating_result(rr_id=res_id, verbose=False) for res_id in
                self.__clients['rating_result'].keys()]
         logger.debug(f"Found {len(res)} RatingResults!")
+        return res
+
+    ################# RatingWithFocusSample #################
+
+    @logger.catch(reraise=True)
+    def store_rating_with_focus_sample(self, sample: RatingWithFocusSample) -> str:
+        if self.__clients['rating_with_focus_sample'].set(sample.id, sample.json()) != 1:
+            logger.error(f"Cannot store RatingWithFocusSample {sample.json()}")
+        logger.debug(f"Successfully stored RatingWithFocusSample {sample.id}")
+        return sample.id
+
+    @logger.catch(reraise=True)
+    def load_rating_with_focus_sample(self, rs_id: str, verbose: bool = True) -> Optional[RatingWithFocusSample]:
+        s = self.__clients['rating_with_focus_sample'].get(rs_id)
+        if s is None:
+            logger.error(f"Cannot load RatingWithFocusSample {rs_id}")
+            return None
+        else:
+            sample = RatingWithFocusSample.parse_raw(s)
+            if verbose:
+                logger.debug(f"Successfully loaded RatingWithFocusSample {sample.id}")
+            return sample
+
+    @logger.catch(reraise=True)
+    def rating_with_focus_sample_exists(self, rs_id: str) -> bool:
+        return bool(self.__clients['rating_with_focus_sample'].exists(rs_id))
+
+    @logger.catch(reraise=True)
+    def list_rating_with_focus_samples(self, num: Optional[int] = None) -> List[RatingWithFocusSample]:
+        ls = [self.load_rating_with_focus_sample(rs_id=rs_id, verbose=False) for rs_id in
+              self.__clients['rating_with_focus_sample'].keys()[:num]]
+        logger.debug(f"Found {len(ls)} RatingWithFocusSample!")
+        return ls
+
+    ################# RatingResult #################
+
+    @logger.catch(reraise=True)
+    def store_rating_with_focus_result(self, result: RatingWithFocusResult) -> Optional[str]:
+        if not self.rating_with_focus_sample_exists(result.sample_id):
+            logger.error((f"RatingWithFocusSample {result.sample_id} referenced in RatingWithFocusResult {result.id}"
+                          " does not exist! Discarding!"))
+            return None
+
+        if self.__clients['rating_with_focus_result'].set(result.id, result.json()) != 1:
+            logger.error(f"Cannot store RatingWithFocusResult {result.json()}")
+            return None
+        else:
+            logger.debug(f"Successfully stored RatingWithFocusResult {result.id}")
+            return result.id
+
+    @logger.catch(reraise=True)
+    def load_rating_with_focus_result(self, rr_id: str, verbose: bool = False) -> Optional[RatingWithFocusResult]:
+        s = self.__clients['rating_with_focus_result'].get(rr_id)
+        if s is None:
+            logger.error(f"Cannot load RatingResult {rr_id}")
+            return None
+        else:
+            result = RatingWithFocusResult.parse_raw(s)
+            if verbose:
+                logger.debug(f"Successfully loaded RatingResult {result.id}")
+            return result
+
+    @logger.catch(reraise=True)
+    def list_rating_with_focus_results(self) -> List[RatingWithFocusResult]:
+        res = [self.load_rating_with_focus_result(rr_id=res_id, verbose=False) for res_id in
+               self.__clients['rating_with_focus_result'].keys()]
+        logger.debug(f"Found {len(res)} RatingWithFocusResult!")
         return res
 
     ############### MTURK ##############################
@@ -415,8 +482,13 @@ class RedisHandler(object):
             if return_type:
                 return StudyType.RATING
             return True
+        elif self.rating_with_focus_sample_exists(sample_id):
+            if return_type:
+                return StudyType.RATING_WITH_FOCUS
+            return True
         else:
-            logger.error(f"Neither a RankingSample nor a LikertSample with ID '{sample_id}' exists!")
+            logger.error(("Neither a RankingSample, a RatingSample, a RatingWithFocusSample, nor a LikertSample"
+                          f" with ID '{sample_id}' exists!"))
             return False
 
     @logger.catch(reraise=True)
@@ -427,8 +499,11 @@ class RedisHandler(object):
             return self.load_likert_sample(ls_id=sample_id)
         elif self.rating_sample_exists(sample_id):
             return self.load_rating_sample(rs_id=sample_id)
+        elif self.rating_with_focus_sample_exists(sample_id):
+            return self.load_rating_with_focus_sample(rs_id=sample_id)
         else:
-            logger.error(f"Neither a RankingSample, a RatingSample nor a LikertSample with ID '{sample_id}' exists!")
+            logger.error(("Neither a RankingSample, a RatingSample, a RatingWithFocusSample, nor a LikertSample"
+                          f" with ID '{sample_id}' exists!"))
             return None
 
     @logger.catch(reraise=True)
@@ -439,6 +514,9 @@ class RedisHandler(object):
             return self.store_likert_result(res)
         elif isinstance(res, RatingResult):
             return self.store_rating_result(res)
+        elif isinstance(res, RatingWithFocusResult):
+            return self.store_rating_with_focus_result(res)
         else:
-            logger.error("Only RankingResult, LikertResult, and RatingResult are supported!")
-            raise NotImplementedError("Only RankingResult, LikertResult, and RatingResult are supported!")
+            logger.error("Only RankingResult, LikertResult, RatingResult, and RatingWithFocusResult are supported!")
+            raise NotImplementedError(
+                "Only RankingResult, LikertResult, RatingResult, and RatingWithFocusResult are supported!")

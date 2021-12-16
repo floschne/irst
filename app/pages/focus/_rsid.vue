@@ -4,11 +4,11 @@
       v-if="!mturkMode && (currentUser === null || currentUser === undefined)"
     />
     <div v-else>
-      <RatingInstructions
+      <RatingWithFocusInstructions
         v-if="showInstructions"
         @rating-instructions-read="showInstructions = false"
       />
-      <RatingForm
+      <RatingWithFocusForm
         v-else
         :rs-id="rsId"
         :assignment-id="assignmentId"
@@ -20,13 +20,13 @@
 </template>
 
 <script>
+import RatingWithFocusForm from '../../components/RatingWithFocusForm'
+import RatingWithFocusInstructions from '../../components/RatingWithFocusInstructions'
 import NotLoggedIn from '../../components/NotLoggedIn'
-import RatingForm from '~/components/RatingForm'
-import RatingInstructions from '~/components/RatingInstructions'
 
 export default {
   name: 'RsId',
-  components: { NotLoggedIn, RatingForm, RatingInstructions },
+  components: { NotLoggedIn, RatingWithFocusForm, RatingWithFocusInstructions },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
     const rsId = params.rsid // When calling /abc the rsId will be "abc"
@@ -51,7 +51,7 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
-      localStorage.setItem('ratingInstructionsRead', 'false')
+      localStorage.setItem('ratingWithFocusInstructionsRead', 'false')
     })
     // check if mturk params available
     if ('hitId' in this.$route.query) {

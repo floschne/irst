@@ -4,23 +4,23 @@
       v-if="!mturkMode && (currentUser === null || currentUser === undefined)"
     />
     <div v-else>
-      <RatingInstructions
+      <RatingWithFocusInstructions
         v-if="showInstructions"
         @rating-instructions-read="showInstructions = false"
       />
-      <RatingForm v-else />
+      <RatingWithFocusForm v-else />
     </div>
   </div>
 </template>
 
 <script>
+import RatingWithFocusForm from '../../components/RatingWithFocusForm'
+import RatingWithFocusInstructions from '../../components/RatingWithFocusInstructions'
 import NotLoggedIn from '../../components/NotLoggedIn'
-import RatingForm from '~/components/RatingForm'
-import RatingInstructions from '~/components/RatingInstructions'
 
 export default {
   name: 'Index',
-  components: { NotLoggedIn, RatingForm, RatingInstructions },
+  components: { NotLoggedIn, RatingWithFocusForm, RatingWithFocusInstructions },
   data() {
     return {
       showInstructions: true,

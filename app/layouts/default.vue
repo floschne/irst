@@ -85,7 +85,7 @@ export default {
 }
 
 .outer-container {
-  height: calc(100vh - 155px) !important;
+  height: 100vh !important;
 }
 
 html {

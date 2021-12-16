@@ -62,6 +62,12 @@ export default ({ app, axios }, inject) => {
     loadRatingSample: async (lsId) => {
       return await loadSample('rating', lsId)
     },
+    nextRatingWithFocusSample: async () => {
+      return await nextSample('rating_with_focus')
+    },
+    loadRatingWithFocusSample: async (lsId) => {
+      return await loadSample('rating_with_focus', lsId)
+    },
   }
 
   // inject methods so that they can be called in any component or function with this.$sampleApiClient.

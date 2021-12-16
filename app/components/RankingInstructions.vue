@@ -8,7 +8,7 @@
     <b-alert show dismissible fade variant="warning" class="border border-dark">
       <b-icon font-scale="1.5" icon="exclamation-triangle" />
       &nbsp;This app does not support mobile devices and requires a minimum
-      screen size of 900x800 pixels with no browser zoom enabled.
+      screen size of 1280x1050 pixels with no browser zoom enabled.
     </b-alert>
     <b-container fluid class="text-center">
       <b-form-checkbox

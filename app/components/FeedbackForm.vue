@@ -104,6 +104,19 @@ export default {
     isValidMessage() {
       return this.message.length >= 10 && this.message.length <= 1000
     },
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    currentUserId() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.userId).replaceAll('"', '')
+    },
+    currentUserJwt() {
+      return this.currentUser === null
+        ? ''
+        : JSON.stringify(this.currentUser.jwt).replaceAll('"', '')
+    },
   },
   methods: {
     async onSubmit(evt) {
@@ -112,7 +125,8 @@ export default {
         this.sampleId,
         this.message,
         this.submitWorkerId,
-        this.hitId
+        this.hitId,
+        this.currentUserJwt
       )
       if (resp !== null) {
         this.feedbackId = resp

@@ -1,27 +1,33 @@
 <template>
   <div>
-    <RankingInstructions
-      v-if="showInstructions"
-      @ranking-instructions-read="showInstructions = false"
+    <NotLoggedIn
+      v-if="!mturkMode && (currentUser === null || currentUser === undefined)"
     />
-    <RankingForm
-      v-else
-      :rs-id="rsId"
-      :min-num-ranks="$config.minNumRanks"
-      :assignment-id="assignmentId"
-      :worker-id="workerId"
-      :hit-id="hitId"
-    />
+    <div v-else>
+      <RankingInstructions
+        v-if="showInstructions"
+        @ranking-instructions-read="showInstructions = false"
+      />
+      <RankingForm
+        v-else
+        :rs-id="rsId"
+        :min-num-ranks="$config.minNumRanks"
+        :assignment-id="assignmentId"
+        :worker-id="workerId"
+        :hit-id="hitId"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import NotLoggedIn from '../../components/NotLoggedIn'
 import RankingForm from '~/components/RankingForm'
 import RankingInstructions from '~/components/RankingInstructions'
 
 export default {
   name: 'RsId',
-  components: { RankingForm, RankingInstructions },
+  components: { NotLoggedIn, RankingForm, RankingInstructions },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
     const rsId = params.rsid // When calling /abc the rsId will be "abc"
@@ -34,6 +40,14 @@ export default {
       hitId: null,
       workerId: null,
     }
+  },
+  computed: {
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    mturkMode() {
+      return 'hitId' in this.$route.query
+    },
   },
   created() {
     this.$nuxt.$on('help-requested', () => {

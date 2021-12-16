@@ -1,0 +1,172 @@
+port: 8081
+
+logging:
+  level: DEBUG
+  rotation: 500 # MB
+
+gunicorn:
+  graceful_timeout_str: "600"
+  timeout_str: "600"
+  keepalive_str: "5"
+  use_loglevel: "debug"
+  max_workers_str: "4"
+
+study_initialization:
+  flush: True # THIS FLUSHES samples, results, feedback, mturk etc
+
+  ranking:
+    num_top_k_imgs: 5
+    in_prog_ttl: 60 # in seconds
+    num_samples: 50 # negative number is maximum
+    num_random_imgs: 7
+
+  likert:
+    num_top_k_imgs: 5
+    in_prog_ttl: 60 # in seconds
+    num_samples: 100 # negative number is maximum
+    question: "The shown images are relevant to the provided caption."
+    answers: [ 'strongly agree', 'agree', 'neutral', 'disagree', 'strongly disagree' ]
+    answer_weights: [ 2, 1, 0, -1, -2 ]
+
+  rating:
+    num_top_k_imgs: 5
+    in_prog_ttl: 60 # in seconds
+    num_samples: 100 # negative number is maximum
+    min_rating: 0.0
+    max_rating: 5.0
+    rating_step: 0.5
+
+  rating_with_focus:
+    num_top_k_imgs: 5
+    in_prog_ttl: 60 # in seconds
+    num_samples: 100 # negative number is maximum
+    min_rating: 0.0
+    max_rating: 5.0
+    rating_step: 0.5
+
+  model_rankings:
+    data_root: ../data/lrec22/pilot/control_questions.df.feather
+    shuffle: False
+
+backend:
+  redis:
+    host: ${env:REDIS_HOST, localhost}
+    port: ${env:REDIS_PORT, 6379}
+    clients:
+      # TODO dont use separate DBs for each study type but use a key prefix
+      model_ranking: ${env:REDIS_MODEL_RANKING_DB_IDX, 0}
+      ranking_sample: ${env:REDIS_RANKING_SAMPLE_DB_IDX, 1}
+      ranking_result: ${env:REDIS_RANKING_RESULT_DB_IDX, 2}
+      ranking_progress: ${env:REDIS_RANKING_PROGRESS_DB_IDX, 3}
+      likert_sample: ${env:REDIS_LIKERT_SAMPLE_DB_IDX, 4}
+      likert_result: ${env:REDIS_LIKERT_RESULT_DB_IDX, 5}
+      likert_progress: ${env:REDIS_LIKERT_PROGRESS_DB_IDX, 6}
+      rating_sample: ${env:REDIS_RATING_SAMPLE_DB_IDX, 7}
+      rating_result: ${env:REDIS_RATING_RESULT_DB_IDX, 8}
+      rating_progress: ${env:REDIS_RATING_PROGRESS_DB_IDX, 9}
+      rating_with_focus_sample: ${env:REDIS_RATING_WITH_FOCUS_SAMPLE_DB_IDX, 10}
+      rating_with_focus_result: ${env:REDIS_RATING_WITH_FOCUS_RESULT_DB_IDX, 11}
+      rating_with_focus_progress: ${env:REDIS_RATING_WITH_FOCUS_PROGRESS_DB_IDX, 12}
+      auth: ${env:REDIS_AUTH_DB_IDX, 13}
+      mturk: ${env:REDIS_MTURK_DB_IDX, 14}
+      images: ${env:REDIS_IMAGES_DB_IDX, 15}
+
+  mturk:
+    sandbox: ${env:MTURK_SANDBOX, false}
+    aws_access_key: ${env:AWS_ACCESS_KEY}
+    aws_secret: ${env:AWS_SECRET}
+    aws_region_name: ${env:AWS_REGION_NAME, us-east-1}
+
+    ranking:
+      hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
+      hit_assignment_duration_in_seconds: 600 # 10 min
+      hit_reward: 0.15
+      hit_title: Image ranking according to a caption
+      hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you re-rank images according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
+      hit_keywords: image, ranking, AI, visual, rerank
+      hit_max_assignments: 3
+      hit_lifetime: 604800 # 604800 = 1 week's seconds
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'NotEqualTo'
+#          integerValues: [ 99 ]
+#          actionsGuarded: 'Accept'
+      worker_quali_req_min_hits_approved: 100
+      worker_quali_req_min_percent_approved: 90
+      external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/ranking/}
+
+    likert:
+      hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
+      hit_assignment_duration_in_seconds: 300 # 5 min
+      hit_reward: 0.15
+      hit_title: Asses how relevant images are to a given caption
+      hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you asses how good the images match a given caption. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
+      hit_keywords: image, ranking, AI, visual, likert
+      hit_max_assignments: 3
+      hit_lifetime: 604800 # 604800 = 1 week's seconds
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'NotEqualTo'
+#          integerValues: [ 99 ]
+#          actionsGuarded: 'Accept'
+      worker_quali_req_min_hits_approved: 100
+      worker_quali_req_min_percent_approved: 90
+      external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/likert/}
+
+    rating:
+      hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
+      hit_assignment_duration_in_seconds: 300 # 5 min
+      hit_reward: 0.10
+      hit_title: Rate relevance of images accoring to caption
+      hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you rate how relevant images are according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
+      hit_keywords: image, ranking, AI, visual, rating
+      hit_max_assignments: 50
+      hit_lifetime: 604800 # 604800 = 1 week's seconds
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'DoesNotExist'
+#          integerValues:
+#          actionsGuarded: 'Accept'
+      worker_quali_req_min_hits_approved: 1000
+      worker_quali_req_min_percent_approved: 90
+      external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/rating/}
+
+    rating_with_focus:
+      hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
+      hit_assignment_duration_in_seconds: 300 # 5 min
+      hit_reward: 0.10
+      hit_title: Rate relevance of images accoring to caption
+      hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you rate how relevant images are according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
+      hit_keywords: image, ranking, AI, visual, rating
+      hit_max_assignments: 50
+      hit_lifetime: 604800 # 604800 = 1 week's seconds
+      # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/mturk.html#MTurk.Client.create_hit_type
+      hit_custom_qualifications:
+#        3KHNGLCM6NZMXQI6RKCA8JDBD0PYA3:
+#          comparator: 'DoesNotExist'
+#          integerValues:
+#          actionsGuarded: 'Accept'
+      worker_quali_req_min_hits_approved: 1000
+      worker_quali_req_min_percent_approved: 90
+      external_question_base_url: ${env:EQ_BASE_URL, https://ltdemos.informatik.uni-hamburg.de/imagerank/focus/}
+
+  auth:
+    jwt_secret: ${env:JWT_SECRET, }
+    jwt_algo: ${env:JWT_ALGO, HS256}
+    jwt_ttl: ${env:JWT_TTL, 300}
+    admin_id: ${env:ADMIN_ID, admin}
+    admin_pwd: ${env:ADMIN_PWD, admin}
+
+image_server:
+  https: False
+  host: ${env:IMG_SRV_HOST, localhost}
+  port: ${env:IMG_SRV_PORT, 8082}
+  relative_url: ${env:IMG_SRV_REL_URL, 0}
+  context_path: ${env:IMG_SRV_CTX_PTH, /}
+  img_root: ../data/lrec22/pilot/images
+  img_prefix: ''
+  img_thumbnail_infix: _thumbnail
+  img_suffix: .webp

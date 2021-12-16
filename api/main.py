@@ -6,11 +6,12 @@ from backend.auth import AuthHandler
 from backend.db import RedisHandler
 from backend.image_server import ImageServer
 from backend.mturk import MTurkHandler
-from backend.study import RankingStudyCoordinator, LikertStudyCoordinator, RatingStudyCoordinator
+from backend.study import RankingStudyCoordinator, LikertStudyCoordinator, RatingStudyCoordinator, \
+    RatingWithFocusStudyCoordinator
 from backend.study.init_model_rankings import init_model_rankings
 from config import conf
 from routers import general, ranking_sample, ranking_result, likert_sample, likert_result, rating_sample, rating_result, \
-    image, study, mranking, user, mturk, feedback
+    rating_with_focus_result, rating_with_focus_sample, image, study, mranking, user, mturk, feedback
 
 # create the main api
 app = FastAPI(title="User Study API",
@@ -49,6 +50,8 @@ def startup_event():
         likert_coord.init_study()
         rating_coord = RatingStudyCoordinator()
         rating_coord.init_study()
+        rating_with_focus_coord = RatingWithFocusStudyCoordinator()
+        rating_with_focus_coord.init_study()
 
         # init mturk
         mt = MTurkHandler()
@@ -78,6 +81,8 @@ app.include_router(likert_sample.router, prefix=likert_sample.PREFIX)
 app.include_router(likert_result.router, prefix=likert_result.PREFIX)
 app.include_router(rating_sample.router, prefix=rating_sample.PREFIX)
 app.include_router(rating_result.router, prefix=rating_result.PREFIX)
+app.include_router(rating_with_focus_sample.router, prefix=rating_with_focus_sample.PREFIX)
+app.include_router(rating_with_focus_result.router, prefix=rating_with_focus_result.PREFIX)
 app.include_router(mturk.router, prefix=mturk.PREFIX)
 app.include_router(image.router, prefix=image.PREFIX)
 app.include_router(study.router, prefix=study.PREFIX)

@@ -1,6 +1,10 @@
 <template>
   <div>
+    <NotLoggedIn
+      v-if="!mturkMode && (currentUser === null || currentUser === undefined)"
+    />
     <LikertForm
+      v-else
       :ls-id="lsId"
       :assignment-id="assignmentId"
       :worker-id="workerId"
@@ -11,10 +15,11 @@
 
 <script>
 import LikertForm from '../../components/LikertForm'
+import NotLoggedIn from '../../components/NotLoggedIn'
 
 export default {
   name: 'LsId',
-  components: { LikertForm },
+  components: { NotLoggedIn, LikertForm },
   // eslint-disable-next-line require-await
   async asyncData({ params }) {
     const lsId = params.lsid // When calling /abc the lsid will be "abc"
@@ -27,6 +32,14 @@ export default {
       hitId: null,
       workerId: null,
     }
+  },
+  computed: {
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    mturkMode() {
+      return 'hitId' in this.$route.query
+    },
   },
   created() {
     this.$nuxt.$on('help-requested', () => {

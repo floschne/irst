@@ -20,6 +20,14 @@ export default {
       showInstructions: true,
     }
   },
+  computed: {
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    mturkMode() {
+      return 'hitId' in this.$route.query
+    },
+  },
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true

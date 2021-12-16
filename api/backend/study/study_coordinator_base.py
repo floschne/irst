@@ -94,7 +94,7 @@ class StudyCoordinatorBase(object):
         pass
 
     def init_study(self):
-        # we wait a random amount of time here to support multi-processing (gunicorn spawns multiple processes) so
+        # we wait a random amount of time here to support multiprocessing (gunicorn spawns multiple processes) so
         # only the instance that reads the init_flag first will init Redis! Otherwise it gets initialized multiple
         # times
         time.sleep(np.random.uniform(low=0.05, high=0.5))
@@ -230,15 +230,15 @@ class StudyCoordinatorBase(object):
                 prog = self.current_progress()
                 logger.info(f"Current Progress: {prog}")
 
-                # if this was the last remaining RankingSample, we start a new study run
+                # if this was the last remaining Sample, we start a new study run
                 if self.__study_run_finished():
                     self.__start_new_run()
 
         return res.id
 
-    def __reference_in_current_run_results(self, res: BaseSample):
+    def __reference_in_current_run_results(self, res: BaseResult):
         self.__progress.sadd(self.__current_run_results_key(), res.id)
-        logger.info(f"Successfully referenced RankingResult {res.id} in results of current run {self.__current_run()}!")
+        logger.info(f"Successfully referenced Result {res.id} in results of current run {self.__current_run()}!")
 
     # TODO remove this ?!
     # def __reset_previous_results(self):

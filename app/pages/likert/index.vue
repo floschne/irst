@@ -1,6 +1,9 @@
 <template>
   <div class="w-100">
-    <LikertForm />
+    <NotLoggedIn
+      v-if="!mturkMode && (currentUser === null || currentUser === undefined)"
+    />
+    <LikertForm v-else />
   </div>
 </template>
 
@@ -14,6 +17,14 @@ export default {
     return {
       showInstructions: true,
     }
+  },
+  computed: {
+    currentUser() {
+      return this.$store.state.current_user.currentUser
+    },
+    mturkMode() {
+      return 'hitId' in this.$route.query
+    },
   },
   created() {
     this.$nuxt.$on('help-requested', () => {

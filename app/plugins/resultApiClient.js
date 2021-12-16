@@ -2,7 +2,6 @@ import { logger } from './logger'
 
 export default ({ app, axios }, inject) => {
   async function submitResult(type, result, jwt) {
-    console.log(jwt)
     jwt = JSON.stringify(jwt).replaceAll('"', '')
     const authJsonHeaderConfig = {
       headers: {
@@ -108,6 +107,33 @@ export default ({ app, axios }, inject) => {
         user_id: userId,
       }
       return await submitResult('rating', result, jwt)
+    },
+    submitRatingWithFocusResult: async (
+      rsId,
+      contextRatings,
+      focusRatings,
+      workerId = '',
+      assignmentId = '',
+      hitId = '',
+      userId = null,
+      jwt = null
+    ) => {
+      let mtParams = null
+      if (workerId !== '' && assignmentId !== '' && hitId !== '') {
+        mtParams = {
+          worker_id: workerId,
+          assignment_id: assignmentId,
+          hit_id: hitId,
+        }
+      }
+      const result = {
+        sample_id: rsId,
+        context_ratings: contextRatings,
+        focus_ratings: focusRatings,
+        mt_params: mtParams,
+        user_id: userId,
+      }
+      return await submitResult('rating_with_focus', result, jwt)
     },
   }
 

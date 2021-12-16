@@ -51,7 +51,6 @@ def init_model_rankings():
                 logger.error(f"Cannot find {k} in the columns of the DataFrame!")
                 raise IndexError(f"Cannot find {k} in the columns of the DataFrame!")
 
-        # we don't use lambda for cleaner code
         def generate_model_ranking(row) -> ModelRanking:
             opts = None
             # add optional kwargs from non mandatory columns
