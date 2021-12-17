@@ -107,6 +107,7 @@
               rounded
               :src="imageUrls[current_img_idx]"
               class="border border-dark shadow shadow-lg"
+              style="max-height: 550px"
             />
           </b-col>
         </b-row>
@@ -116,6 +117,12 @@
       <b-container fluid class="border border-dark rounded-bottom bg-info">
         <!-- CONTEXT -->
         <b-row>
+          <b-col
+            md="2"
+            class="d-flex flex-column align-items-center border-right border-dark"
+          >
+            <p>How well does the caption match the image?</p>
+          </b-col>
           <b-col
             md="2"
             class="d-flex flex-column align-items-center border-right border-dark"
@@ -143,7 +150,7 @@
               ></b-form-checkbox>
             </div>
           </b-col>
-          <b-col md="10">
+          <b-col md="8">
             <h5
               class="p-1 font-italic"
               style="max-height: 200px; overflow-y: auto"
@@ -155,6 +162,15 @@
 
         <!-- FOCUS -->
         <b-row class="border-top border-dark">
+          <b-col
+            md="2"
+            class="d-flex flex-column align-items-center border-right border-dark"
+          >
+            <p>
+              How well does the focus word match the highlighted region in the
+              image?
+            </p>
+          </b-col>
           <b-col
             md="2"
             class="d-flex flex-column align-items-center border-right border-dark"
@@ -182,7 +198,7 @@
               ></b-form-checkbox>
             </div>
           </b-col>
-          <b-col md="10"
+          <b-col md="8"
             ><h5
               class="p-1 font-italic"
               style="max-height: 200px; overflow-y: auto"

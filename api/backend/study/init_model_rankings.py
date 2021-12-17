@@ -53,7 +53,7 @@ def init_model_rankings():
 
         def generate_model_ranking(row) -> ModelRanking:
             opts = None
-            # add optional kwargs from non mandatory columns
+            # add optional kwargs from non-mandatory columns
             for c in row.index:
                 if c not in ['sample_id', 'caption', 'top_k_matches']:
                     if opts is None:

@@ -45,7 +45,7 @@ study_initialization:
     rating_step: 0.5
 
   model_rankings:
-    data_root: ../data/lrec22/pilot/control_questions.df.feather
+    data_root: ../data/lrec22/pilot/ranking_with_focus_lrec22_control_questions.df.feather
     shuffle: False
 
 backend:
@@ -98,7 +98,7 @@ backend:
 
     likert:
       hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
-      hit_assignment_duration_in_seconds: 300 # 5 min
+      hit_assignment_duration_in_seconds: 600 # 10 min
       hit_reward: 0.15
       hit_title: Asses how relevant images are to a given caption
       hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you asses how good the images match a given caption. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
@@ -117,7 +117,7 @@ backend:
 
     rating:
       hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
-      hit_assignment_duration_in_seconds: 300 # 5 min
+      hit_assignment_duration_in_seconds: 600 # 10 min
       hit_reward: 0.10
       hit_title: Rate relevance of images accoring to caption
       hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you rate how relevant images are according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
@@ -136,8 +136,8 @@ backend:
 
     rating_with_focus:
       hit_auto_approval_delay_in_seconds: 604800 # 1 week's seconds
-      hit_assignment_duration_in_seconds: 300 # 5 min
-      hit_reward: 0.10
+      hit_assignment_duration_in_seconds: 600 # 10 min
+      hit_reward: 0.15
       hit_title: Rate relevance of images accoring to caption
       hit_description: This survey's goal is to evaluate an image ranking created by an AI by letting you rate how relevant images are according to captions. Please note that mobile devices are not supported and a minimum screen size of 900x800 pixels with no browser zoom is required.
       hit_keywords: image, ranking, AI, visual, rating

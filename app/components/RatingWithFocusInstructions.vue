@@ -12,7 +12,7 @@
     </b-alert>
     <b-container fluid class="text-center">
       <b-form-checkbox
-        v-model="ratingInstructionsRead"
+        v-model="ratingWithFocusInstructionsRead"
         name="show-next-time-checkbox"
         class="text-left"
         switch
@@ -26,97 +26,118 @@
               <u style="text-decoration-style: dashed"> Goal of the task </u>
             </h1>
           </header>
-          <p style="font-size: 1.2rem">
-            To complete the task, you have to
-            <strong> rate each of the images </strong>
-            on a 5-star scale according to the caption in the
-            <span class="bg-info rounded p-1">green-ish box</span> below the
-            images.
+          <div style="font-size: 1.2rem">
+            To complete the task, you are shown five images.
+            <br />
+            Then, for each of the images you have to
+            <ul>
+              <li>
+                <strong> rate how well the caption matches the image</strong>
+              </li>
+              <li>
+                <strong>
+                  rate how well the focus word matches the highlighted region in
+                  the image
+                </strong>
+              </li>
+            </ul>
+            on a 5-star scale.
+
+            <br />
+            <br />
+            The <strong class="text-danger">caption</strong> is shown in the
+            <strong class="text-danger">first</strong> row of the
+            <span class="bg-info rounded p-1">green-ish box</span>
+            below the image.
+            <br />
+            The <strong class="text-danger">focus word</strong> is shown in the
+            <strong class="text-danger">second</strong> row of the
+            <span class="bg-info rounded p-1">green-ish box</span>
+            below the image.
+            <br />
             <br />
             <strong>
-              Note that the images
+              Note that the images or focus-words
               <u style="text-decoration-style: solid">
                 do not have to match exactly
               </u>
-              but should just be related to the caption.
+              with the image or highlighted image region.
             </strong>
             <br />
-            For example, if the caption is about specific a person, all images
-            with persons are regarded as being related.
             <br />
             Once you've rated every image, the submit button gets enabled.
-          </p>
+          </div>
         </section>
       </b-row>
 
-      <b-row class="mb-2">
-        <section class="w-100 p-2 text-left">
-          <header>
-            <h3 class="text-monospace">
-              <u style="text-decoration-style: dashed">Rating an image</u>
-            </h3>
-          </header>
-          <p>
-            To rate an image just select the number of stars with your cursor.
-          </p>
-          <p>
-            If an images is not related at all, i.e., you want
-            <strong>
-              to assign zero stars, please select the checkbox below the rating </strong
-            >.
-          </p>
-          <p>
-            <strong>5 stars means that the image is perfectly related</strong>
-            to the caption in the
-            <span class="bg-info rounded p-1">green-ish box</span> below the
-            images.
-          </p>
-          <p>
-            <strong>0 stars means that the image is not related</strong>
-            to the caption at all.
-          </p>
-          <b-button v-b-toggle="'rating-video'" variant="primary" size="sm">
-            Toggle Example
-          </b-button>
+      <!--      <b-row class="mb-2">-->
+      <!--        <section class="w-100 p-2 text-left">-->
+      <!--          <header>-->
+      <!--            <h3 class="text-monospace">-->
+      <!--              <u style="text-decoration-style: dashed">Rating an image</u>-->
+      <!--            </h3>-->
+      <!--          </header>-->
+      <!--          <p>-->
+      <!--            To rate an image just select the number of stars with your cursor.-->
+      <!--          </p>-->
+      <!--          <p>-->
+      <!--            If an images is not related at all, i.e., you want-->
+      <!--            <strong>-->
+      <!--              to assign zero stars, please select the checkbox below the rating </strong-->
+      <!--            >.-->
+      <!--          </p>-->
+      <!--          <p>-->
+      <!--            <strong>5 stars means that the image is perfectly related</strong>-->
+      <!--            to the caption in the-->
+      <!--            <span class="bg-info rounded p-1">green-ish box</span> below the-->
+      <!--            images.-->
+      <!--          </p>-->
+      <!--          <p>-->
+      <!--            <strong>0 stars means that the image is not related</strong>-->
+      <!--            to the caption at all.-->
+      <!--          </p>-->
+      <!--          <b-button v-b-toggle="'rating-video'" variant="primary" size="sm">-->
+      <!--            Toggle Example-->
+      <!--          </b-button>-->
 
-          <b-collapse
-            id="rating-video"
-            class="pt-1 border border-dark rounded-bottom w-100 text-center"
-          >
-            <iframe
-              width="800"
-              height="450"
-              src="https://www.youtube-nocookie.com/embed/fMimZvy3qV4"
-              title="YouTube video player"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </b-collapse>
-        </section>
-      </b-row>
+      <!--          <b-collapse-->
+      <!--            id="rating-video"-->
+      <!--            class="pt-1 border border-dark rounded-bottom w-100 text-center"-->
+      <!--          >-->
+      <!--            <iframe-->
+      <!--              width="800"-->
+      <!--              height="450"-->
+      <!--              src="https://www.youtube-nocookie.com/embed/fMimZvy3qV4"-->
+      <!--              title="YouTube video player"-->
+      <!--              frameborder="0"-->
+      <!--              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"-->
+      <!--              allowfullscreen-->
+      <!--            ></iframe>-->
+      <!--          </b-collapse>-->
+      <!--        </section>-->
+      <!--      </b-row>-->
 
-      <b-row class="mb-2">
-        <section class="w-100 p-2 text-left">
-          <header>
-            <h3 class="text-monospace">
-              <u style="text-decoration-style: dashed"> Enlarge an image </u>
-            </h3>
-          </header>
-          <p>
-            To enlarge and image, simply
-            <strong> click on the respective image </strong>
-            and a modal with with the enlarged image will show up.
-          </p>
-        </section>
-      </b-row>
+      <!--      <b-row class="mb-2">-->
+      <!--        <section class="w-100 p-2 text-left">-->
+      <!--          <header>-->
+      <!--            <h3 class="text-monospace">-->
+      <!--              <u style="text-decoration-style: dashed"> Enlarge an image </u>-->
+      <!--            </h3>-->
+      <!--          </header>-->
+      <!--          <p>-->
+      <!--            To enlarge and image, simply-->
+      <!--            <strong> click on the respective image </strong>-->
+      <!--            and a modal with with the enlarged image will show up.-->
+      <!--          </p>-->
+      <!--        </section>-->
+      <!--      </b-row>-->
 
       <b-row class="mb-2 mt-2">
         <b-button block variant="success" @click="onSubmit">
           Ok, I got it! Let's start!
         </b-button>
         <b-form-checkbox
-          v-model="ratingInstructionsRead"
+          v-model="ratingWithFocusInstructionsRead"
           name="show-next-time-checkbox"
           switch
         >
@@ -129,40 +150,40 @@
 
 <script>
 export default {
-  name: 'RatingInstructions',
-  emits: ['rating-instructions-read'],
+  name: 'RatingWithFocusInstructions',
+  emits: ['rating-with-focus-instructions-read'],
   data() {
     return {
-      ratingInstructionsRead: false,
+      ratingWithFocusInstructionsRead: false,
     }
   },
   watch: {
-    ratingInstructionsRead(read) {
-      localStorage.setItem('ratingInstructionsRead', read)
-      this.ratingInstructionsRead = read
+    ratingWithFocusInstructionsRead(read) {
+      localStorage.setItem('ratingWithFocusInstructionsRead', read)
+      this.ratingWithFocusInstructionsRead = read
     },
   },
   mounted() {
-    this.ratingInstructionsRead = JSON.parse(
-      localStorage.getItem('ratingInstructionsRead')
+    this.ratingWithFocusInstructionsRead = JSON.parse(
+      localStorage.getItem('ratingWithFocusInstructionsRead')
     )
-    if (this.ratingInstructionsRead === true) {
+    if (this.ratingWithFocusInstructionsRead === true) {
       this.$nextTick(() => {
-        this.$emit('rating-instructions-read')
+        this.$emit('rating-with-focus-instructions-read')
       })
     }
   },
   created() {
     if (
       process.browser &&
-      localStorage.getItem('ratingInstructionsRead') === null
+      localStorage.getItem('ratingWithFocusInstructionsRead') === null
     )
-      localStorage.setItem('ratingInstructionsRead', 'false')
+      localStorage.setItem('ratingWithFocusInstructionsRead', 'false')
   },
   methods: {
     onSubmit(event) {
       event.preventDefault()
-      this.$emit('rating-instructions-read')
+      this.$emit('rating-with-focus-instructions-read')
     },
   },
 }

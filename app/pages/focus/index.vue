@@ -6,7 +6,7 @@
     <div v-else>
       <RatingWithFocusInstructions
         v-if="showInstructions"
-        @rating-instructions-read="showInstructions = false"
+        @rating-with-focus-instructions-read="showInstructions = false"
       />
       <RatingWithFocusForm v-else />
     </div>
@@ -37,7 +37,7 @@ export default {
   created() {
     this.$nuxt.$on('help-requested', () => {
       this.showInstructions = true
-      localStorage.setItem('ratingInstructionsRead', 'false')
+      localStorage.setItem('ratingWithFocusInstructionsRead', 'false')
     })
   },
 }

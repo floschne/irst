@@ -6,7 +6,7 @@
     <div v-else>
       <RatingWithFocusInstructions
         v-if="showInstructions"
-        @rating-instructions-read="showInstructions = false"
+        @rating-with-focus-instructions-read="showInstructions = false"
       />
       <RatingWithFocusForm
         v-else
