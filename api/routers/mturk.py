@@ -45,8 +45,11 @@ async def create_hits(study_type: StudyType, creds: Optional[AWSCreds] = None, s
         samples = rh.list_likert_samples()
     elif study_type == StudyType.RATING:
         samples = rh.list_rating_samples()
+    elif study_type == StudyType.RATING_WITH_FOCUS:
+        samples = rh.list_rating_with_focus_samples()
     else:
-        raise ValueError("StudyType unknown! Only 'likert', 'rating', and 'ranking' are supported!")
+        raise ValueError(
+            "StudyType unknown! Only 'likert', 'rating', 'rating_with_focus', and 'ranking' are supported!")
     return mturk.create_hits_from_samples(samples)
 
 
