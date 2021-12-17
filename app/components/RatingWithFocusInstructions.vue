@@ -71,66 +71,20 @@
       </b-row>
 
       <!--      <b-row class="mb-2">-->
-      <!--        <section class="w-100 p-2 text-left">-->
-      <!--          <header>-->
-      <!--            <h3 class="text-monospace">-->
-      <!--              <u style="text-decoration-style: dashed">Rating an image</u>-->
-      <!--            </h3>-->
-      <!--          </header>-->
-      <!--          <p>-->
-      <!--            To rate an image just select the number of stars with your cursor.-->
-      <!--          </p>-->
-      <!--          <p>-->
-      <!--            If an images is not related at all, i.e., you want-->
-      <!--            <strong>-->
-      <!--              to assign zero stars, please select the checkbox below the rating </strong-->
-      <!--            >.-->
-      <!--          </p>-->
-      <!--          <p>-->
-      <!--            <strong>5 stars means that the image is perfectly related</strong>-->
-      <!--            to the caption in the-->
-      <!--            <span class="bg-info rounded p-1">green-ish box</span> below the-->
-      <!--            images.-->
-      <!--          </p>-->
-      <!--          <p>-->
-      <!--            <strong>0 stars means that the image is not related</strong>-->
-      <!--            to the caption at all.-->
-      <!--          </p>-->
-      <!--          <b-button v-b-toggle="'rating-video'" variant="primary" size="sm">-->
-      <!--            Toggle Example-->
-      <!--          </b-button>-->
-
-      <!--          <b-collapse-->
-      <!--            id="rating-video"-->
-      <!--            class="pt-1 border border-dark rounded-bottom w-100 text-center"-->
-      <!--          >-->
-      <!--            <iframe-->
-      <!--              width="800"-->
-      <!--              height="450"-->
-      <!--              src="https://www.youtube-nocookie.com/embed/fMimZvy3qV4"-->
-      <!--              title="YouTube video player"-->
-      <!--              frameborder="0"-->
-      <!--              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"-->
-      <!--              allowfullscreen-->
-      <!--            ></iframe>-->
-      <!--          </b-collapse>-->
-      <!--        </section>-->
-      <!--      </b-row>-->
-
-      <!--      <b-row class="mb-2">-->
-      <!--        <section class="w-100 p-2 text-left">-->
-      <!--          <header>-->
-      <!--            <h3 class="text-monospace">-->
-      <!--              <u style="text-decoration-style: dashed"> Enlarge an image </u>-->
-      <!--            </h3>-->
-      <!--          </header>-->
-      <!--          <p>-->
-      <!--            To enlarge and image, simply-->
-      <!--            <strong> click on the respective image </strong>-->
-      <!--            and a modal with with the enlarged image will show up.-->
-      <!--          </p>-->
-      <!--        </section>-->
-      <!--      </b-row>-->
+      <b-row class="mb-2">
+        <section class="w-100 p-2 text-left">
+          <header>
+            <h3 class="text-monospace">
+              <u style="text-decoration-style: dashed"> Enlarge an image </u>
+            </h3>
+          </header>
+          <p>
+            To enlarge and image, simply
+            <strong> click on the respective image </strong>
+            and a modal with with the enlarged image will show up.
+          </p>
+        </section>
+      </b-row>
 
       <b-row class="mb-2 mt-2">
         <b-button block variant="success" @click="onSubmit">

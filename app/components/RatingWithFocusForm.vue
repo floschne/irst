@@ -100,16 +100,70 @@
         </b-row>
 
         <!-- IMAGE CONTAINER -->
-        <b-row class="align-items-center mt-2 mb-2">
+        <b-row class="align-items-center text-center mt-2 mb-2">
           <b-col class="d-flex flex-column align-items-center">
-            <b-img
-              :id="`tn-img-${current_img_idx}`"
-              rounded
-              :src="imageUrls[current_img_idx]"
-              class="border border-dark shadow shadow-lg"
-              style="max-height: 550px"
-            />
+            <b-link href="#">
+              <b-img
+                :id="`tn-img-${current_img_idx}`"
+                v-b-modal="`modal-${imageUrls[current_img_idx]}`"
+                rounded
+                :src="imageUrls[current_img_idx]"
+                class="border border-dark shadow shadow-lg"
+                style="max-height: 450px"
+              />
+              <b-tooltip
+                :target="`tn-img-${current_img_idx}`"
+                placement="top"
+                triggers="hover"
+                noninteractive
+              >
+                Click to enlarge
+              </b-tooltip>
+            </b-link>
           </b-col>
+          <!-- ENLARGE MODAL -->
+          <b-modal
+            :id="`modal-${imageUrls[current_img_idx]}`"
+            centered
+            ok-only
+            hide-header
+            size="lg"
+            footer-bg-variant="dark"
+            footer-text-variant="light"
+          >
+            <b-img
+              fluid
+              center
+              rounded="sm"
+              class="border border-dark"
+              :src="imageUrls[current_img_idx]"
+              style="max-height: 60vh"
+            />
+            <template #modal-footer>
+              <b-container fluid class="text-left m-0 p-0">
+                <b-row class="m-0 p-0 no-gutters border-bottom border-dark">
+                  <b-col
+                    md="2"
+                    class="font-weight-bold border-right border-dark"
+                  >
+                    Caption:
+                  </b-col>
+                  <b-col md="10" class="font-italic">{{
+                    sample.caption
+                  }}</b-col>
+                </b-row>
+                <b-row class="m-0 p-0 no-gutters">
+                  <b-col
+                    md="2"
+                    class="font-weight-bold border-right border-dark"
+                  >
+                    Focus Word:
+                  </b-col>
+                  <b-col md="10" class="font-italic">{{ sample.focus }}</b-col>
+                </b-row>
+              </b-container>
+            </template>
+          </b-modal>
         </b-row>
       </b-container>
 
