@@ -57,11 +57,9 @@
             <br />
             <br />
             <strong>
-              Note that the images or focus-words
-              <u style="text-decoration-style: solid">
-                do not have to match exactly
-              </u>
-              with the image or highlighted image region.
+              Although a perfect match between the sentences or the focus-words
+              with the highlighted-image region or the entire image are desired,
+              it does not always need to be an exact match.
             </strong>
             <br />
             <br />

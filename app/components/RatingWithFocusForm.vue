@@ -109,7 +109,7 @@
                 rounded
                 :src="imageUrls[current_img_idx]"
                 class="border border-dark shadow shadow-lg"
-                style="max-height: 450px"
+                style="max-height: 400px"
               />
               <b-tooltip
                 :target="`tn-img-${current_img_idx}`"
