@@ -29,6 +29,32 @@ export default ({ app, axios }, inject) => {
       })
   }
 
+  async function submitResultMTurkMode(type, result) {
+    const jsonHeaderConfig = {
+      headers: {
+        Accept: 'application/json',
+      },
+    }
+    return await app.$axios
+      .put(
+        `${app.$config.ctxPath}api/${type}_result/mturk/submit`,
+        result,
+        jsonHeaderConfig
+      )
+      .then((resp) => {
+        if (resp.status === 200) {
+          return resp.data
+        } else {
+          logger('e', resp)
+          return null
+        }
+      })
+      .catch((error) => {
+        logger('e', error)
+        return null
+      })
+  }
+
   // define the methods
   const resultApiClient = {
     submitRankingResult: async (
@@ -56,7 +82,9 @@ export default ({ app, axios }, inject) => {
         mt_params: mtParams,
         user_id: userId,
       }
-      return await submitResult('ranking', result, jwt)
+
+      if (mtParams === null) return await submitResult('ranking', result, jwt)
+      else return await submitResultMTurkMode('ranking', result)
     },
     submitLikertResult: async (
       lsId,
@@ -81,7 +109,9 @@ export default ({ app, axios }, inject) => {
         mt_params: mtParams,
         user_id: userId,
       }
-      return await submitResult('likert', result, jwt)
+
+      if (mtParams === null) return await submitResult('likert', result, jwt)
+      else return await submitResultMTurkMode('likert', result)
     },
     submitRatingResult: async (
       rsId,
@@ -106,7 +136,9 @@ export default ({ app, axios }, inject) => {
         mt_params: mtParams,
         user_id: userId,
       }
-      return await submitResult('rating', result, jwt)
+
+      if (mtParams === null) return await submitResult('rating', result, jwt)
+      else return await submitResultMTurkMode('rating', result)
     },
     submitRatingWithFocusResult: async (
       rsId,
@@ -133,7 +165,10 @@ export default ({ app, axios }, inject) => {
         mt_params: mtParams,
         user_id: userId,
       }
-      return await submitResult('rating_with_focus', result, jwt)
+
+      if (mtParams === null)
+        return await submitResult('rating_with_focus', result, jwt)
+      else return await submitResultMTurkMode('rating_with_focus', result)
     },
   }
 

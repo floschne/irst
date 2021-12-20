@@ -1,12 +1,12 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from loguru import logger
 from starlette.responses import JSONResponse
 
-from backend.study import LikertStudyCoordinator
 from backend.auth import JWTBearer
 from backend.db import RedisHandler
+from backend.study import LikertStudyCoordinator
 from models.likert_result import LikertResult
 
 PREFIX = "/likert_result"
@@ -42,6 +42,17 @@ async def load(lr_id: str):
             description="Submit a LikertResult",
             dependencies=[Depends(JWTBearer(admin_only=False))])
 async def submit(result: LikertResult):
-    logger.info(f"GET request on {PREFIX}/submit")
+    logger.info(f"PUT request on {PREFIX}/submit")
+    sc = LikertStudyCoordinator()
+    return JSONResponse(content=sc.submit(result))
+
+
+@logger.catch(reraise=True)
+@router.put("/mturk/submit", tags=TAG,
+            description="Submit a LikertResult in MTurk Mode")
+async def submit_mturk(result: LikertResult):
+    logger.info(f"PUT request on {PREFIX}/mturk/submit")
+    if result.mt_params is None:
+        raise HTTPException(status_code=403, detail="MTurk Parameters missing!")
     sc = LikertStudyCoordinator()
     return JSONResponse(content=sc.submit(result))

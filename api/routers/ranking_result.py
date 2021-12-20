@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from loguru import logger
 from starlette.responses import JSONResponse
 
@@ -42,6 +42,17 @@ async def load(rr_id: str):
             description="Submit a RankingResult",
             dependencies=[Depends(JWTBearer(admin_only=False))])
 async def submit(result: RankingResult):
-    logger.info(f"GET request on {PREFIX}/submit")
+    logger.info(f"PUT request on {PREFIX}/submit")
+    sc = RankingStudyCoordinator()
+    return JSONResponse(content=sc.submit(result))
+
+
+@logger.catch(reraise=True)
+@router.put("/mturk/submit", tags=TAG,
+            description="Submit a RankingResult in MTurk Mode")
+async def submit_mturk(result: RankingResult):
+    logger.info(f"PUT request on {PREFIX}/mturk/submit")
+    if result.mt_params is None:
+        raise HTTPException(status_code=403, detail="MTurk Parameters missing!")
     sc = RankingStudyCoordinator()
     return JSONResponse(content=sc.submit(result))
