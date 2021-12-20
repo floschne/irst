@@ -173,7 +173,7 @@
         <b-row>
           <b-col
             md="2"
-            class="d-flex flex-column align-items-center border-right border-dark"
+            class="d-flex flex-column align-items-center justify-content-center border-right border-dark"
           >
             <p>How well does the caption match the image?</p>
           </b-col>
@@ -218,7 +218,7 @@
         <b-row class="border-top border-dark">
           <b-col
             md="2"
-            class="d-flex flex-column align-items-center border-right border-dark"
+            class="d-flex flex-column align-items-center justify-content-center border-right border-dark"
           >
             <p>
               How well does the focus word match the highlighted region in the
