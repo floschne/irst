@@ -3,7 +3,7 @@ MAINTAINER Florian Schneider "florian.schneider.1992@gmx.de"
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
+COPY package*.json ./
 RUN npm install
 
 # TODO unfortunately it's not possible to set the context path dynamically before run time
