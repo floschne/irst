@@ -398,7 +398,7 @@ export default {
       return (
         this.contextRatings.includes(this.initRatingValue) ||
         this.focusRatings.includes(this.initRatingValue) ||
-        this.currentUser === null
+        (this.currentUser === null && this.workerId === '')
       )
     },
     hitPreview() {

@@ -16,8 +16,7 @@ rh = RedisHandler()
 
 @logger.catch(reraise=True)
 @router.put("/submit", tags=TAG,
-            description="Stores a User Feedback for a given RankingSampleID",
-            dependencies=[Depends(JWTBearer(admin_only=False))])
+            description="Stores a Feedback for a given Sample,")
 async def submit_feedback(feedback: Feedback):
     logger.info(f"PUT request on {PREFIX}/submit")
     return rh.store_feedback(feedback=feedback)
@@ -35,7 +34,7 @@ async def load_feedback(fb_id: str):
 
 @logger.catch(reraise=True)
 @router.get("/list/rs/{rs_id}", tags=TAG,
-            description="Lists all Feedbacks of the RankingSample with the given ID",
+            description="Lists all Feedbacks of the Sample with the given ID",
             dependencies=[Depends(JWTBearer())],
             response_model=List[Feedback])
 async def list_feedbacks_for_ranking_sample(rs_id: str):

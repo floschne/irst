@@ -276,7 +276,7 @@ export default {
       return (
         this.chosenAnswer === '' ||
         this.chosenAnswer === null ||
-        this.currentUser === null
+        (this.currentUser === null && this.workerId === '')
       )
     },
     hitPreview() {

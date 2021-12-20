@@ -394,7 +394,8 @@ export default {
   computed: {
     submitDisabled() {
       return (
-        this.rankedImages.length < this.minNumRanks || this.currentUser === null
+        this.rankedImages.length < this.minNumRanks ||
+        (this.currentUser === null && this.workerId === '')
       )
     },
     showDragabbleHint() {

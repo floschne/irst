@@ -272,7 +272,10 @@ export default {
   },
   computed: {
     submitDisabled() {
-      return this.ratings.includes(-1312) || this.currentUser === null
+      return (
+        this.ratings.includes(-1312) ||
+        (this.currentUser === null && this.workerId === '')
+      )
     },
     hitPreview() {
       return this.assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE'
