@@ -2,11 +2,10 @@ import { logger } from './logger'
 
 export default ({ app, axios }, inject) => {
   const feedbackApiClient = {
-    submitFeedback: async (sampleId, msg, workerId = '', hitId = '', jwt) => {
-      const authJsonHeaderConfig = {
+    submitFeedback: async (sampleId, msg, workerId = '', hitId = '') => {
+      const jsonHeaderConfig = {
         headers: {
           Accept: 'application/json',
-          Authorization: 'Bearer ' + jwt,
         },
       }
 
@@ -20,7 +19,7 @@ export default ({ app, axios }, inject) => {
         .put(
           `${app.$config.ctxPath}api/feedback/submit`,
           feedback,
-          authJsonHeaderConfig
+          jsonHeaderConfig
         )
         .then((resp) => {
           if (resp.status === 200) {

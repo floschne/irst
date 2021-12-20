@@ -125,8 +125,7 @@ export default {
         this.sampleId,
         this.message,
         this.submitWorkerId,
-        this.hitId,
-        this.currentUserJwt
+        this.hitId
       )
       if (resp !== null) {
         this.feedbackId = resp
