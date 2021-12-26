@@ -172,7 +172,7 @@
         <!-- CONTEXT -->
         <b-row>
           <b-col
-            md="2"
+            md="3"
             class="d-flex flex-column align-items-center justify-content-center border-right border-dark"
           >
             <p>How well does the caption match the image?</p>
@@ -183,7 +183,7 @@
           >
             <star-rating
               v-model="contextRatings[current_img_idx]"
-              class="d-flex"
+              class="d-flex pt-1"
               :increment="sample.rating_step"
               :show-rating="false"
               :border-width="1"
@@ -204,11 +204,8 @@
               ></b-form-checkbox>
             </div>
           </b-col>
-          <b-col md="8">
-            <h5
-              class="p-1 font-italic"
-              style="max-height: 200px; overflow-y: auto"
-            >
+          <b-col md="7" class="overflow-auto" style="max-height: 100px">
+            <h5 class="p-1 font-italic">
               {{ sample.caption }}
             </h5>
           </b-col>
@@ -217,7 +214,7 @@
         <!-- FOCUS -->
         <b-row class="border-top border-dark">
           <b-col
-            md="2"
+            md="3"
             class="d-flex flex-column align-items-center justify-content-center border-right border-dark"
           >
             <p>
@@ -231,7 +228,7 @@
           >
             <star-rating
               v-model="focusRatings[current_img_idx]"
-              class="d-flex"
+              class="d-flex pt-1"
               :increment="sample.rating_step"
               :show-rating="false"
               :border-width="1"
@@ -252,7 +249,7 @@
               ></b-form-checkbox>
             </div>
           </b-col>
-          <b-col md="8"
+          <b-col md="7"
             ><h5
               class="p-1 font-italic"
               style="max-height: 200px; overflow-y: auto"
