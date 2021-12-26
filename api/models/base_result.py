@@ -33,11 +33,11 @@ class BaseResult(BaseModel):
     def sample_must_exist(cls, sample_id: str):
         if models.__validation_disabled__:
             return sample_id.strip()
-
-        from backend.db import RedisHandler
-        if not RedisHandler().sample_exists(sample_id=sample_id.strip()):
-            raise ValueError(f"Sample '{sample_id}' does not exist!")
-        return sample_id.strip()
+        else:
+            from backend.db import RedisHandler
+            if not RedisHandler().sample_exists(sample_id=sample_id.strip()):
+                raise ValueError(f"Sample '{sample_id}' does not exist!")
+            return sample_id.strip()
 
     @staticmethod
     @abstractmethod

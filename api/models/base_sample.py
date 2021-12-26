@@ -15,13 +15,13 @@ class BaseSample(BaseModel):
 
     @validator('mr_id')
     def mr_must_exist(cls, mr_id: str):
-        from backend.db import RedisHandler
         if models.__validation_disabled__:
             return mr_id.strip()
-
-        if not RedisHandler().model_ranking_exists(mr_id=mr_id.strip()):
-            raise ValueError(f"ModelRanking {mr_id} does not exist!")
-        return mr_id.strip()
+        else:
+            from backend.db import RedisHandler
+            if not RedisHandler().model_ranking_exists(mr_id=mr_id.strip()):
+                raise ValueError(f"ModelRanking {mr_id} does not exist!")
+            return mr_id.strip()
 
     def add_mt_params(self, mt: MTurkParams):
         self.mt_params = mt
