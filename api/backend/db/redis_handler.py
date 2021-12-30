@@ -132,7 +132,7 @@ class RedisHandler(object):
         return sample.id
 
     @logger.catch(reraise=True)
-    def load_ranking_sample(self, rs_id: str, verbose: bool = True) -> Optional[RankingSample]:
+    def load_ranking_sample(self, rs_id: str, verbose: bool = False) -> Optional[RankingSample]:
         s = self.__clients['ranking_sample'].get(rs_id)
         if s is None:
             logger.error(f"Cannot load RankingSample {rs_id}")
@@ -199,7 +199,7 @@ class RedisHandler(object):
         return sample.id
 
     @logger.catch(reraise=True)
-    def load_likert_sample(self, ls_id: str, verbose: bool = True) -> Optional[LikertSample]:
+    def load_likert_sample(self, ls_id: str, verbose: bool = False) -> Optional[LikertSample]:
         s = self.__clients['likert_sample'].get(ls_id)
         if s is None:
             logger.error(f"Cannot load LikertSample {ls_id}")
@@ -266,7 +266,7 @@ class RedisHandler(object):
         return sample.id
 
     @logger.catch(reraise=True)
-    def load_rating_sample(self, rs_id: str, verbose: bool = True) -> Optional[RatingSample]:
+    def load_rating_sample(self, rs_id: str, verbose: bool = False) -> Optional[RatingSample]:
         s = self.__clients['rating_sample'].get(rs_id)
         if s is None:
             logger.error(f"Cannot load RatingSample {rs_id}")
@@ -333,7 +333,7 @@ class RedisHandler(object):
         return sample.id
 
     @logger.catch(reraise=True)
-    def load_rating_with_focus_sample(self, rs_id: str, verbose: bool = True) -> Optional[RatingWithFocusSample]:
+    def load_rating_with_focus_sample(self, rs_id: str, verbose: bool = False) -> Optional[RatingWithFocusSample]:
         s = self.__clients['rating_with_focus_sample'].get(rs_id)
         if s is None:
             logger.error(f"Cannot load RatingWithFocusSample {rs_id}")
@@ -375,12 +375,12 @@ class RedisHandler(object):
     def load_rating_with_focus_result(self, rr_id: str, verbose: bool = False) -> Optional[RatingWithFocusResult]:
         s = self.__clients['rating_with_focus_result'].get(rr_id)
         if s is None:
-            logger.error(f"Cannot load RatingResult {rr_id}")
+            logger.error(f"Cannot load RatingWithFocusResult {rr_id}")
             return None
         else:
             result = RatingWithFocusResult.parse_raw(s)
             if verbose:
-                logger.debug(f"Successfully loaded RatingResult {result.id}")
+                logger.debug(f"Successfully loaded RatingWithFocusResult {result.id}")
             return result
 
     @logger.catch(reraise=True)
